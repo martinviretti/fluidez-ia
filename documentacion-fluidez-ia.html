@@ -401,6 +401,7 @@
     <li><a href="#framework">Marco conceptual: las cuatro competencias</a></li>
     <li><a href="#pipeline">Capa opcional de análisis con IA</a></li>
     <li><a href="#privacidad">Garantías de privacidad y reproducibilidad</a></li>
+    <li><a href="#validacion">Fundamento y validación de los parámetros</a></li>
     <li><a href="#limitaciones">Limitaciones y alcance</a></li>
     <li><a href="#referencia">Apéndice: referencia de parámetros</a></li>
   </ol>
@@ -867,8 +868,75 @@ c = mín(1, n_oportunidades / objetivo_de_confianza)
   </section>
 
   <!-- 15 -->
+  <section class="doc" id="validacion">
+    <h2><span class="num">15</span><a class="anchor-h" href="#validacion">Fundamento y validación de los parámetros</a></h2>
+    <p class="kicker">Contra qué se valida el sistema: distinción entre qué se mide y cómo se calibra la vara.</p>
+
+    <p>La pregunta de contra qué referencia se establece que una determinada proporción constituye una práctica "buena" admite dos respuestas, correspondientes a dos niveles de fundamentación claramente diferenciados. La distinción es esencial para una interpretación correcta del puntaje, y se documenta aquí de forma explícita.</p>
+
+    <h3>15.1. Qué se mide: fundamentación conceptual</h3>
+
+    <p>La selección de las señales a medir no es arbitraria. Cada detector codifica una práctica reconocida en la ingeniería de prompts y en el desarrollo de software, y el conjunto se organiza bajo un marco conceptual publicado. Este nivel del sistema cuenta con respaldo externo verificable.</p>
+
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Señal medida</th><th>Práctica que codifica</th><th>Fundamento</th></tr></thead>
+        <tbody>
+          <tr><td>Referencia a archivo o función (artefacto).</td><td>Especificidad y aporte de contexto concreto.</td><td>Guías de ingeniería de prompts de Anthropic.</td></tr>
+          <tr><td>Restricción explícita.</td><td>Definición de límites y forma de la salida.</td><td>Guías de ingeniería de prompts de Anthropic.</td></tr>
+          <tr><td>Declaración de intención.</td><td>Comunicación del objetivo, no solo de la tarea.</td><td>Guías de ingeniería de prompts de Anthropic.</td></tr>
+          <tr><td>Verificación posterior a la edición.</td><td>No entregar código sin ejecutarlo.</td><td>Práctica estándar de ingeniería de software.</td></tr>
+          <tr><td>Lectura previa a la edición.</td><td>Cambios anclados en el código real, no en suposiciones.</td><td>Práctica estándar de ingeniería de software.</td></tr>
+          <tr><td>Corrección precisa (síntoma y regla).</td><td>Iteración eficaz y de bajo desperdicio.</td><td>Buena práctica de retroalimentación.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>El marco que articula estas señales —las cuatro competencias de Delegación, Descripción, Discernimiento y Diligencia— procede de <em>AI Fluency: Frameworks &amp; Foundations</em>, de Rick Dakan y Joseph Feller, publicado por Anthropic. Constituye la fuente conceptual declarada por el proyecto. En este nivel, el sistema se apoya en referencias externas legítimas.</p>
+
+    <h3>15.2. Dónde se fija la vara: calibración del autor</h3>
+
+    <p>El segundo nivel es de naturaleza distinta. El paso desde una práctica reconocida ("verificar es deseable") hasta un umbral numérico concreto ("verificar el 60 % de las ráfagas de edición equivale a 100 puntos") <strong>constituye una decisión de diseño, no un hallazgo empírico</strong>. Los umbrales de saturación no se derivan de un estudio sobre una población de usuarios, ni de un benchmark público, ni de una norma técnica externa. Son constantes fijadas por el autor de la herramienta, embebidas en el código:</p>
+
+    <div class="formula">
+<span class="c"># insight.py — umbrales fijos en las fórmulas de cada dimensión</span>
+0.30 · squash(constraint_rate, <span class="v">0.45</span>)          <span class="c"># Instrucción: restricción</span>
+0.25 · squash(intent_rate,     <span class="v">0.30</span>)          <span class="c"># Instrucción: intención</span>
+score = 100 · squash(rate,     <span class="v">0.85</span>)          <span class="c"># Contexto</span>
+score = min(100, 100 · squash(rate, <span class="v">0.60</span>) + bonus) <span class="c"># Verificación</span>
+    </div>
+
+    <p>La <em>jerarquía relativa</em> entre estos umbrales responde a una lógica defendible: el umbral de Contexto (0.85) es el más exigente porque la lectura previa a la edición tiene un costo bajo y debería verificarse en la práctica totalidad de los casos; el de Verificación (0.60) es más laxo porque exigir la validación del 100 % de las micro-modificaciones resultaría excesivo. No obstante, el <em>valor absoluto</em> de cada umbral es una postura calibrada, no una magnitud medida. El propio bloque de constantes del código se identifica explícitamente como ajustable (<code>Constants &amp; tunables</code>).</p>
+
+    <div class="callout warn">
+      <div class="label">Nota de transparencia</div>
+      <p>La documentación interna del módulo menciona que ciertos valores de referencia se recalculan a partir del corpus en tiempo de ejecución. En la versión actual, esto aplica a los conteos de oportunidades (que alimentan el ajuste por confianza) y a la normalización del vector de arquetipo, pero <strong>no a los umbrales de saturación de las cinco dimensiones, que son constantes fijas</strong>. Lo que se deriva del corpus del usuario son sus tasas y sus conteos; la vara contra la cual se comparan está predefinida.</p>
+    </div>
+
+    <h3>15.3. Implicación para la interpretación del puntaje</h3>
+
+    <p>De esta distinción se desprenden consecuencias directas sobre el uso legítimo del puntaje:</p>
+
+    <dl class="terms">
+      <dt>Es consistente y reproducible</dt>
+      <dd>Un mismo conjunto de transcripciones produce siempre el mismo puntaje. Esta propiedad es real y constituye la base de su utilidad.</dd>
+
+      <dt>Es una vara auto-referencial, no una certificación</dt>
+      <dd>La obtención de 100 puntos significa "se alcanzó la proporción que el autor consideró saludable", no "se acredita un nivel experto conforme a un estándar validado externamente".</dd>
+
+      <dt>Su uso adecuado es longitudinal y direccional</dt>
+      <dd>El sistema resulta apropiado para comparar la práctica del propio usuario a lo largo del tiempo y para señalar las áreas de mayor margen de mejora. No resulta apropiado como calificación comparativa entre personas ni como acreditación formal.</dd>
+    </dl>
+
+    <div class="callout">
+      <div class="label">Síntesis</div>
+      <p>Lo que se valida contra estándares reales es <strong>qué</strong> mide el sistema: las cuatro competencias y las buenas prácticas de ingeniería de prompts. Los <strong>números</strong> son el criterio calibrado de una persona —transparente y editable—, no una verdad medida. El instrumento está bien construido y es consistente, pero la posición del "0" y del "100" la fijó el autor, no un patrón internacional.</p>
+    </div>
+  </section>
+
+  <!-- 16 -->
   <section class="doc" id="limitaciones">
-    <h2><span class="num">15</span><a class="anchor-h" href="#limitaciones">Limitaciones y alcance</a></h2>
+    <h2><span class="num">16</span><a class="anchor-h" href="#limitaciones">Limitaciones y alcance</a></h2>
     <p class="kicker">Declaración explícita de las limitaciones metodológicas del sistema.</p>
 
     <p>La presente sección documenta las limitaciones conocidas del sistema, en consonancia con su principio de transparencia metodológica.</p>
@@ -884,9 +952,9 @@ c = mín(1, n_oportunidades / objetivo_de_confianza)
     <p>El reconocimiento explícito de estas limitaciones permite la correcta interpretación del puntaje: <strong>el reporte constituye una herramienta de reflexión sobre la propia práctica, no un veredicto definitivo.</strong></p>
   </section>
 
-  <!-- 16 -->
+  <!-- 17 -->
   <section class="doc" id="referencia">
-    <h2><span class="num">16</span><a class="anchor-h" href="#referencia">Apéndice: referencia de parámetros</a></h2>
+    <h2><span class="num">17</span><a class="anchor-h" href="#referencia">Apéndice: referencia de parámetros</a></h2>
     <p class="kicker">Inventario consolidado de las constantes del motor.</p>
 
     <p>La siguiente tabla presenta el inventario completo de las constantes que rigen el comportamiento del motor de análisis. La totalidad de los parámetros se encuentra definida en la cabecera del módulo <code>insight.py</code> y resulta susceptible de ajuste sin alteración de la lógica de medición.</p>
