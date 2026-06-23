@@ -180,10 +180,10 @@ em{color:var(--ink);font-style:normal;font-weight:600;border-bottom:2px solid va
 .nav-dots{position:fixed;right:clamp(.7rem,2vw,1.5rem);top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:.6rem;z-index:9998}
 .nav-dots button{width:9px;height:9px;border-radius:50%;border:1px solid var(--line-2);background:transparent;cursor:pointer;padding:0;transition:all .3s var(--ease)}
 .nav-dots button.active{background:var(--accent);border-color:var(--accent);box-shadow:0 0 10px var(--glow);transform:scale(1.3)}
-.hint-bar{position:fixed;bottom:clamp(.6rem,2vw,1.3rem);left:50%;transform:translateX(-50%);font-family:var(--font-mono);font-size:var(--small-size);color:var(--faint);z-index:9998;display:flex;align-items:center;gap:1.2em}
+.hint-bar{position:fixed;bottom:clamp(.7rem,2.2vw,1.4rem);left:clamp(.9rem,2.4vw,1.6rem);font-family:var(--font-mono);font-size:var(--tiny-size);color:var(--faint);z-index:9998;display:flex;align-items:center;gap:1.2em;max-width:min(46vw,360px)}
 .hint-bar kbd{border:1px solid var(--line-2);border-radius:5px;padding:.1em .5em;color:var(--mut)}
 .hint-bar .live{color:var(--accent-2)}
-.pagenum{position:fixed;bottom:clamp(.6rem,2vw,1.3rem);right:clamp(.8rem,2vw,1.5rem);font-family:var(--font-mono);font-size:var(--small-size);color:var(--faint);z-index:9998}
+.pagenum{position:fixed;top:clamp(.7rem,2vw,1.3rem);right:clamp(.9rem,2vw,1.6rem);bottom:auto;font-family:var(--font-mono);font-size:var(--small-size);color:var(--faint);z-index:9998}
 /* desfase de la flotación */
 .keys-row>*:nth-child(2),.dimgrid>*:nth-child(2),.rules>*:nth-child(2){animation-delay:-1.2s}
 .keys-row>*:nth-child(3),.dimgrid>*:nth-child(3),.rules>*:nth-child(3){animation-delay:-2.4s}
@@ -191,7 +191,7 @@ em{color:var(--ink);font-style:normal;font-weight:600;border-bottom:2px solid va
 .dimgrid>*:nth-child(5){animation-delay:-4.8s}
 /* flechas de navegación (un solo click) */
 /* navegación: dos botones centrados, micro-interacción de relleno radial + nudge */
-.nav-ctrl{position:fixed;bottom:clamp(.7rem,2.4vw,1.6rem);left:50%;transform:translateX(-50%);display:flex;gap:.65rem;z-index:9998}
+.nav-ctrl{position:fixed;bottom:clamp(.8rem,2.4vw,1.7rem);right:clamp(.9rem,2.4vw,1.7rem);display:flex;gap:.6rem;z-index:9998}
 .nav-arrow{position:relative;width:clamp(44px,5vw,56px);height:clamp(44px,5vw,56px);border-radius:50%;border:1px solid var(--line-2);background:rgba(20,27,39,.55);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);cursor:pointer;display:grid;place-items:center;overflow:hidden;transition:transform .3s var(--ease),border-color .3s,box-shadow .3s}
 .nav-arrow::before{content:"";position:absolute;inset:0;border-radius:50%;background:radial-gradient(circle at center,var(--accent),var(--accent-2));transform:scale(0);transition:transform .4s var(--ease)}
 .nav-arrow svg{position:relative;z-index:1;width:40%;height:40%;fill:none;stroke:var(--ink);stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round;transition:transform .3s var(--ease),stroke .3s}
@@ -217,13 +217,14 @@ em{color:var(--ink);font-style:normal;font-weight:600;border-bottom:2px solid va
 .flow-cap{text-align:center;color:var(--faint);font-size:var(--small-size);font-family:var(--font-mono);margin-top:.2em}
 /* lista editorial numerada (formato tipográfico, sin cajas) */
 .steplist{display:flex;flex-direction:column;width:100%;margin-top:var(--content-gap)}
-.step{display:grid;grid-template-columns:auto 1fr auto;gap:clamp(1rem,3.5vw,3rem);align-items:center;padding:clamp(.65rem,1.9vw,1.35rem) clamp(.2rem,1vw,.6rem);border-bottom:1px solid var(--line);cursor:pointer;transition:padding-left .35s var(--ease),border-color .35s var(--ease),background .35s}
+.step{display:grid;grid-template-columns:auto 1fr auto;gap:clamp(1rem,3.5vw,3rem);align-items:center;padding:clamp(.45rem,1.4vw,1rem) clamp(.2rem,1vw,.6rem);border-bottom:1px solid var(--line);cursor:pointer;transition:padding-left .35s var(--ease),border-color .35s var(--ease),background .35s}
 .step:first-child{border-top:1px solid var(--line)}
 .step:hover{padding-left:clamp(.8rem,2vw,1.5rem);border-color:var(--accent);background:linear-gradient(90deg,rgba(255,194,75,.06),transparent)}
 .step .n{font-family:var(--font-mono);font-weight:700;font-size:clamp(2.1rem,6vw,4rem);line-height:.9;color:rgba(139,151,168,.28);transition:color .35s var(--ease),transform .35s var(--ease)}
 .step:hover .n{color:var(--accent);transform:scale(1.06)}
+.step .b{display:flex;flex-direction:column;gap:.15em;min-width:0}
 .step .b .t{font-family:var(--font-display);font-weight:600;font-size:clamp(1.15rem,2.6vw,1.9rem);line-height:1.05}
-.step .b .d{color:var(--mut);font-size:var(--small-size);margin-top:.2em;line-height:1.4}
+.step .b .d{color:var(--mut);font-size:var(--small-size);line-height:1.4}
 .step .go{font-family:var(--font-mono);font-size:var(--tiny-size);color:var(--faint);white-space:nowrap;opacity:0;transform:translateX(-6px);transition:opacity .3s,transform .3s,color .3s}
 .step:hover .go{opacity:1;transform:translateX(0);color:var(--accent)}
 @media (max-width:600px){.step .go{display:none}.step{gap:1rem}}
@@ -278,13 +279,12 @@ em{color:var(--ink);font-style:normal;font-weight:600;border-bottom:2px solid va
   <button class="nav-arrow" id="prevBtn" aria-label="Anterior"><svg viewBox="0 0 24 24"><polyline points="15 4 7 12 15 20"/></svg></button>
   <button class="nav-arrow" id="nextBtn" aria-label="Siguiente"><svg viewBox="0 0 24 24"><polyline points="9 4 17 12 9 20"/></svg></button>
 </div>
-<div class="hint-bar decorative"><span class="live">› click en las tarjetas para el detalle técnico · usá las flechas para avanzar</span></div>
 <div class="pagenum mono" id="pagenum">01</div>
 
 <!-- ===== PORTADA ===== -->
 <section class="slide">
   <div class="slide-content">
-    <span class="title-badge reveal"><span class="dot"></span> presentación interactiva · doble-click para profundizar</span>
+    <span class="title-badge reveal"><span class="dot"></span> presentación interactiva · tocá las tarjetas para profundizar</span>
     <h1 class="reveal">Fluidez con <span class="accent">IA</span></h1>
     <p class="lead reveal">Lo cuento en cinco preguntas: qué es, qué hace, cómo lo hace, la parte técnica y qué te llevás. <em>Tocá cualquier tarjeta</em> y se abre el detalle: qué mide, cómo puntúa y de dónde saca la info.</p>
     <div class="agenda reveal"><span>01 · ¿Qué es?</span><span>02 · ¿Qué hace?</span><span>03 · ¿Cómo?</span><span>04 · ¿De qué manera?</span><span>05 · Resultados</span></div>
@@ -307,7 +307,7 @@ em{color:var(--ink);font-style:normal;font-weight:600;border-bottom:2px solid va
     <div class="keys-row reveal stagger">
       <div class="kpoint"><span class="tag">qué es</span><span class="h">Un espejo de hábitos</span><span class="p">Refleja tu forma de colaborar, no tu productividad.</span></div>
       <div class="kpoint"><span class="tag">qué NO es</span><span class="h">No es un ranking de uso</span><span class="p">Usar más la IA no sube el número.</span></div>
-      <div class="kpoint"><span class="tag">para quién</span><span class="h">Quien use Claude Code</span><span class="p">Devuelve un diagnóstico personal y accionable.</span></div>
+      <div class="kpoint"><span class="tag">para quién</span><span class="h">Quien use Claude Code</span><span class="p">Te da un diagnóstico tuyo, con acciones concretas.</span></div>
     </div>
   </div>
 </section>
@@ -458,7 +458,7 @@ const M = {
     mide:"Si las ediciones caen sobre código que el agente <em>leyó primero</em>, en vez de editar a ciegas.",
     signif:"El patrón leer→editar hace que los cambios encajen con lo que realmente hay, y apliquen limpio a la primera.",
     ve:"Por sesión, rastrea qué archivos se leyeron. Cada edición es \"grounded\" si ese archivo se leyó antes en la sesión, se creó ahí, o es un archivo nuevo que se está escribiendo.",
-    formula:"score = 100 · sat( ediciones_grounded / total_ediciones , .85 )",
+    formula:"score = 100 · sat(ediciones_grounded / total_ediciones, .85)",
     ref:["lee: Read · Grep · Glob","edita: Edit · Write · MultiEdit · NotebookEdit","compara los paths leídos vs editados por sesión"],
     ej:{a:"agregá retry al cliente de API",d:"Leé src/api/client.ts primero, después agregá retry-con-backoff al método request(). Mostrame el cambio antes de aplicarlo."},
     refnote:"Mira <b>tool calls</b> y los paths de archivo — no texto. Agnóstico al idioma."},
@@ -498,7 +498,7 @@ const M = {
     ref:["objetivo_n: Instr. 60 · Verif. 15 · Ctx. 25 · Iter. 12 · Herr. 40"],refnote:"Por eso los primeros runs salen conservadores: no es que mejores, es el hedge soltando."},
   paso1:{t:"Paso 1 · Lee",meta:["entrada"],lang:"",mide:"Junta todos tus transcripts locales de Claude Code.",signif:"Son las conversaciones que Claude Code guarda en disco mientras trabajás.",ve:"Recorre de forma recursiva los .jsonl de tus proyectos (y un archivo persistente opcional para ver más allá de los 30 días).",formula:"~/.claude/projects/**/*.jsonl",ref:["de-duplica sesiones por su ID único de archivo"],refnote:"Los transcripts originales nunca se modifican."},
   paso2:{t:"Paso 2 · Limpia",meta:["de-contaminación"],lang:"",mide:"Separa tus prompts reales del ruido.",signif:"De los registros con rol \"user\", la mayoría no son cosas que vos tipeaste.",ve:"Descarta resultados de tools, turnos de subagentes, texto inyectado por el sistema, stubs de slash-commands y pastes masivos.",formula:"se excluye: prompt > 6000 chars · cabeceras 'You are…/Sos un…' · <system-reminder>",ref:["también: gaps > 300s no cuentan como tiempo activo"],refnote:"Sin esta limpieza, el promedio de \"tu prompt\" quedaría inflado por pegotes y salidas de máquina."},
-  paso3:{t:"Paso 3 · Mide",meta:["núcleo determinístico"],lang:"",mide:"Calcula las 5 dimensiones y el puntaje.",signif:"Es donde vive toda la matemática — sin azar, reproducible.",ve:"Aplica tasas + saturación + hedging sobre el timeline de cada sesión, y pondera las 5 dimensiones.",formula:"overall = Σ peso · score_dimensión",ref:["Instrucción .24 · Verif .22 · Ctx .22 · Iter .18 · Herr .14"],refnote:"Doble-click en las dimensiones (slide 04) para el detalle de cada una."},
+  paso3:{t:"Paso 3 · Mide",meta:["núcleo determinístico"],lang:"",mide:"Calcula las 5 dimensiones y el puntaje.",signif:"Es donde vive toda la matemática — sin azar, reproducible.",ve:"Aplica tasas + saturación + hedging sobre el timeline de cada sesión, y pondera las 5 dimensiones.",formula:"overall = Σ peso · score_dimensión",ref:["Instrucción .24 · Verif .22 · Ctx .22 · Iter .18 · Herr .14"],refnote:"Tocá las dimensiones (slide 04) para ver el detalle de cada una."},
   paso4:{t:"Paso 4 · Reporta",meta:["salida"],lang:"",mide:"Genera un reporte HTML autocontenido.",signif:"Un único archivo navegable con puntaje, arquetipo, mapa y mejoras.",ve:"Sobre los números determinísticos suma (si está disponible) el análisis de Sonnet + Opus.",formula:"~/.claude/fluidez-ia/reporte_fluidez_ia.html",ref:["también escribe evidence.json con un fingerprint de la corrida"],refnote:"El fingerprint impide que un análisis viejo o ajeno se mezcle en tu reporte."},
   etapa1:{t:"Etapa 1 · Medir",meta:["Python · determinístico"],lang:"",mide:"Computa todas las métricas.",signif:"Mismo input → mismo número. Los modelos nunca alteran esto.",ve:"Parsea, de-contamina y calcula las tasas saturadas y hedgeadas de cada dimensión.",formula:"insight.py → evidence.json + reporte de fallback",ref:["reproducible y auditable"],refnote:"El reporte determinístico es completo por sí solo, aunque no corran las etapas 2-3."},
   etapa2:{t:"Etapa 2 · Explorar",meta:["Sonnet · paralelo"],lang:"",mide:"Lee la evidencia desde cuatro ángulos.",signif:"Un explorador por cada competencia del framework (Delegación, Descripción, Discernimiento, Diligencia).",ve:"Cada uno lee SOLO la evidencia de-contaminada y estima un nivel con citas reales de tus prompts.",formula:"4 exploradores en paralelo",ref:["requiere la capability Workflow de Claude Code"],refnote:"Si no está disponible, se omite y queda el reporte determinístico."},
@@ -506,7 +506,7 @@ const M = {
 };
 
 /* ===========================================
-   2) MODAL: abrir con doble-click, cerrar con X/Esc/click afuera
+   2) MODAL: abrir con click, cerrar con X/Esc/click afuera
    =========================================== */
 const overlay=document.getElementById("overlay"), modalEl=document.getElementById("modal");
 function openModal(key){
