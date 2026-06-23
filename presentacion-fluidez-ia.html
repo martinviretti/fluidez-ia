@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Fluidez con IA — interactiva</title>
+
+<link rel="preconnect" href="https://api.fontshare.com" />
+<link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=clash-display@600,500,700&f[]=general-sans@400,500,600&display=swap" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" />
+
+<style>
+/* ===== TEMA ===== */
+:root{
+  --bg:#0a0d13;--bg-2:#121823;--bg-3:#1a2230;
+  --ink:#eef2f7;--mut:#8b97a8;--faint:#5a6678;
+  --accent:#ffc24b;--accent-2:#4fd1c5;--accent-3:#e86a92;
+  --glow:rgba(255,194,75,.22);--line:rgba(255,255,255,.08);--line-2:rgba(255,255,255,.14);
+  --font-display:"Clash Display",sans-serif;--font-body:"General Sans",sans-serif;--font-mono:"JetBrains Mono",monospace;
+  --title-size:clamp(2rem,5.5vw,4.4rem);--h2-size:clamp(1.5rem,3.8vw,3rem);--h3-size:clamp(1rem,2vw,1.5rem);
+  --body-size:clamp(.82rem,1.4vw,1.12rem);--small-size:clamp(.66rem,1vw,.86rem);--tiny-size:clamp(.58rem,.82vw,.74rem);
+  --slide-padding:clamp(1.4rem,4.5vw,4.5rem);--content-gap:clamp(.8rem,2vw,1.7rem);--element-gap:clamp(.4rem,1vw,.9rem);
+  --ease:cubic-bezier(.16,1,.3,1);--dur:.7s;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;overflow-x:hidden}
+html{scroll-snap-type:y mandatory;scroll-behavior:smooth}
+.slide{width:100vw;height:100vh;height:100dvh;overflow:hidden;scroll-snap-align:start;display:flex;flex-direction:column;position:relative}
+.slide-content{flex:1;display:flex;flex-direction:column;justify-content:center;max-height:100%;width:100%;max-width:1180px;margin:0 auto;overflow:hidden;padding:var(--slide-padding);position:relative;z-index:2}
+@media (max-height:700px){:root{--slide-padding:clamp(1rem,3vw,2.5rem);--content-gap:clamp(.5rem,1.4vw,1rem);--title-size:clamp(1.5rem,4.3vw,2.7rem);--h2-size:clamp(1.2rem,3vw,2rem)}}
+@media (max-height:600px){:root{--slide-padding:clamp(.6rem,2.4vw,1.4rem);--content-gap:clamp(.4rem,1vw,.7rem);--title-size:clamp(1.2rem,3.8vw,2rem);--h2-size:clamp(1.05rem,2.8vw,1.6rem);--body-size:clamp(.72rem,1.1vw,.92rem)}.nav-dots,.keyboard-hint,.decorative{display:none}}
+@media (max-height:500px){:root{--slide-padding:clamp(.45rem,1.8vw,1rem);--title-size:clamp(1rem,3.4vw,1.5rem);--h2-size:clamp(.9rem,2.4vw,1.25rem);--body-size:clamp(.64rem,.95vw,.82rem)}}
+@media (max-width:600px){:root{--title-size:clamp(1.5rem,8vw,2.5rem)}}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.2s!important}html{scroll-behavior:auto}}
+
+body{background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:var(--body-size);line-height:1.5;-webkit-font-smoothing:antialiased}
+/* Fondo 3D (three.js) — detrás de todo */
+#bg3d{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.42}
+.slide::before{content:"";position:absolute;inset:0;z-index:0;background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);background-size:clamp(26px,3.6vw,48px) clamp(26px,3.6vw,48px);mask-image:radial-gradient(ellipse 92% 82% at 50% 42%,#000 26%,transparent 92%);opacity:.35}
+.slide::after{content:"";position:absolute;z-index:0;width:60vw;height:60vw;max-width:800px;max-height:800px;top:-16%;right:-12%;background:radial-gradient(circle,var(--glow),transparent 60%);filter:blur(22px);pointer-events:none}
+.slide:nth-child(even)::after{right:auto;left:-12%;top:auto;bottom:-16%;background:radial-gradient(circle,rgba(79,209,197,.16),transparent 60%)}
+
+h1,h2,h3{font-family:var(--font-display);font-weight:600;line-height:1.06;letter-spacing:-.02em}
+h1{font-size:var(--title-size)}h2{font-size:var(--h2-size)}h3{font-size:var(--h3-size)}
+.mono{font-family:var(--font-mono)}
+.accent{color:var(--accent)}.accent-2{color:var(--accent-2)}.accent-3{color:var(--accent-3)}
+em{color:var(--ink);font-style:normal;font-weight:600;border-bottom:2px solid var(--accent);padding-bottom:1px}
+.lead{color:var(--mut);max-width:66ch;font-size:clamp(.88rem,1.7vw,1.3rem)}
+.spec{font-family:var(--font-mono);font-size:var(--tiny-size);color:var(--faint);letter-spacing:.03em}
+.qhead{display:flex;align-items:center;gap:clamp(.6rem,1.6vw,1.3rem);margin-bottom:var(--element-gap)}
+.qnum{font-family:var(--font-mono);font-weight:700;font-size:clamp(1.1rem,2.4vw,1.9rem);color:#0a0d13;background:var(--accent);border-radius:10px;padding:.15em .5em;line-height:1}
+.qkick{font-family:var(--font-mono);font-size:var(--small-size);letter-spacing:.2em;text-transform:uppercase;color:var(--accent)}
+.qsub{display:block;font-family:var(--font-mono);font-size:var(--small-size);color:var(--mut);font-weight:400;letter-spacing:.03em;margin-top:.45em}
+
+/* Animaciones de entrada */
+.reveal{opacity:0;transform:translateY(26px);transition:opacity var(--dur) var(--ease),transform var(--dur) var(--ease)}
+.slide.visible .reveal{opacity:1;transform:translateY(0)}
+.slide.visible .reveal:nth-child(1){transition-delay:.05s}.slide.visible .reveal:nth-child(2){transition-delay:.14s}
+.slide.visible .reveal:nth-child(3){transition-delay:.23s}.slide.visible .reveal:nth-child(4){transition-delay:.32s}
+.stagger>*{opacity:0;transform:translateY(18px);transition:opacity .55s var(--ease),transform .55s var(--ease)}
+.slide.visible .stagger>*{opacity:1;transform:translateY(0)}
+.slide.visible .stagger>*:nth-child(1){transition-delay:.25s}.slide.visible .stagger>*:nth-child(2){transition-delay:.34s}
+.slide.visible .stagger>*:nth-child(3){transition-delay:.43s}.slide.visible .stagger>*:nth-child(4){transition-delay:.52s}
+.slide.visible .stagger>*:nth-child(5){transition-delay:.61s}
+
+/* Diagramas SVG animados */
+.diagram{width:100%;max-height:min(48vh,420px);display:block;margin:var(--content-gap) 0}
+.diagram text{font-family:var(--font-mono)}
+.flow-line{stroke-dasharray:120;stroke-dashoffset:120;transition:stroke-dashoffset 1s var(--ease)}
+.slide.visible .flow-line{stroke-dashoffset:0}
+.node-box{opacity:0;transform-box:fill-box;transform-origin:center;transform:scale(.9);transition:opacity .6s var(--ease),transform .6s var(--ease)}
+.slide.visible .node-box{opacity:1;transform:scale(1)}
+.slide.visible .node-box.d1{transition-delay:.1s}.slide.visible .node-box.d2{transition-delay:.35s}
+.slide.visible .node-box.d3{transition-delay:.6s}.slide.visible .node-box.d4{transition-delay:.85s}
+.dataflow{opacity:0}.slide.visible .dataflow{opacity:1;transition:opacity .4s ease 1s}
+
+/* Elementos interactivos (doble click) */
+.info{position:relative;cursor:pointer;transition:transform .3s var(--ease),box-shadow .3s var(--ease),border-color .3s var(--ease)}
+.info:hover{transform:translateY(-8px) scale(1.025)!important;border-color:var(--accent)!important;box-shadow:0 16px 44px rgba(0,0,0,.5),0 0 22px var(--glow);animation-play-state:paused;z-index:3}
+.info::after{content:"› click para ver";position:absolute;top:.55em;right:.7em;font-family:var(--font-mono);font-size:var(--tiny-size);color:var(--accent);opacity:0;transition:opacity .25s}
+.info:hover::after{opacity:1}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+@media (prefers-reduced-motion:reduce){.kpoint,.dimcard,.rule{animation:none!important}}
+
+/* Cards / puntos */
+.keys-row{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(.6rem,1.6vw,1.3rem)}
+.keys-row.two{grid-template-columns:repeat(2,1fr)}
+@media (max-width:740px){.keys-row,.keys-row.two{grid-template-columns:1fr}}
+.kpoint{background:rgba(20,27,39,.5);backdrop-filter:blur(12px) saturate(1.3);-webkit-backdrop-filter:blur(12px) saturate(1.3);border:1px solid rgba(255,255,255,.1);border-radius:13px;padding:clamp(.8rem,1.6vw,1.3rem);display:flex;flex-direction:column;gap:.3em;min-height:clamp(90px,13vh,140px);justify-content:center;animation:float 7s ease-in-out infinite}
+.kpoint .h{font-family:var(--font-display);font-weight:600;font-size:clamp(.92rem,1.6vw,1.25rem)}
+.kpoint .p{color:var(--mut);font-size:var(--small-size)}
+.kpoint .tag{font-family:var(--font-mono);font-size:var(--tiny-size);color:var(--accent-2)}
+
+/* Portada / cierre */
+.title-badge{font-family:var(--font-mono);font-size:var(--small-size);color:var(--mut);border:1px solid var(--line-2);border-radius:999px;padding:.4em 1em;display:inline-flex;align-items:center;gap:.6em;width:fit-content;margin-bottom:var(--element-gap)}
+.title-badge .dot{width:7px;height:7px;border-radius:50%;background:var(--accent-2);box-shadow:0 0 10px var(--accent-2);animation:pulse 2.4s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+.kicker{font-family:var(--font-mono);font-size:var(--small-size);letter-spacing:.2em;text-transform:uppercase;color:var(--accent);display:inline-flex;align-items:center;gap:.6em;margin-bottom:var(--element-gap)}
+.kicker::before{content:"";width:clamp(18px,3vw,40px);height:1px;background:var(--accent);display:inline-block}
+.agenda{display:flex;flex-wrap:wrap;gap:.5em;margin-top:1rem}
+.agenda span{font-family:var(--font-mono);font-size:var(--small-size);color:var(--mut);border:1px solid var(--line-2);border-radius:999px;padding:.3em .9em}
+
+/* Slide técnica: dimensiones */
+.dimgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr));gap:clamp(.6rem,1.5vw,1rem)}
+.dimcard{background:rgba(20,27,39,.5);backdrop-filter:blur(12px) saturate(1.3);-webkit-backdrop-filter:blur(12px) saturate(1.3);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:clamp(.85rem,1.7vw,1.3rem);display:flex;flex-direction:column;gap:.55em;min-height:clamp(110px,15vh,160px);justify-content:center;animation:float 7s ease-in-out infinite}
+.dimcard .top{display:flex;justify-content:space-between;align-items:baseline}
+.dimcard .nm{font-family:var(--font-display);font-weight:600;font-size:clamp(.92rem,1.6vw,1.25rem)}
+.dimcard .wt{font-family:var(--font-mono);color:var(--accent);font-size:var(--small-size)}
+.dimcard .bar{height:7px;background:rgba(255,255,255,.06);border-radius:999px;overflow:hidden}
+.dimcard .bar>span{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,var(--accent),var(--accent-2));width:0;transition:width 1.1s var(--ease) .4s}
+.slide.visible .dimcard .bar>span{width:var(--w)}
+.dimcard .ds{color:var(--mut);font-size:var(--tiny-size)}
+.rules{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(.5rem,1.3vw,1rem)}
+@media (max-width:740px){.rules{grid-template-columns:1fr}}
+.rule{background:rgba(20,27,39,.5);backdrop-filter:blur(12px) saturate(1.3);-webkit-backdrop-filter:blur(12px) saturate(1.3);border:1px solid rgba(255,255,255,.1);border-left:3px solid var(--accent-2);border-radius:0 12px 12px 0;padding:clamp(.7rem,1.4vw,1.1rem) clamp(.85rem,1.6vw,1.2rem);min-height:clamp(80px,11vh,120px);display:flex;flex-direction:column;justify-content:center;animation:float 7s ease-in-out infinite}
+.rule .rn{font-family:var(--font-display);font-weight:600;font-size:clamp(.85rem,1.4vw,1.1rem)}
+.rule .rf{font-family:var(--font-mono);color:var(--accent-2);font-size:var(--tiny-size);display:block;margin-top:.25em}
+
+.callout{border:1px solid var(--line-2);border-radius:11px;padding:clamp(.7rem,1.5vw,1.1rem);background:rgba(255,194,75,.06);color:var(--ink);font-size:var(--small-size);max-width:80ch}
+/* MAQUETA del dashboard (preview del reporte real) */
+.mock{border:1px solid var(--line-2);border-radius:14px;overflow:hidden;background:rgba(14,19,28,.72);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);box-shadow:0 24px 60px rgba(0,0,0,.5);width:100%}
+.mock-bar{display:flex;align-items:center;gap:.45em;padding:.55em .8em;background:rgba(255,255,255,.04);border-bottom:1px solid var(--line)}
+.mock-bar i{width:10px;height:10px;border-radius:50%;display:inline-block}
+.mock-bar i:nth-child(1){background:#e86a92}.mock-bar i:nth-child(2){background:#ffc24b}.mock-bar i:nth-child(3){background:#4fd1c5}
+.mock-bar em{margin-left:.5em;font-family:var(--font-mono);font-size:var(--tiny-size);color:var(--mut);font-style:normal;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mock-body{padding:clamp(.9rem,2vw,1.5rem);display:flex;flex-direction:column;gap:clamp(.7rem,1.6vw,1.15rem)}
+.mock-hero{display:flex;align-items:center;gap:clamp(1rem,3vw,2rem)}
+.ring{position:relative;width:clamp(94px,12vw,132px);height:clamp(94px,12vw,132px);flex-shrink:0}
+.ring svg{width:100%;height:100%;transform:rotate(-90deg)}
+.ring .track{fill:none;stroke:rgba(255,255,255,.08);stroke-width:9}
+.ring .prog{fill:none;stroke:url(#rg);stroke-width:9;stroke-linecap:round;stroke-dasharray:327;stroke-dashoffset:327;transition:stroke-dashoffset 1.5s var(--ease) .4s}
+.slide.visible .ring .prog{stroke-dashoffset:85}
+.ring .num{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.ring .num b{font-family:var(--font-display);font-size:clamp(1.5rem,3.2vw,2.3rem);line-height:1}
+.ring .num small{font-family:var(--font-mono);font-size:var(--tiny-size);color:var(--mut)}
+.mock-band{font-family:var(--font-display);font-weight:600;font-size:clamp(1.1rem,2.4vw,1.7rem);color:var(--accent);line-height:1}
+.mock-arch{color:var(--ink);font-size:var(--small-size);margin-top:.35em}
+.mock-arch b{color:var(--accent-2)}
+.mock-ex{font-family:var(--font-mono);font-size:var(--tiny-size);color:var(--faint);margin-top:.3em}
+.mock-dims{display:flex;flex-direction:column;gap:.45em;border-top:1px solid var(--line);padding-top:clamp(.6rem,1.4vw,1rem)}
+.mock-dims .md{display:grid;grid-template-columns:clamp(5rem,9vw,7rem) 1fr auto;align-items:center;gap:.7em}
+.mock-dims .mn{font-size:var(--tiny-size);color:var(--mut)}
+.mock-dims .mb{height:6px;background:rgba(255,255,255,.06);border-radius:999px;overflow:hidden}
+.mock-dims .mb>span{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,var(--accent),var(--accent-2));width:0;transition:width 1.1s var(--ease) .5s}
+.slide.visible .mock-dims .mb>span{width:var(--w)}
+.mock-dims .mv{font-family:var(--font-mono);font-size:var(--tiny-size);color:var(--ink)}
+.ttl{font-family:var(--font-mono);font-size:var(--tiny-size);letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin-bottom:.4em}
+.mlist{list-style:none;display:flex;flex-direction:column;gap:.4em}
+.mlist li{display:flex;gap:.5em;align-items:flex-start;font-size:var(--small-size);color:var(--mut);line-height:1.4}
+.mlist li::before{content:"▸";color:var(--accent-2);flex-shrink:0}
+.mlist li b{color:var(--ink);font-weight:600}
+@media (max-width:820px){.mock-split{grid-template-columns:1fr!important}}
+.callout .mono{color:var(--accent)}
+
+/* ===== MODAL (pop-up de doble click) ===== */
+.modal-overlay{position:fixed;inset:0;z-index:10000;background:rgba(6,8,12,.72);backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px);display:flex;align-items:center;justify-content:center;padding:clamp(1rem,4vw,3rem);opacity:0;pointer-events:none;transition:opacity .3s var(--ease)}
+.modal-overlay.open{opacity:1;pointer-events:auto}
+.modal{background:linear-gradient(165deg,#141b27,#0e131c);border:1px solid var(--line-2);border-radius:18px;max-width:720px;width:100%;max-height:88vh;overflow-y:auto;padding:clamp(1.3rem,3vw,2.4rem);transform:translateY(20px) scale(.98);transition:transform .35s var(--ease);box-shadow:0 30px 80px rgba(0,0,0,.6)}
+.modal-overlay.open .modal{transform:translateY(0) scale(1)}
+.modal-head{display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;border-bottom:1px solid var(--line);padding-bottom:1rem;margin-bottom:1.1rem}
+.modal-head h3{font-size:clamp(1.3rem,3vw,2rem);color:var(--ink)}
+.modal-head .meta{font-family:var(--font-mono);font-size:var(--small-size);color:var(--accent);margin-top:.3em;display:flex;gap:.8em;flex-wrap:wrap}
+.modal-head .meta b{color:var(--accent-2);font-weight:500}
+.modal-close{flex-shrink:0;width:36px;height:36px;border-radius:9px;border:1px solid var(--line-2);background:transparent;color:var(--mut);font-size:1.3rem;cursor:pointer;line-height:1;transition:all .2s}
+.modal-close:hover{background:var(--accent);color:#0a0d13;border-color:var(--accent)}
+.msec{margin-bottom:1.05rem}
+.msec .lbl{font-family:var(--font-mono);font-size:var(--tiny-size);letter-spacing:.16em;text-transform:uppercase;color:var(--accent);display:block;margin-bottom:.35em}
+.msec p{color:var(--ink);font-size:var(--small-size);line-height:1.6}
+.msec.formula code{display:block;font-family:var(--font-mono);font-size:clamp(.72rem,1.3vw,.95rem);color:var(--accent-2);background:rgba(79,209,197,.08);border:1px solid rgba(79,209,197,.22);border-radius:9px;padding:.7em .9em;line-height:1.7;overflow-x:auto}
+.chips{display:flex;flex-wrap:wrap;gap:.45em}
+.chips span{font-family:var(--font-mono);font-size:var(--tiny-size);color:var(--mut);background:var(--bg-3);border:1px solid var(--line-2);border-radius:6px;padding:.3em .6em}
+.lang-pill{font-family:var(--font-mono);font-size:var(--tiny-size);padding:.2em .7em;border-radius:999px;border:1px solid;display:inline-block}
+.lang-pill.txt{color:var(--accent);border-color:var(--accent)}
+.lang-pill.agn{color:var(--accent-2);border-color:var(--accent-2)}
+
+/* Chrome */
+.progress-bar{position:fixed;top:0;left:0;height:3px;width:0%;background:linear-gradient(90deg,var(--accent),var(--accent-2));z-index:9999;box-shadow:0 0 12px var(--glow);transition:width .15s linear}
+.nav-dots{position:fixed;right:clamp(.7rem,2vw,1.5rem);top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:.6rem;z-index:9998}
+.nav-dots button{width:9px;height:9px;border-radius:50%;border:1px solid var(--line-2);background:transparent;cursor:pointer;padding:0;transition:all .3s var(--ease)}
+.nav-dots button.active{background:var(--accent);border-color:var(--accent);box-shadow:0 0 10px var(--glow);transform:scale(1.3)}
+.hint-bar{position:fixed;bottom:clamp(.6rem,2vw,1.3rem);left:50%;transform:translateX(-50%);font-family:var(--font-mono);font-size:var(--small-size);color:var(--faint);z-index:9998;display:flex;align-items:center;gap:1.2em}
+.hint-bar kbd{border:1px solid var(--line-2);border-radius:5px;padding:.1em .5em;color:var(--mut)}
+.hint-bar .live{color:var(--accent-2)}
+.pagenum{position:fixed;bottom:clamp(.6rem,2vw,1.3rem);right:clamp(.8rem,2vw,1.5rem);font-family:var(--font-mono);font-size:var(--small-size);color:var(--faint);z-index:9998}
+/* desfase de la flotación */
+.keys-row>*:nth-child(2),.dimgrid>*:nth-child(2),.rules>*:nth-child(2){animation-delay:-1.2s}
+.keys-row>*:nth-child(3),.dimgrid>*:nth-child(3),.rules>*:nth-child(3){animation-delay:-2.4s}
+.keys-row>*:nth-child(4),.dimgrid>*:nth-child(4){animation-delay:-3.6s}
+.dimgrid>*:nth-child(5){animation-delay:-4.8s}
+/* flechas de navegación (un solo click) */
+/* navegación: dos botones centrados, micro-interacción de relleno radial + nudge */
+.nav-ctrl{position:fixed;bottom:clamp(.7rem,2.4vw,1.6rem);left:50%;transform:translateX(-50%);display:flex;gap:.65rem;z-index:9998}
+.nav-arrow{position:relative;width:clamp(44px,5vw,56px);height:clamp(44px,5vw,56px);border-radius:50%;border:1px solid var(--line-2);background:rgba(20,27,39,.55);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);cursor:pointer;display:grid;place-items:center;overflow:hidden;transition:transform .3s var(--ease),border-color .3s,box-shadow .3s}
+.nav-arrow::before{content:"";position:absolute;inset:0;border-radius:50%;background:radial-gradient(circle at center,var(--accent),var(--accent-2));transform:scale(0);transition:transform .4s var(--ease)}
+.nav-arrow svg{position:relative;z-index:1;width:40%;height:40%;fill:none;stroke:var(--ink);stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round;transition:transform .3s var(--ease),stroke .3s}
+.nav-arrow:hover{border-color:var(--accent);box-shadow:0 12px 32px var(--glow);transform:translateY(-3px)}
+.nav-arrow:hover::before{transform:scale(1)}
+.nav-arrow:hover svg{stroke:#0a0d13}
+.nav-arrow:active{transform:translateY(-1px) scale(.93)}
+#prevBtn:hover svg{transform:translateX(-3px)}
+#nextBtn:hover svg{transform:translateX(3px)}
+/* componente de FLUJO (reemplaza los diagramas SVG poco legibles) */
+.flow{display:flex;align-items:stretch;width:100%;margin:var(--content-gap) 0}
+.flow-node{flex:1 1 0;min-width:0;background:rgba(20,27,39,.55);backdrop-filter:blur(12px) saturate(1.3);-webkit-backdrop-filter:blur(12px) saturate(1.3);border:1px solid rgba(255,255,255,.1);border-radius:15px;padding:clamp(.85rem,1.8vw,1.5rem);display:flex;flex-direction:column;gap:.4em;justify-content:center;min-height:clamp(112px,16vh,166px);animation:float 7s ease-in-out infinite}
+.flow-node .badge{font-family:var(--font-mono);font-size:var(--tiny-size);letter-spacing:.12em;text-transform:uppercase;color:var(--mut)}
+.flow-node .ttl{font-family:var(--font-display);font-weight:600;font-size:clamp(1.05rem,2vw,1.6rem);line-height:1.1}
+.flow-node .desc{color:var(--mut);font-size:var(--small-size);line-height:1.45}
+.flow-node.primary{border-color:rgba(255,194,75,.5);box-shadow:0 0 32px rgba(255,194,75,.1)}
+.flow-node.out{border-color:rgba(79,209,197,.42)}
+.flow-conn{flex:0 0 clamp(26px,4vw,66px);position:relative;display:flex;align-items:center;justify-content:center}
+.flow-conn .line{position:absolute;left:4px;right:4px;top:50%;height:2px;transform:translateY(-50%);background:linear-gradient(90deg,transparent,var(--line-2) 35%,var(--line-2) 65%,transparent)}
+.flow-conn .chev{width:9px;height:9px;border-top:2px solid var(--accent);border-right:2px solid var(--accent);transform:rotate(45deg);position:relative;z-index:1}
+.flow-conn .pulse{position:absolute;top:50%;width:6px;height:6px;border-radius:50%;background:var(--accent-2);box-shadow:0 0 10px var(--accent-2);transform:translateY(-50%);animation:travelx 1.9s var(--ease) infinite}
+@keyframes travelx{0%{left:2px;opacity:0}15%{opacity:1}85%{opacity:1}100%{left:calc(100% - 8px);opacity:0}}
+.flow-cap{text-align:center;color:var(--faint);font-size:var(--small-size);font-family:var(--font-mono);margin-top:.2em}
+/* lista editorial numerada (formato tipográfico, sin cajas) */
+.steplist{display:flex;flex-direction:column;width:100%;margin-top:var(--content-gap)}
+.step{display:grid;grid-template-columns:auto 1fr auto;gap:clamp(1rem,3.5vw,3rem);align-items:center;padding:clamp(.65rem,1.9vw,1.35rem) clamp(.2rem,1vw,.6rem);border-bottom:1px solid var(--line);cursor:pointer;transition:padding-left .35s var(--ease),border-color .35s var(--ease),background .35s}
+.step:first-child{border-top:1px solid var(--line)}
+.step:hover{padding-left:clamp(.8rem,2vw,1.5rem);border-color:var(--accent);background:linear-gradient(90deg,rgba(255,194,75,.06),transparent)}
+.step .n{font-family:var(--font-mono);font-weight:700;font-size:clamp(2.1rem,6vw,4rem);line-height:.9;color:rgba(139,151,168,.28);transition:color .35s var(--ease),transform .35s var(--ease)}
+.step:hover .n{color:var(--accent);transform:scale(1.06)}
+.step .b .t{font-family:var(--font-display);font-weight:600;font-size:clamp(1.15rem,2.6vw,1.9rem);line-height:1.05}
+.step .b .d{color:var(--mut);font-size:var(--small-size);margin-top:.2em;line-height:1.4}
+.step .go{font-family:var(--font-mono);font-size:var(--tiny-size);color:var(--faint);white-space:nowrap;opacity:0;transform:translateX(-6px);transition:opacity .3s,transform .3s,color .3s}
+.step:hover .go{opacity:1;transform:translateX(0);color:var(--accent)}
+@media (max-width:600px){.step .go{display:none}.step{gap:1rem}}
+/* dimensiones como barras horizontales (ranking) — no cajas */
+.dimrows{display:flex;flex-direction:column;gap:clamp(.35rem,1vw,.65rem);width:100%;margin-top:var(--content-gap)}
+.dimrow{display:grid;grid-template-columns:clamp(8rem,17vw,12rem) 1fr auto auto;align-items:center;gap:clamp(.6rem,1.6vw,1.3rem);padding:clamp(.45rem,1.1vw,.75rem) clamp(.5rem,1.2vw,.9rem);border-radius:10px;cursor:pointer;transition:background .3s var(--ease),transform .3s var(--ease)}
+.dimrow:hover{background:linear-gradient(90deg,rgba(255,194,75,.08),transparent);transform:translateX(5px)}
+.dimrow .nmw{display:flex;flex-direction:column;gap:.05em;min-width:0}
+.dimrow .nm{font-family:var(--font-display);font-weight:600;font-size:clamp(.9rem,1.6vw,1.25rem);line-height:1.1}
+.dimrow .sub{font-family:var(--font-mono);font-size:var(--tiny-size);color:var(--faint)}
+.dimrow .track{height:10px;background:rgba(255,255,255,.06);border-radius:999px;overflow:hidden}
+.dimrow .track>span{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,var(--accent),var(--accent-2));width:0;transition:width 1s var(--ease) .35s}
+.slide.visible .dimrow .track>span{width:var(--w)}
+.dimrow .wt{font-family:var(--font-mono);color:var(--accent);font-size:clamp(.85rem,1.4vw,1.1rem)}
+.dimrow .more{font-family:var(--font-mono);font-size:var(--tiny-size);color:var(--faint);white-space:nowrap;opacity:0;transition:opacity .3s,color .3s}
+.dimrow:hover .more{opacity:1;color:var(--accent)}
+/* reglas de scoring: inline, sin tarjetas */
+.scoreline{display:flex;align-items:center;gap:clamp(.4rem,1.2vw,.9rem);flex-wrap:wrap;margin-top:var(--content-gap);padding-top:clamp(.6rem,1.4vw,1rem);border-top:1px solid var(--line)}
+.scoreline .lbl{font-family:var(--font-mono);font-size:var(--tiny-size);text-transform:uppercase;letter-spacing:.14em;color:var(--faint)}
+.scorepill{cursor:pointer;display:inline-flex;flex-direction:column;gap:.05em;padding:.2em .4em;border-radius:8px;transition:background .25s}
+.scorepill b{font-family:var(--font-display);font-weight:600;font-size:var(--small-size);color:var(--ink);transition:color .25s}
+.scorepill code{font-family:var(--font-mono);font-size:var(--tiny-size);color:var(--accent-2)}
+.scorepill:hover{background:rgba(255,194,75,.08)}
+.scorepill:hover b{color:var(--accent)}
+.scoreline .arr{color:var(--faint);font-size:1.1em}
+@media (max-width:640px){.dimrow{grid-template-columns:1fr auto}.dimrow .track,.dimrow .more{display:none}.scoreline .arr{display:none}}
+@media (max-width:740px){
+  .flow{flex-direction:column}
+  .flow-conn{flex-basis:auto;width:100%;height:clamp(16px,2.6vh,26px)}
+  .flow-conn .line{left:50%;right:auto;top:4px;bottom:4px;width:2px;height:auto;transform:translateX(-50%);background:linear-gradient(180deg,transparent,var(--line-2),transparent)}
+  .flow-conn .chev{transform:rotate(135deg)}
+  .flow-conn .pulse{display:none}
+}
+@media (prefers-reduced-motion:reduce){.flow-node{animation:none!important}.flow-conn .pulse{display:none}}
+/* ejemplo dentro del modal */
+.mexample{display:grid;grid-template-columns:1fr 1fr;gap:.6em;margin-top:.4em}
+@media (max-width:560px){.mexample{grid-template-columns:1fr}}
+.mexample .b{border-radius:9px;padding:.6em .75em;border:1px solid var(--line)}
+.mexample .before{background:rgba(232,106,146,.07);border-color:rgba(232,106,146,.25)}
+.mexample .after{background:rgba(79,209,197,.07);border-color:rgba(79,209,197,.25)}
+.mexample .el{font-family:var(--font-mono);font-size:var(--tiny-size);letter-spacing:.1em;text-transform:uppercase;display:block;margin-bottom:.25em}
+.mexample .before .el{color:var(--accent-3)}.mexample .after .el{color:var(--accent-2)}
+.mexample .tx{font-size:var(--small-size);color:var(--ink)}
+</style>
+</head>
+<body>
+
+<canvas id="bg3d"></canvas>
+<div class="progress-bar" id="progress"></div>
+<nav class="nav-dots" id="navDots" aria-label="Navegación"></nav>
+<div class="nav-ctrl">
+  <button class="nav-arrow" id="prevBtn" aria-label="Anterior"><svg viewBox="0 0 24 24"><polyline points="15 4 7 12 15 20"/></svg></button>
+  <button class="nav-arrow" id="nextBtn" aria-label="Siguiente"><svg viewBox="0 0 24 24"><polyline points="9 4 17 12 9 20"/></svg></button>
+</div>
+<div class="hint-bar decorative"><span class="live">› click en las tarjetas para el detalle técnico · usá las flechas para avanzar</span></div>
+<div class="pagenum mono" id="pagenum">01</div>
+
+<!-- ===== PORTADA ===== -->
+<section class="slide">
+  <div class="slide-content">
+    <span class="title-badge reveal"><span class="dot"></span> presentación interactiva · doble-click para profundizar</span>
+    <h1 class="reveal">Fluidez con <span class="accent">IA</span></h1>
+    <p class="lead reveal">Lo cuento en cinco preguntas: qué es, qué hace, cómo lo hace, la parte técnica y qué te llevás. <em>Tocá cualquier tarjeta</em> y se abre el detalle: qué mide, cómo puntúa y de dónde saca la info.</p>
+    <div class="agenda reveal"><span>01 · ¿Qué es?</span><span>02 · ¿Qué hace?</span><span>03 · ¿Cómo?</span><span>04 · ¿De qué manera?</span><span>05 · Resultados</span></div>
+  </div>
+</section>
+
+<!-- ===== 01 · QUÉ ES ===== -->
+<section class="slide">
+  <div class="slide-content">
+    <div class="qhead reveal"><span class="qnum">01</span><div><span class="qkick">¿Qué es?</span></div></div>
+    <h2 class="reveal">Un medidor de <span class="accent">cómo trabajás</span> con la IA<span class="qsub">no mide cuánto la usás — mide la calidad de tus hábitos al colaborar</span></h2>
+    <div class="flow reveal">
+      <div class="flow-node"><span class="badge">entrada</span><span class="ttl">Tu historial</span><span class="desc">tus conversaciones guardadas con Claude Code</span></div>
+      <div class="flow-conn"><span class="line"></span><span class="pulse"></span><span class="chev"></span></div>
+      <div class="flow-node primary"><span class="badge" style="color:var(--accent)">el motor</span><span class="ttl accent">Fluidez con IA</span><span class="desc">analiza CÓMO le hablás y lo dirigís</span></div>
+      <div class="flow-conn"><span class="line"></span><span class="pulse"></span><span class="chev"></span></div>
+      <div class="flow-node out"><span class="badge" style="color:var(--accent-2)">salida</span><span class="ttl accent-2">Tu perfil</span><span class="desc">puntaje · estilo · fortalezas y mejoras</span></div>
+    </div>
+    <p class="flow-cap reveal">como un entrenador que mira tus grabaciones y te dice qué afinar</p>
+    <div class="keys-row reveal stagger">
+      <div class="kpoint"><span class="tag">qué es</span><span class="h">Un espejo de hábitos</span><span class="p">Refleja tu forma de colaborar, no tu productividad.</span></div>
+      <div class="kpoint"><span class="tag">qué NO es</span><span class="h">No es un ranking de uso</span><span class="p">Usar más la IA no sube el número.</span></div>
+      <div class="kpoint"><span class="tag">para quién</span><span class="h">Quien use Claude Code</span><span class="p">Devuelve un diagnóstico personal y accionable.</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 02 · QUÉ HACE ===== -->
+<section class="slide">
+  <div class="slide-content">
+    <div class="qhead reveal"><span class="qnum">02</span><div><span class="qkick">¿Qué hace?</span></div></div>
+    <h2 class="reveal">Convierte tus chats en <span class="accent">métricas</span><span class="qsub">cuatro pasos · hacé click en cada uno para el detalle</span></h2>
+    <div class="steplist reveal">
+      <div class="step info" data-modal="paso1"><span class="n">01</span><div class="b"><span class="t">Lee</span><span class="d">Abre todo lo que charlaste con Claude Code (tus archivos <span class="mono">.jsonl</span>).</span></div><span class="go">ver detalle →</span></div>
+      <div class="step info" data-modal="paso2"><span class="n">02</span><div class="b"><span class="t">Limpia</span><span class="d">Se queda solo con lo que escribiste vos y tira el ruido.</span></div><span class="go">ver detalle →</span></div>
+      <div class="step info" data-modal="paso3"><span class="n">03</span><div class="b"><span class="t">Mide</span><span class="d">Saca los números de tus cinco hábitos al usar la IA.</span></div><span class="go">ver detalle →</span></div>
+      <div class="step info" data-modal="paso4"><span class="n">04</span><div class="b"><span class="t accent-2">Reporta</span><span class="d">Te arma el informe en HTML, listo para abrir.</span></div><span class="go">ver detalle →</span></div>
+    </div>
+    <p class="callout reveal">De cada 100 registros, la mayoría es ruido (tool results, inyecciones, pastes): <span class="mono">solo se puntúa lo que tipeaste de verdad</span>.</p>
+  </div>
+</section>
+
+<!-- ===== 03 · CÓMO LO HACE ===== -->
+<section class="slide">
+  <div class="slide-content">
+    <div class="qhead reveal"><span class="qnum">03</span><div><span class="qkick">¿Cómo lo hace?</span></div></div>
+    <h2 class="reveal">Tres etapas: <span class="accent">Python</span> mide, la <span class="accent-2">IA</span> interpreta<span class="qsub">el cálculo es determinístico · la IA solo interpreta, no toca los números</span></h2>
+    <p class="lead reveal" style="margin-top:.2em;max-width:90ch">Primero Python saca todos los números —puntaje, tasas, arquetipo—. Recién ahí entra la IA a <b>interpretarlos</b>: cuatro Sonnet leen la evidencia en paralelo y Opus arma el mapa final y chequea que nada quede sin respaldo. <span class="accent">Tocá cada etapa</span> para ver qué hace y con qué modelo.</p>
+    <div class="flow reveal">
+      <div class="flow-node info out" data-modal="etapa1"><span class="badge" style="color:var(--accent-2)">etapa 1 · determinístico</span><span class="ttl accent-2">Medir</span><span class="desc">Python hace todas las cuentas. Mismo input → mismo número.</span></div>
+      <div class="flow-conn"><span class="line"></span><span class="pulse"></span><span class="chev"></span></div>
+      <div class="flow-node info" data-modal="etapa2"><span class="badge">etapa 2 · exploración</span><span class="ttl">Explorar</span><span class="desc">Sonnet lee la evidencia, una pasada por competencia, en paralelo.</span></div>
+      <div class="flow-conn"><span class="line"></span><span class="pulse"></span><span class="chev"></span></div>
+      <div class="flow-node info primary" data-modal="etapa3"><span class="badge" style="color:var(--accent)">etapa 3 · síntesis</span><span class="ttl accent">Analizar</span><span class="desc">Opus escribe el mapa y verifica que esté anclado en datos.</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 04 · DE QUÉ MANERA (TÉCNICO + MODALES) ===== -->
+<section class="slide">
+  <div class="slide-content">
+    <div class="qhead reveal"><span class="qnum">04</span><div><span class="qkick">¿De qué manera? · técnico</span></div></div>
+    <h2 class="reveal">Cinco dimensiones — <span class="accent">tocá</span> cada una<span class="qsub">la barra muestra cuánto pesa cada hábito en el puntaje final</span></h2>
+    <div class="dimrows reveal">
+      <div class="dimrow" data-modal="instruccion" style="--w:96%"><div class="nmw"><span class="nm">Instrucción</span><span class="sub">qué tan bien briefeás</span></div><div class="track"><span></span></div><span class="wt">0.24</span><span class="more">ver detalle →</span></div>
+      <div class="dimrow" data-modal="verificacion" style="--w:88%"><div class="nmw"><span class="nm">Verificación</span><span class="sub">si prueba lo que hace</span></div><div class="track"><span></span></div><span class="wt">0.22</span><span class="more">ver detalle →</span></div>
+      <div class="dimrow" data-modal="contexto" style="--w:88%"><div class="nmw"><span class="nm">Contexto</span><span class="sub">si lee antes de editar</span></div><div class="track"><span></span></div><span class="wt">0.22</span><span class="more">ver detalle →</span></div>
+      <div class="dimrow" data-modal="iteracion" style="--w:72%"><div class="nmw"><span class="nm">Iteración</span><span class="sub">si corregís fino o vago</span></div><div class="track"><span></span></div><span class="wt">0.18</span><span class="more">ver detalle →</span></div>
+      <div class="dimrow" data-modal="herramientas" style="--w:56%"><div class="nmw"><span class="nm">Herramientas</span><span class="sub">variedad + delegación</span></div><div class="track"><span></span></div><span class="wt">0.14</span><span class="more">ver detalle →</span></div>
+    </div>
+    <div class="scoreline reveal">
+      <span class="lbl">cómo se puntúa</span>
+      <span class="scorepill" data-modal="tasas"><b>Tasa</b><code>buenos / oportunidades</code></span>
+      <span class="arr">→</span>
+      <span class="scorepill" data-modal="saturacion"><b>Saturación</b><code>min(1, tasa/objetivo)</code></span>
+      <span class="arr">→</span>
+      <span class="scorepill" data-modal="hedging"><b>Hedging</b><code>50+(crudo−50)·confianza</code></span>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 05 · RESULTADOS Y BENEFICIOS ===== -->
+<section class="slide">
+  <div class="slide-content">
+    <div class="qhead reveal"><span class="qnum">05</span><div><span class="qkick">Resultados &amp; beneficios</span></div></div>
+    <h2 class="reveal">Qué obtenés — la pantalla real<span class="qsub">así se ve el reporte: puntaje, banda, arquetipo y el mapa de dimensiones</span></h2>
+    <div class="reveal mock-split" style="display:grid;grid-template-columns:1.3fr 1fr;gap:clamp(1rem,3vw,2.4rem);align-items:center;margin-top:var(--content-gap)">
+      <!-- MAQUETA del dashboard -->
+      <div class="mock">
+        <div class="mock-bar"><i></i><i></i><i></i><em>reporte_fluidez_ia.html</em></div>
+        <div class="mock-body">
+          <div class="mock-hero">
+            <div class="ring">
+              <svg viewBox="0 0 120 120"><defs><linearGradient id="rg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffc24b"/><stop offset="1" stop-color="#4fd1c5"/></linearGradient></defs>
+                <circle class="track" cx="60" cy="60" r="52"/><circle class="prog" cx="60" cy="60" r="52"/></svg>
+              <div class="num"><b>74</b><small>/100</small></div>
+            </div>
+            <div>
+              <div class="mock-band">Avanzado</div>
+              <div class="mock-arch">Arquetipo · <b>Agente Autónomo</b></div>
+              <div class="mock-ex">ejemplo ilustrativo — no son datos reales</div>
+            </div>
+          </div>
+          <div class="mock-dims">
+            <div class="md"><span class="mn">Instrucción</span><span class="mb" style="--w:68%"><span></span></span><span class="mv">68</span></div>
+            <div class="md"><span class="mn">Verificación</span><span class="mb" style="--w:92%"><span></span></span><span class="mv">92</span></div>
+            <div class="md"><span class="mn">Contexto</span><span class="mb" style="--w:90%"><span></span></span><span class="mv">90</span></div>
+            <div class="md"><span class="mn">Iteración</span><span class="mb" style="--w:75%"><span></span></span><span class="mv">75</span></div>
+            <div class="md"><span class="mn">Herramientas</span><span class="mb" style="--w:80%"><span></span></span><span class="mv">80</span></div>
+          </div>
+        </div>
+      </div>
+      <!-- leyenda -->
+      <div style="display:flex;flex-direction:column;gap:clamp(.8rem,2vw,1.3rem)">
+        <div><div class="ttl">El reporte incluye</div>
+          <ul class="mlist">
+            <li><b>Puntaje + banda</b> — tu nivel 0–100</li>
+            <li><b>Arquetipo</b> — tu estilo de trabajo</li>
+            <li><b>Mapa de habilidades</b> — fuerte y débil por dimensión</li>
+            <li><b>Growth cards</b> — antes/después de tus propios prompts</li>
+          </ul></div>
+        <div><div class="ttl" style="color:var(--accent-2)">Por qué sirve</div>
+          <ul class="mlist">
+            <li>Sabés <b>qué hábito cambiar</b>, no un consejo vago</li>
+            <li>Diagnóstico <b>honesto</b> (tasas saturadas, sin inflar)</li>
+            <li>Corre <b>local</b> y es reproducible</li>
+            <li>Re-corrés y <b>medís tu progreso</b></li>
+          </ul></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== CIERRE ===== -->
+<section class="slide">
+  <div class="slide-content">
+    <span class="kicker reveal">En una frase</span>
+    <h1 class="reveal">Medí <span class="accent">cómo</span> construís,<br>no cuánto.</h1>
+    <p class="lead reveal" style="margin-top:var(--content-gap)">Un instrumento determinístico con criterio de IA por encima — para mejorar tu forma de trabajar con datos, no con intuición.</p>
+    <p class="spec reveal" style="margin-top:1.2rem">Fluidez con IA · análisis local de transcripts de Claude Code · versión ES bilingüe</p>
+  </div>
+</section>
+
+<!-- ===== MODAL ===== -->
+<div class="modal-overlay" id="overlay" role="dialog" aria-modal="true">
+  <div class="modal" id="modal"></div>
+</div>
+
+<script>
+/* ===========================================
+   1) CONTENIDO DE LOS POP-UPS (doble-click)
+   =========================================== */
+const M = {
+  instruccion:{t:"Instrucción",meta:["peso 0.24","objetivo_n 60","<b>señal de texto</b>"],lang:"txt",
+    mide:"Qué tan bien briefeás al agente <em>antes</em> de que actúe: si tu pedido lleva un objetivo y algo a lo que apuntar.",
+    signif:"Un buen briefing combina un objetivo con un ancla: el archivo a tocar, una restricción a respetar, o un criterio de \"listo cuando…\".",
+    ve:"Sobre cada prompt de acción detecta cuatro señales: <b>artifact</b> (nombra un archivo/path/función), <b>constraint</b> (una restricción junto a un verbo), <b>intent</b> (el para qué) y <b>front_loading</b> (que la regla esté al frente, no recién en una corrección posterior).",
+    formula:"score = 100 · ( 0.30·sat(constraint,.45) + 0.20·sat(artifact,.45)\n              + 0.25·sat(intent,.30) + 0.25·front_loading )",
+    ref:["constraint: solo · no toques · sin · must · without","intent: para que · porque · so that · in order to","artifact: rutas · .py/.ts · `código` · función()","verbos: agregá|add · arreglá|fix · creá|create"],
+    ej:{a:"arreglá el bug de login",d:"El login falla en Safari con contraseña correcta. El check está en src/auth/session.ts. Arreglalo y mantené los tests en verde."},
+    refnote:"Detectores por expresiones regulares <b>bilingües (ES+EN)</b>. Por eso un prompt en español rioplatense puntúa igual que uno en inglés."},
+  verificacion:{t:"Verificación",meta:["peso 0.22","objetivo_n 15","objetivo sat .60","<b>agnóstica al idioma</b>"],lang:"agn",
+    mide:"Si el agente <em>prueba su propio trabajo</em> antes de declararlo terminado.",
+    signif:"Correr los tests, el build, el lint, o levantar la app tras editar. Es lo que separa \"probablemente anda\" de \"lo vi andar\".",
+    ve:"Un burst de ediciones abre un \"episodio\". El episodio se cuenta verificado si después aparece un comando que prueba el cambio, o un prompt tuyo tipo \"corré / funciona\". Hay un bonus si además tirás abajo lo que levantaste (teardown).",
+    formula:"score = min(100, 100·sat(verificados / episodios, .60) + bonus_teardown)",
+    ref:["pytest · unittest · jest · vitest · go test","npm/yarn/pnpm test|build|lint","ruff · eslint · flake8 · mypy · tsc","curl localhost · docker compose · playwright"],
+    ej:{a:"arreglá el off-by-one en la paginación",d:"…después corré pytest tests/test_pagination.py -x y pegá la salida. No lo des por arreglado hasta que el test pase."},
+    refnote:"Mira <b>comandos de Bash</b> ejecutados — no texto. Por eso no depende del idioma."},
+  contexto:{t:"Contexto",meta:["peso 0.22","objetivo_n 25","objetivo sat .85","<b>agnóstica al idioma</b>"],lang:"agn",
+    mide:"Si las ediciones caen sobre código que el agente <em>leyó primero</em>, en vez de editar a ciegas.",
+    signif:"El patrón leer→editar hace que los cambios encajen con lo que realmente hay, y apliquen limpio a la primera.",
+    ve:"Por sesión, rastrea qué archivos se leyeron. Cada edición es \"grounded\" si ese archivo se leyó antes en la sesión, se creó ahí, o es un archivo nuevo que se está escribiendo.",
+    formula:"score = 100 · sat( ediciones_grounded / total_ediciones , .85 )",
+    ref:["lee: Read · Grep · Glob","edita: Edit · Write · MultiEdit · NotebookEdit","compara los paths leídos vs editados por sesión"],
+    ej:{a:"agregá retry al cliente de API",d:"Leé src/api/client.ts primero, después agregá retry-con-backoff al método request(). Mostrame el cambio antes de aplicarlo."},
+    refnote:"Mira <b>tool calls</b> y los paths de archivo — no texto. Agnóstico al idioma."},
+  iteracion:{t:"Iteración",meta:["peso 0.18","objetivo_n 12","<b>señal de texto</b>"],lang:"txt",
+    mide:"Cuando el agente agarra para el lado equivocado, si lo encarrilás con una <em>corrección precisa</em> o con un \"no, mal\".",
+    signif:"Una corrección que nombra el síntoma y la regla clava el arreglo en una ronda; un \"no\" vago hace adivinar de nuevo y quema turnos.",
+    ve:"Cuenta \"correcciones\": rechazos cortos que siguen a una acción del agente (descartando elogios). Mide qué fracción son \"high-info\": tienen un número, un archivo, una intención, o ≥8 palabras.",
+    formula:"score = 100 · ( 0.6·(1 − min(1, rate/0.35)) + 0.4·especificidad )\nrate = correcciones / prompts",
+    ref:["corrección: no · mal · wrong · revertí · de nuevo","síntomas: sigue roto · no funciona · no anda","elogio (excluye): genial · perfecto · great · listo"],
+    ej:{a:"no, eso no, probá de nuevo",d:"El retry captura la excepción pero no la re-lanza tras el último intento, así las fallas parecen éxitos. Re-lanzala y mantené el backoff."},
+    refnote:"Detectores <b>bilingües (ES+EN)</b>. La confianza se ancla en la cantidad de prompts, no de correcciones: muchas sesiones limpias = evidencia fuerte de buena iteración."},
+  herramientas:{t:"Herramientas",meta:["peso 0.14","objetivo_n 40","<b>agnóstica al idioma</b>"],lang:"agn",
+    mide:"Si dejás que el agente use la <em>tool correcta</em> para cada paso (buscar, correr, levantar, delegar) en vez de forzar todo por el chat.",
+    signif:"El agente es más rápido y confiable cuando busca y ejecuta de verdad, en vez de razonar de memoria.",
+    ve:"Combina tres cosas: amplitud (cuántas tools distintas usás), uniformidad (qué tan parejo es el uso, por entropía de Shannon) y delegación (handoffs por hora activa).",
+    formula:"score = 100 · ( 0.45·amplitud + 0.30·uniformidad + 0.25·delegación )\namplitud = sat(tools_distintas/20, 1) · delegación = sat(handoffs/hora, 2)",
+    ref:["cuenta de uso por tool (tool_usage)","delegación: agent · task · workflow · plan mode","entropía de Shannon de la distribución de uso"],
+    ej:{a:"¿cómo funciona el login acá?",d:"Buscá el flujo de login en el codebase (grep auth, session), leé los archivos, después explicá cómo va del submit del form a la sesión logueada."},
+    refnote:"Mira el <b>registro de tool calls</b> — no texto. Agnóstico al idioma."},
+  tasas:{t:"Regla 1 · Tasas",meta:["fundamento del scoring"],lang:"",
+    mide:"Todo se mide como una <em>tasa de calidad</em>, no como un conteo.",
+    signif:"Importa qué fracción de tus oportunidades resolvés bien, no cuántas veces hiciste algo.",
+    ve:"Para cada dimensión: cuántas \"oportunidades\" hubo (prompts, ediciones, episodios) y en cuántas se cumplió la buena práctica.",
+    formula:"tasa = casos_buenos / oportunidades",
+    ref:["evita premiar actividad sobre destreza"],refnote:"Es la base sobre la que se aplican la saturación y el hedging."},
+  saturacion:{t:"Regla 2 · Saturación",meta:["el techo del esfuerzo"],lang:"",
+    mide:"Cada señal sube hasta un <em>objetivo</em> y ahí satura: pasarse no suma más.",
+    signif:"Una vez que tu tasa llega al nivel considerado \"bueno\", hacer más de lo mismo no mueve el número — solo mejorar otra dimensión lo mueve.",
+    ve:"Cada dimensión define su propio objetivo (de .30 a .85) según qué tasa ya se considera excelente.",
+    formula:"sat(x, objetivo) = min(1, x / objetivo)",
+    ref:["Instrucción usa .45/.30 · Verificación .60 · Contexto .85"],refnote:"Por eso el volumen no infla el puntaje: la curva tiene techo."},
+  hedging:{t:"Regla 3 · Hedging",meta:["honestidad con poca data"],lang:"",
+    mide:"Con poca historia, el puntaje se <em>tira hacia 50</em> (neutro) y se marca \"pocos datos\".",
+    signif:"Evita declarar un nivel alto o bajo sin evidencia suficiente. A medida que se acumulan oportunidades, converge a tu nivel real.",
+    ve:"La confianza de cada dimensión es min(1, n/objetivo_n): cuántas oportunidades tuviste sobre las que hacen falta.",
+    formula:"score = 50 + (crudo − 50) · min(1, n / objetivo_n)",
+    ref:["objetivo_n: Instr. 60 · Verif. 15 · Ctx. 25 · Iter. 12 · Herr. 40"],refnote:"Por eso los primeros runs salen conservadores: no es que mejores, es el hedge soltando."},
+  paso1:{t:"Paso 1 · Lee",meta:["entrada"],lang:"",mide:"Junta todos tus transcripts locales de Claude Code.",signif:"Son las conversaciones que Claude Code guarda en disco mientras trabajás.",ve:"Recorre de forma recursiva los .jsonl de tus proyectos (y un archivo persistente opcional para ver más allá de los 30 días).",formula:"~/.claude/projects/**/*.jsonl",ref:["de-duplica sesiones por su ID único de archivo"],refnote:"Los transcripts originales nunca se modifican."},
+  paso2:{t:"Paso 2 · Limpia",meta:["de-contaminación"],lang:"",mide:"Separa tus prompts reales del ruido.",signif:"De los registros con rol \"user\", la mayoría no son cosas que vos tipeaste.",ve:"Descarta resultados de tools, turnos de subagentes, texto inyectado por el sistema, stubs de slash-commands y pastes masivos.",formula:"se excluye: prompt > 6000 chars · cabeceras 'You are…/Sos un…' · <system-reminder>",ref:["también: gaps > 300s no cuentan como tiempo activo"],refnote:"Sin esta limpieza, el promedio de \"tu prompt\" quedaría inflado por pegotes y salidas de máquina."},
+  paso3:{t:"Paso 3 · Mide",meta:["núcleo determinístico"],lang:"",mide:"Calcula las 5 dimensiones y el puntaje.",signif:"Es donde vive toda la matemática — sin azar, reproducible.",ve:"Aplica tasas + saturación + hedging sobre el timeline de cada sesión, y pondera las 5 dimensiones.",formula:"overall = Σ peso · score_dimensión",ref:["Instrucción .24 · Verif .22 · Ctx .22 · Iter .18 · Herr .14"],refnote:"Doble-click en las dimensiones (slide 04) para el detalle de cada una."},
+  paso4:{t:"Paso 4 · Reporta",meta:["salida"],lang:"",mide:"Genera un reporte HTML autocontenido.",signif:"Un único archivo navegable con puntaje, arquetipo, mapa y mejoras.",ve:"Sobre los números determinísticos suma (si está disponible) el análisis de Sonnet + Opus.",formula:"~/.claude/fluidez-ia/reporte_fluidez_ia.html",ref:["también escribe evidence.json con un fingerprint de la corrida"],refnote:"El fingerprint impide que un análisis viejo o ajeno se mezcle en tu reporte."},
+  etapa1:{t:"Etapa 1 · Medir",meta:["Python · determinístico"],lang:"",mide:"Computa todas las métricas.",signif:"Mismo input → mismo número. Los modelos nunca alteran esto.",ve:"Parsea, de-contamina y calcula las tasas saturadas y hedgeadas de cada dimensión.",formula:"insight.py → evidence.json + reporte de fallback",ref:["reproducible y auditable"],refnote:"El reporte determinístico es completo por sí solo, aunque no corran las etapas 2-3."},
+  etapa2:{t:"Etapa 2 · Explorar",meta:["Sonnet · paralelo"],lang:"",mide:"Lee la evidencia desde cuatro ángulos.",signif:"Un explorador por cada competencia del framework (Delegación, Descripción, Discernimiento, Diligencia).",ve:"Cada uno lee SOLO la evidencia de-contaminada y estima un nivel con citas reales de tus prompts.",formula:"4 exploradores en paralelo",ref:["requiere la capability Workflow de Claude Code"],refnote:"Si no está disponible, se omite y queda el reporte determinístico."},
+  etapa3:{t:"Etapa 3 · Analizar",meta:["Opus · síntesis"],lang:"",mide:"Escribe el mapa de habilidades final.",signif:"Un evaluador reconcilia los hallazgos con los números y el framework; un verificador chequea que todo esté anclado en datos y repara lo que no.",ve:"Produce el skill map, las fortalezas y las growth cards (con reescrituras de tus propios prompts).",formula:"assessor → verificador → (repara si hace falta)",ref:["nunca cambia la matemática; solo agrega criterio"],refnote:"Cada afirmación queda atada a evidencia real de tu uso."}
+};
+
+/* ===========================================
+   2) MODAL: abrir con doble-click, cerrar con X/Esc/click afuera
+   =========================================== */
+const overlay=document.getElementById("overlay"), modalEl=document.getElementById("modal");
+function openModal(key){
+  const d=M[key]; if(!d) return;
+  const meta=(d.meta||[]).map(m=>`<span>${m}</span>`).join("");
+  const lang=d.lang==="txt"?`<span class="lang-pill txt">depende del idioma → bilingüe</span>`
+            :d.lang==="agn"?`<span class="lang-pill agn">agnóstica al idioma</span>`:"";
+  const ref=(d.ref||[]).map(r=>`<span>${r}</span>`).join("");
+  modalEl.innerHTML=`
+    <div class="modal-head"><div><h3>${d.t}</h3><div class="meta">${meta}</div></div>
+      <button class="modal-close" aria-label="Cerrar" onclick="closeModal()">×</button></div>
+    <div class="msec"><span class="lbl">Qué mide</span><p>${d.mide}</p></div>
+    <div class="msec"><span class="lbl">Qué significa</span><p>${d.signif}</p></div>
+    <div class="msec"><span class="lbl">Qué está viendo</span><p>${d.ve}</p></div>
+    <div class="msec formula"><span class="lbl">Cómo puntúa</span><code>${d.formula}</code></div>
+    ${d.ej?`<div class="msec"><span class="lbl">Ejemplo</span><div class="mexample">
+      <div class="b before"><span class="el">flojo</span><span class="tx mono">${d.ej.a}</span></div>
+      <div class="b after"><span class="el">fuerte</span><span class="tx">${d.ej.d}</span></div></div></div>`:""}
+    <div class="msec"><span class="lbl">De dónde toma la referencia</span><div class="chips">${ref}</div>
+      ${d.refnote?`<p style="margin-top:.6em">${d.refnote}</p>`:""} ${lang?`<p style="margin-top:.6em">${lang}</p>`:""}</div>`;
+  overlay.classList.add("open");
+}
+function closeModal(){overlay.classList.remove("open");}
+document.querySelectorAll("[data-modal]").forEach(el=>{
+  el.addEventListener("click",()=>openModal(el.dataset.modal));
+});
+overlay.addEventListener("click",e=>{if(e.target===overlay)closeModal();});
+document.addEventListener("keydown",e=>{if(e.key==="Escape")closeModal();});
+
+/* ===========================================
+   3) CONTROLADOR DE SLIDES
+   =========================================== */
+class SlidePresentation{
+  constructor(){
+    this.slides=Array.from(document.querySelectorAll(".slide"));this.current=0;
+    this.progress=document.getElementById("progress");this.navDots=document.getElementById("navDots");this.pagenum=document.getElementById("pagenum");
+    this.observe();this.buildDots();this.keys();this.scrollSync();
+    requestAnimationFrame(()=>this.slides[0].classList.add("visible"));
+  }
+  observe(){const io=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting&&e.intersectionRatio>0.5){e.target.classList.add("visible");this.current=this.slides.indexOf(e.target);this.update();}});},{threshold:[0.5]});this.slides.forEach(s=>io.observe(s));}
+  buildDots(){this.navDots.innerHTML="";this.slides.forEach((_,i)=>{const b=document.createElement("button");b.setAttribute("aria-label","Ir al slide "+(i+1));b.addEventListener("click",()=>this.go(i));this.navDots.appendChild(b);});this.dots=Array.from(this.navDots.children);}
+  go(i){i=Math.max(0,Math.min(this.slides.length-1,i));this.slides[i].scrollIntoView({behavior:"smooth"});}
+  keys(){document.addEventListener("keydown",e=>{if(overlay.classList.contains("open"))return;switch(e.key){case"ArrowDown":case"ArrowRight":case"PageDown":case" ":e.preventDefault();this.go(this.current+1);break;case"ArrowUp":case"ArrowLeft":case"PageUp":e.preventDefault();this.go(this.current-1);break;case"Home":e.preventDefault();this.go(0);break;case"End":e.preventDefault();this.go(this.slides.length-1);break;}});}
+  scrollSync(){const on=()=>{const max=document.documentElement.scrollHeight-window.innerHeight;this.progress.style.width=(max>0?(window.scrollY/max)*100:0)+"%";};window.addEventListener("scroll",on,{passive:true});on();}
+  update(){if(this.dots)this.dots.forEach((d,i)=>d.classList.toggle("active",i===this.current));if(this.pagenum)this.pagenum.textContent=String(this.current+1).padStart(2,"0");}
+}
+const pres=new SlidePresentation();
+document.getElementById("prevBtn").addEventListener("click",()=>pres.go(pres.current-1));
+document.getElementById("nextBtn").addEventListener("click",()=>pres.go(pres.current+1));
+
+/* ===========================================
+   4) FONDO — lluvia de código tipo "matrix", sutil, con los colores del tema
+   Canvas 2D, sin dependencias. Respeta prefers-reduced-motion.
+   =========================================== */
+(function(){
+  const canvas=document.getElementById("bg3d");
+  const ctx=canvas.getContext("2d");
+  const reduce=window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  // glifos de "código": binarios, símbolos de programación y katakana (look matrix)
+  const GLYPHS="01{}[]<>/=;:#$()=>+-*&|!?アカサタナハマヤラ日コドゲνλΣ".split("");
+  let cols,drops,fs,dpr;
+  function resize(){
+    dpr=Math.min(window.devicePixelRatio||1,2);
+    canvas.width=innerWidth*dpr; canvas.height=innerHeight*dpr;
+    canvas.style.width=innerWidth+"px"; canvas.style.height=innerHeight+"px";
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    fs=Math.max(13,Math.round(innerWidth/95));         // tamaño de glifo
+    cols=Math.ceil(innerWidth/fs);
+    drops=Array.from({length:cols},()=>Math.random()*-60);  // arranques escalonados
+    ctx.fillStyle="#0a0d13"; ctx.fillRect(0,0,innerWidth,innerHeight);
+  }
+  addEventListener("resize",resize); resize();
+  let last=0; const STEP=135;   // ms entre pasos: más alto = más lento
+  function frame(t){
+    requestAnimationFrame(frame);
+    if(t-last<STEP) return;     // throttle por tiempo → caída lenta y "escalonada" clásica
+    last=t;
+    // estela: pinta el fondo con baja opacidad para que las colas se desvanezcan suave
+    ctx.fillStyle="rgba(10,13,19,0.085)"; ctx.fillRect(0,0,innerWidth,innerHeight);
+    ctx.font=fs+"px 'JetBrains Mono', ui-monospace, monospace";
+    for(let i=0;i<cols;i++){
+      const g=GLYPHS[(Math.random()*GLYPHS.length)|0];
+      const x=i*fs, y=drops[i]*fs, r=Math.random();
+      if(r<0.014)      ctx.fillStyle="rgba(255,194,75,0.85)";   // cabeza: destello ámbar
+      else if(r<0.05)  ctx.fillStyle="rgba(238,242,247,0.45)";  // blanco tenue
+      else             ctx.fillStyle="rgba(79,209,197,0.42)";   // cian del tema
+      ctx.fillText(g,x,y);
+      drops[i]++;
+      if(y>innerHeight && Math.random()>0.975) drops[i]=Math.random()*-20; // reinicia la columna
+    }
+  }
+  if(reduce){
+    // versión estática (sin animación) para quien pide reduce-motion
+    ctx.font=fs+"px monospace"; ctx.fillStyle="rgba(79,209,197,0.22)";
+    for(let i=0;i<cols;i++)for(let j=0;j<innerHeight/fs;j++) if(Math.random()<0.12) ctx.fillText(GLYPHS[(Math.random()*GLYPHS.length)|0],i*fs,j*fs);
+  } else { requestAnimationFrame(frame); }
+})();
+</script>
+</body>
+</html>

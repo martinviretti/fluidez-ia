@@ -1,0 +1,3 @@
+# Los scripts de shell SIEMPRE con LF, para que curl | bash no falle por CRLF de Windows
+*.sh text eol=lf
+install.sh text eol=lf
