@@ -38,6 +38,19 @@ un **arquetipo de builder** y un mapa de **5 dimensiones**:
 
 Toda la salida (terminal, reporte HTML, CLI) está en español.
 
+## Documentación
+
+Documento técnico de referencia que explica el sistema de punta a punta —
+metodología, fórmulas de cada dimensión, umbrales de saturación, bandas,
+arquetipos, el framework 4D y los parámetros del motor:
+
+- **[`documentacion-fluidez-ia.html`](documentacion-fluidez-ia.html)** — especificación
+  técnica completa (registro formal, con índice navegable y descarga a PDF).
+- **[`presentacion-fluidez-ia.html`](presentacion-fluidez-ia.html)** — versión presentación.
+
+> GitHub no renderiza HTML inline; descargá el archivo y abrilo en el navegador,
+> o usá el sitio de GitHub Pages si está activo.
+
 ## Qué cambia respecto del original
 
 1. **Detección bilingüe (ES+EN)** en los 5 detectores de señales (constraint, intent, action,
@@ -85,6 +98,8 @@ fluidez-ia/
 ├── insight.py                       # motor determinístico (medición + render HTML)
 ├── SKILL.md                         # definición de la skill /fluidez-ia
 ├── workflow.js                      # orquestación Sonnet 4.6 + Opus 4.8 (solo si hay capability Workflow)
+├── documentacion-fluidez-ia.html    # documento técnico de referencia (metodología + fórmulas)
+├── presentacion-fluidez-ia.html     # versión presentación
 └── reference/
     └── framework-fluidez-ia.md      # framework 4D que lee Opus para el skill map
 ```

@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Documentación Técnica — Sistema de Análisis de Fluidez con IA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  /* =========================================================================
+     SISTEMA VISUAL — Whitepaper / Norma técnica institucional
+     Tipografía: Spectral (serif editorial) · IBM Plex Sans (interfaz) · IBM Plex Mono (código)
+     Paleta: papel hueso · tinta azul-negra · acento navy · numeral bronce
+     ========================================================================= */
+  :root{
+    --paper:#fbfaf6;        /* fondo de página, papel hueso cálido */
+    --surface:#ffffff;      /* paneles y tarjetas */
+    --surface-2:#f4f2ea;    /* paneles secundarios / listings */
+    --ink:#1a2233;          /* texto principal, negro azulado */
+    --ink-soft:#3b4658;     /* texto secundario */
+    --mut:#727b8c;          /* texto atenuado */
+    --line:#e4e0d4;         /* líneas finas, tono cálido */
+    --line-strong:#cfc9b8;  /* líneas de mayor jerarquía */
+    --navy:#16335c;         /* acento institucional dominante */
+    --navy-2:#1f4a82;       /* navy más claro para hover/links */
+    --navy-soft:#eaeef4;    /* fondo tenue de acento */
+    --bronze:#946326;       /* numerales de sección, aire de documento impreso */
+    --bronze-soft:#f3ecdf;
+    --warn:#8a5a1c;
+    --warn-bg:#fbf3e4;
+    --warn-bd:#ecd9b6;
+    --th:#f0ede3;
+    --sidebar:312px;
+    --maxw:760px;
+    --serif:'Spectral',Georgia,'Times New Roman',serif;
+    --sans:'IBM Plex Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+    --mono:'IBM Plex Mono','SF Mono',Menlo,Consolas,monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--paper); color:var(--ink);
+    font-family:var(--serif); font-size:17px; line-height:1.72;
+    -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+    font-feature-settings:"liga" 1,"onum" 1;
+  }
+
+  /* =========================================================================
+     ÍNDICE LATERAL PERSISTENTE
+     ========================================================================= */
+  aside.sidebar{
+    position:fixed; top:0; left:0; bottom:0;
+    width:var(--sidebar);
+    background:var(--surface);
+    border-right:1px solid var(--line-strong);
+    padding:32px 26px 28px;
+    overflow-y:auto;
+    z-index:40;
+    display:flex; flex-direction:column;
+    font-family:var(--sans);
+  }
+  aside.sidebar::-webkit-scrollbar{width:8px}
+  aside.sidebar::-webkit-scrollbar-thumb{background:#d8d3c4;border-radius:99px}
+  aside.sidebar .brand{
+    font-size:10.5px; letter-spacing:.28em; text-transform:uppercase;
+    color:var(--bronze); font-weight:600; margin-bottom:10px;
+  }
+  aside.sidebar .doc-name{
+    font-family:var(--serif); font-size:21px; font-weight:600;
+    color:var(--ink); line-height:1.28; letter-spacing:-.01em;
+    padding-bottom:18px; border-bottom:2px solid var(--navy); margin-bottom:20px;
+  }
+  aside.sidebar .toc-label{
+    font-size:10.5px; letter-spacing:.18em; text-transform:uppercase;
+    color:var(--mut); font-weight:600; margin:4px 0 12px;
+  }
+  aside.sidebar ol{list-style:none;counter-reset:toc}
+  aside.sidebar li{counter-increment:toc;margin:0}
+  aside.sidebar a{
+    display:block; color:var(--ink-soft); text-decoration:none;
+    padding:7px 10px 7px 42px; border-radius:4px;
+    position:relative; line-height:1.38; font-size:13px;
+    transition:background .14s,color .14s; border-left:2px solid transparent;
+  }
+  aside.sidebar a::before{
+    content:counter(toc,decimal-leading-zero);
+    position:absolute; left:12px; top:7px;
+    color:var(--mut); font-variant-numeric:tabular-nums;
+    font-size:11px; font-weight:500; font-family:var(--mono);
+  }
+  aside.sidebar a:hover{background:var(--navy-soft); color:var(--navy)}
+  aside.sidebar a.active{
+    background:var(--navy-soft); color:var(--navy); font-weight:600;
+    border-left-color:var(--navy);
+  }
+  aside.sidebar a.active::before{color:var(--navy)}
+  aside.sidebar .toolbar{
+    margin-top:auto; padding-top:18px; border-top:1px solid var(--line);
+    display:flex; flex-direction:column; gap:10px;
+  }
+  .btn-pdf{
+    border:1px solid var(--navy); background:var(--navy); color:#fff;
+    font-family:var(--sans); font-weight:500; font-size:13px;
+    padding:11px 14px; border-radius:4px; cursor:pointer;
+    display:inline-flex; align-items:center; justify-content:center; gap:9px;
+    transition:background .15s, transform .05s; width:100%;
+    letter-spacing:.01em;
+  }
+  .btn-pdf:hover{background:var(--navy-2)}
+  .btn-pdf:active{transform:translateY(1px)}
+  .btn-pdf svg{width:14px;height:14px}
+  .sidebar-meta{font-size:11px; color:var(--mut); line-height:1.55}
+
+  /* Toggle móvil */
+  .menu-toggle{
+    display:none; position:fixed; top:16px; left:16px; z-index:50;
+    width:44px; height:44px; border-radius:6px;
+    background:var(--surface); border:1px solid var(--line-strong); cursor:pointer;
+    align-items:center; justify-content:center;
+    box-shadow:0 2px 10px rgba(26,34,51,.12); color:var(--navy);
+  }
+  .menu-toggle svg{width:19px;height:19px}
+
+  /* =========================================================================
+     CUERPO DEL DOCUMENTO
+     ========================================================================= */
+  main{
+    margin-left:var(--sidebar);
+    max-width:calc(var(--maxw) + 120px);
+    padding:72px 60px 110px;
+  }
+
+  /* --- Bloque de portada / control documental --- */
+  .doc-cover{
+    border-bottom:2px solid var(--navy); padding-bottom:34px; margin-bottom:6px;
+  }
+  .doc-cover .eyebrow{
+    font-family:var(--sans); font-size:11px; text-transform:uppercase;
+    letter-spacing:.26em; color:var(--bronze); font-weight:600;
+  }
+  .doc-cover h1{
+    font-family:var(--serif); font-size:42px; line-height:1.12;
+    margin:18px 0 16px; letter-spacing:-.018em; color:var(--ink); font-weight:600;
+  }
+  .doc-cover .lede{
+    font-family:var(--serif); font-size:19px; font-style:italic;
+    color:var(--ink-soft); max-width:600px; line-height:1.5;
+  }
+  .doc-control{
+    margin-top:30px; border:1px solid var(--line-strong); border-radius:6px;
+    overflow:hidden; font-family:var(--sans); background:var(--surface);
+  }
+  .doc-control dl{
+    display:grid; grid-template-columns:repeat(2,1fr); margin:0;
+  }
+  .doc-control .row{
+    display:flex; gap:0; border-bottom:1px solid var(--line);
+    border-right:1px solid var(--line);
+  }
+  .doc-control .row:nth-child(2n){border-right:none}
+  .doc-control .row:nth-last-child(-n+1){border-bottom:none}
+  .doc-control dt{
+    font-size:10px; text-transform:uppercase; letter-spacing:.1em;
+    color:var(--mut); font-weight:600;
+    width:108px; flex:0 0 108px; padding:11px 12px;
+    background:var(--th); border-right:1px solid var(--line);
+    display:flex; align-items:center;
+  }
+  .doc-control dd{
+    font-size:13px; color:var(--ink); padding:11px 14px; line-height:1.4;
+    display:flex; align-items:center;
+  }
+  .doc-control dd code{font-size:12px}
+
+  /* --- Secciones --- */
+  section.doc{margin:56px 0; scroll-margin-top:24px}
+  section.doc > h2{
+    font-family:var(--serif); font-size:27px; letter-spacing:-.015em;
+    margin-bottom:8px; display:flex; align-items:baseline; gap:16px;
+    font-weight:600; color:var(--ink);
+    padding-bottom:12px; border-bottom:1px solid var(--line-strong);
+  }
+  section.doc > h2 .num{
+    font-family:var(--mono); font-size:15px; font-weight:500; color:var(--bronze);
+    letter-spacing:0; flex:0 0 auto; line-height:1.4;
+  }
+  section.doc > .kicker{
+    font-family:var(--sans); color:var(--mut); font-size:13.5px;
+    margin:14px 0 24px; font-style:normal; letter-spacing:.01em;
+  }
+  section.doc h3{
+    font-family:var(--serif); font-size:19px; margin:36px 0 12px;
+    color:var(--ink); font-weight:600; letter-spacing:-.01em;
+  }
+  p{margin:0 0 16px; color:var(--ink); text-align:justify; hyphens:auto}
+  p.lead-note{
+    color:var(--ink-soft); font-size:15px; font-style:italic;
+    border-left:2px solid var(--line-strong); padding-left:16px; text-align:left;
+  }
+  strong{font-weight:600; color:var(--ink)}
+  em{font-style:italic}
+
+  /* --- Llamados / notas --- */
+  .callout{
+    background:var(--surface); border:1px solid var(--line-strong);
+    border-left:3px solid var(--navy);
+    border-radius:4px; padding:18px 22px; margin:24px 0;
+  }
+  .callout.warn{
+    border-left-color:var(--bronze); background:var(--warn-bg);
+    border-color:var(--warn-bd);
+  }
+  .callout .label{
+    font-family:var(--sans); font-size:10.5px; text-transform:uppercase;
+    letter-spacing:.14em; font-weight:600; color:var(--navy); margin-bottom:9px;
+  }
+  .callout.warn .label{color:var(--warn)}
+  .callout p{text-align:left}
+  .callout p:last-child{margin-bottom:0}
+
+  /* --- Tablas --- */
+  .tbl-wrap{
+    overflow-x:auto; margin:24px 0;
+    border:1px solid var(--line-strong); border-radius:4px; background:var(--surface);
+  }
+  table{border-collapse:collapse; width:100%; font-family:var(--sans); font-size:13.5px}
+  th,td{
+    text-align:left; padding:12px 16px;
+    border-bottom:1px solid var(--line); vertical-align:top; line-height:1.5;
+  }
+  thead th{
+    background:var(--navy); color:#fff; font-weight:500;
+    font-size:11px; text-transform:uppercase; letter-spacing:.06em;
+    border-bottom:2px solid var(--navy);
+  }
+  tbody tr:last-child td{border-bottom:none}
+  tbody tr:nth-child(even){background:#faf9f4}
+  td code,th code{white-space:nowrap}
+  .num-cell{font-family:var(--mono); font-variant-numeric:tabular-nums; font-weight:500; color:var(--navy); white-space:nowrap}
+
+  /* --- Código y fórmulas (listings de papel) --- */
+  code{
+    background:var(--surface-2); color:var(--navy);
+    padding:1.5px 6px; border-radius:3px; font-size:13.5px; font-family:var(--mono);
+    border:1px solid var(--line);
+  }
+  .formula{
+    background:var(--surface-2); color:var(--ink); border-radius:4px;
+    border:1px solid var(--line-strong); border-left:3px solid var(--bronze);
+    padding:18px 22px; margin:20px 0;
+    font-family:var(--mono); font-size:13px; line-height:1.95; overflow-x:auto;
+    text-align:left;
+  }
+  .formula .c{color:var(--mut); font-style:italic}     /* comentario */
+  .formula .k{color:var(--navy); font-weight:500}       /* término clave */
+  .formula .v{color:var(--bronze); font-weight:500}     /* valor numérico */
+  .formula b{color:var(--ink); font-weight:600}
+
+  .pill{
+    display:inline-block; font-family:var(--sans); font-size:11.5px; font-weight:500;
+    border-radius:3px; padding:2px 8px; border:1px solid var(--line-strong);
+  }
+  .pill.w{background:var(--navy-soft); color:var(--navy); border-color:#c8d4e6}
+
+  /* --- Flujo de proceso --- */
+  .flow{display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:16px; margin:26px 0}
+  .flow .step{
+    background:var(--surface); border:1px solid var(--line-strong);
+    border-top:3px solid var(--navy);
+    border-radius:4px; padding:18px 20px; position:relative;
+  }
+  .flow .step .n{
+    font-family:var(--sans); font-size:10.5px; font-weight:600; color:var(--bronze);
+    text-transform:uppercase; letter-spacing:.1em;
+  }
+  .flow .step h4{font-family:var(--serif); font-size:17px; margin:6px 0 8px; font-weight:600}
+  .flow .step p{font-family:var(--sans); font-size:13px; color:var(--ink-soft); margin:0; line-height:1.55; text-align:left}
+  .flow .step .eng{
+    font-family:var(--sans); font-size:11.5px; color:var(--mut); margin-top:12px;
+    padding-top:9px; border-top:1px solid var(--line); font-style:normal;
+  }
+
+  /* --- Tarjetas de dimensión --- */
+  .dims-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:16px; margin:24px 0}
+  .dim-card{
+    background:var(--surface); border:1px solid var(--line-strong);
+    border-radius:4px; padding:18px 20px;
+  }
+  .dim-card .wbadge{
+    float:right; font-family:var(--mono); font-size:11px; font-weight:500; color:var(--navy);
+    background:var(--navy-soft); border-radius:3px; padding:2px 8px;
+  }
+  .dim-card h4{font-family:var(--serif); font-size:18px; margin-bottom:8px; font-weight:600}
+  .dim-card p{font-family:var(--sans); font-size:13px; color:var(--ink-soft); margin:0; line-height:1.55; text-align:left}
+
+  /* --- Lista de definiciones --- */
+  dl.terms{margin:22px 0; border-left:2px solid var(--line-strong); padding-left:22px}
+  dl.terms dt{
+    font-family:var(--serif); font-weight:600; color:var(--navy); margin-top:18px;
+    font-size:17px;
+  }
+  dl.terms dt:first-child{margin-top:0}
+  dl.terms dd{margin:5px 0 0; color:var(--ink); text-align:justify; hyphens:auto}
+
+  hr.soft{border:none; border-top:1px solid var(--line); margin:34px 0}
+
+  /* --- Pie --- */
+  footer{
+    margin-left:var(--sidebar);
+    max-width:calc(var(--maxw) + 120px);
+    padding:32px 60px 64px;
+    border-top:2px solid var(--navy);
+    color:var(--mut); font-family:var(--sans); font-size:12px;
+  }
+  footer p{margin-bottom:5px; color:var(--mut); text-align:left}
+
+  .anchor-h{color:inherit; text-decoration:none}
+
+  /* Aparición sutil al cargar */
+  @media (prefers-reduced-motion:no-preference){
+    section.doc, .doc-cover{animation:fade .5s ease both}
+    @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  }
+
+  /* =========================================================================
+     RESPONSIVE
+     ========================================================================= */
+  @media(max-width:1180px){
+    main, footer{padding-left:44px; padding-right:44px}
+  }
+  @media(max-width:900px){
+    :root{--sidebar:0px}
+    aside.sidebar{
+      transform:translateX(-100%); width:300px;
+      transition:transform .24s ease;
+      box-shadow:8px 0 28px rgba(0,0,0,.16);
+    }
+    aside.sidebar.open{transform:translateX(0)}
+    .menu-toggle{display:flex}
+    main{margin-left:0; padding:74px 26px 80px; max-width:none}
+    footer{margin-left:0; padding-left:26px; padding-right:26px; max-width:none}
+    .doc-cover h1{font-size:31px}
+    .doc-cover .lede{font-size:16px}
+    .doc-control dl{grid-template-columns:1fr}
+    .doc-control .row{border-right:none !important}
+    body{font-size:16px}
+    p, dl.terms dd{text-align:left; hyphens:none}
+  }
+
+  /* =========================================================================
+     IMPRESIÓN / PDF
+     ========================================================================= */
+  @media print{
+    :root{--paper:#fff; --surface:#fff; --surface-2:#f5f4ef; --sidebar:0px}
+    body{background:#fff; font-size:10.5pt; line-height:1.5; color:#000}
+    aside.sidebar, .menu-toggle, .btn-pdf{display:none !important}
+    main{margin-left:0; max-width:none; padding:0}
+    footer{margin-left:0; max-width:none; padding:14px 0; border-top:1.5pt solid var(--navy)}
+    section.doc, .doc-cover{animation:none}
+    .doc-cover h1{font-size:24pt}
+    .doc-cover .lede{font-size:12pt}
+    section.doc{margin:22px 0; page-break-inside:auto}
+    section.doc > h2{font-size:15pt; page-break-after:avoid}
+    section.doc h3{font-size:12.5pt; page-break-after:avoid}
+    h2,h3,h4{page-break-after:avoid}
+    p,li,dd{orphans:3; widows:3}
+    .tbl-wrap,.callout,.formula,.flow .step,.dim-card,.doc-control{
+      page-break-inside:avoid;
+    }
+    thead{display:table-header-group}
+    tbody tr:nth-child(even){background:#f4f4f0}
+    thead th{background:var(--navy) !important; color:#fff !important; -webkit-print-color-adjust:exact; print-color-adjust:exact}
+    a[href^="#"]{color:inherit; text-decoration:none}
+  }
+  @page{margin:18mm 16mm}
+</style>
+</head>
+<body>
+
+<button class="menu-toggle" onclick="document.querySelector('aside.sidebar').classList.toggle('open')" aria-label="Abrir índice">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+</button>
+
+<aside class="sidebar">
+  <div class="brand">Documentación técnica</div>
+  <div class="doc-name">Sistema de Análisis de Fluidez con IA</div>
+  <div class="toc-label">Tabla de contenidos</div>
+  <ol>
+    <li><a href="#introduccion">Introducción y propósito</a></li>
+    <li><a href="#arquitectura">Arquitectura general del sistema</a></li>
+    <li><a href="#decontaminacion">Procesamiento y de-contaminación de datos</a></li>
+    <li><a href="#tiempo-activo">Cálculo del tiempo de actividad</a></li>
+    <li><a href="#dimensiones">Definición de las cinco dimensiones</a></li>
+    <li><a href="#senales">Catálogo de señales detectables</a></li>
+    <li><a href="#formulas">Especificación matemática del puntaje</a></li>
+    <li><a href="#squash-shrink">Mecanismos de saturación y ajuste por confianza</a></li>
+    <li><a href="#puntaje-bandas">Composición del puntaje y bandas de clasificación</a></li>
+    <li><a href="#arquetipo">Clasificación de arquetipo</a></li>
+    <li><a href="#niveles">Niveles de competencia (1 a 5)</a></li>
+    <li><a href="#framework">Marco conceptual: las cuatro competencias</a></li>
+    <li><a href="#pipeline">Capa opcional de análisis con IA</a></li>
+    <li><a href="#privacidad">Garantías de privacidad y reproducibilidad</a></li>
+    <li><a href="#limitaciones">Limitaciones y alcance</a></li>
+    <li><a href="#referencia">Apéndice: referencia de parámetros</a></li>
+  </ol>
+  <div class="toolbar">
+    <button class="btn-pdf" onclick="window.print()" aria-label="Descargar como PDF">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Descargar PDF
+    </button>
+    <div class="sidebar-meta">
+      Versión 1.0 · Documento técnico de referencia.<br>
+      Motor: <code>insight.py</code> (Python).
+    </div>
+  </div>
+</aside>
+
+<main>
+
+  <div class="doc-cover">
+    <div class="eyebrow">Documento de referencia técnica</div>
+    <h1>Sistema de Análisis de Fluidez con IA</h1>
+    <p class="lede">Especificación funcional, metodológica y matemática del sistema que evalúa la fluidez del usuario en la conducción de agentes de inteligencia artificial a partir del análisis automatizado de transcripciones de sesiones.</p>
+    <div class="doc-control">
+      <dl>
+        <div class="row"><dt>Documento</dt><dd>Especificación técnica del sistema</dd></div>
+        <div class="row"><dt>Versión</dt><dd>1.0</dd></div>
+        <div class="row"><dt>Clasificación</dt><dd>Referencia interna</dd></div>
+        <div class="row"><dt>Motor</dt><dd><code>insight.py</code> · Python (stdlib)</dd></div>
+        <div class="row"><dt>Marco</dt><dd>AI Fluency Framework (las 4D)</dd></div>
+        <div class="row"><dt>Ejecución</dt><dd>Local y determinística</dd></div>
+        <div class="row"><dt>Detección</dt><dd>Bilingüe: español + inglés</dd></div>
+        <div class="row"><dt>Alcance</dt><dd>Análisis transversal (foto puntual)</dd></div>
+      </dl>
+    </div>
+  </div>
+
+  <!-- 1 -->
+  <section class="doc" id="introduccion">
+    <h2><span class="num">01</span><a class="anchor-h" href="#introduccion">Introducción y propósito</a></h2>
+    <p class="kicker">Objetivo del sistema, alcance y principios de diseño.</p>
+
+    <p>El presente documento describe el funcionamiento del Sistema de Análisis de Fluidez con IA: una herramienta que examina las transcripciones de sesiones de un usuario con un agente de inteligencia artificial (Claude Code) y produce, a partir de ellas, un conjunto de indicadores cuantitativos y cualitativos sobre la calidad de dicha colaboración.</p>
+
+    <p>El objetivo del sistema es proporcionar al usuario una evaluación reproducible, auditable y libre de ambigüedad respecto a su propia práctica. La salida del análisis se compone de un puntaje general en escala de 0 a 100, una clasificación en bandas de competencia, un arquetipo descriptivo del estilo de conducción, y un mapa detallado de habilidades por dimensión.</p>
+
+    <p>El diseño del sistema obedece a dos principios rectores que conviene establecer desde el inicio, dado que ambos condicionan la totalidad de la metodología.</p>
+
+    <p><strong>Primer principio: evaluación de habilidad, no de actividad.</strong> El sistema mide la calidad de la práctica del usuario, no su volumen de uso. Cada métrica que alimenta el cálculo del puntaje se expresa como una tasa (por prompt o por oportunidad detectada), nunca como un valor absoluto. En consecuencia, un mayor número de interacciones con el agente no incrementa el puntaje del usuario; únicamente la mejora cualitativa de dichas interacciones produce ese efecto.</p>
+
+    <p><strong>Segundo principio: transparencia y honestidad estadística.</strong> Toda la computación se ejecuta localmente en la máquina del usuario, sin conexión a servicios externos. Cada fórmula se encuentra documentada, cada umbral es explícito, y aquellas señales para las cuales la evidencia disponible es insuficiente se identifican como tales y se ajustan hacia un valor neutro, en lugar de afirmarse con una certeza que el volumen de datos no justifica.</p>
+
+    <div class="callout">
+      <div class="label">Principios de diseño</div>
+      <p><strong>Tasas, no volúmenes.</strong> La totalidad de los insumos del puntaje son proporciones procesadas mediante una función saturante; el incremento de actividad no eleva el puntaje, únicamente la mejora cualitativa lo hace.</p>
+      <p><strong>Honestidad sobre la evidencia.</strong> Las mediciones realizadas con datos insuficientes se ajustan hacia un valor neutro de 50, en lugar de afirmarse como hechos.</p>
+    </div>
+  </section>
+
+  <!-- 2 -->
+  <section class="doc" id="arquitectura">
+    <h2><span class="num">02</span><a class="anchor-h" href="#arquitectura">Arquitectura general del sistema</a></h2>
+    <p class="kicker">Las tres etapas que componen una ejecución completa del análisis.</p>
+
+    <p>El análisis completo se compone de tres etapas secuenciales. Cada una cumple una función diferenciada y emplea una tecnología distinta. La primera etapa es obligatoria; las dos restantes son opcionales y se activan únicamente cuando el entorno de ejecución dispone de las capacidades requeridas.</p>
+
+    <div class="flow">
+      <div class="step">
+        <div class="n">Etapa 1 — Medición</div>
+        <h4>Motor determinístico</h4>
+        <p>Procesa las transcripciones, aplica los filtros de de-contaminación y computa los indicadores numéricos del análisis.</p>
+        <div class="eng">Implementación: Python (biblioteca estándar). Sin uso de modelos de lenguaje.</div>
+      </div>
+      <div class="step">
+        <div class="n">Etapa 2 — Exploración</div>
+        <h4>Análisis cualitativo</h4>
+        <p>Examina la evidencia de-contaminada en busca de patrones que escapen a los detectores basados en reglas.</p>
+        <div class="eng">Implementación: Claude Sonnet. Etapa opcional.</div>
+      </div>
+      <div class="step">
+        <div class="n">Etapa 3 — Síntesis</div>
+        <h4>Mapa de habilidades</h4>
+        <p>Genera la lectura final personalizada, fundamentada en los prompts del usuario y en el marco conceptual de fluidez.</p>
+        <div class="eng">Implementación: Claude Opus. Etapa opcional.</div>
+      </div>
+    </div>
+
+    <p>La <strong>primera etapa</strong> constituye el componente central del sistema y opera de forma puramente determinística. Su salida es invariable: dado un mismo conjunto de transcripciones, el motor produce siempre el mismo puntaje, las mismas dimensiones y el mismo arquetipo. Esta etapa genera la totalidad de los indicadores cuantitativos del análisis.</p>
+
+    <p>La <strong>segunda etapa</strong> emplea un modelo de lenguaje (Claude Sonnet) para examinar el paquete de evidencia ya descontaminado, organizando dicho examen por competencia conceptual. Su función es identificar patrones contextuales que los detectores de reglas no son capaces de capturar.</p>
+
+    <p>La <strong>tercera etapa</strong> emplea un modelo de mayor capacidad (Claude Opus) para componer el mapa de habilidades final. Dicho mapa se ancla en los prompts reales del usuario y en el marco conceptual de fluidez, y se somete posteriormente a una verificación criptográfica de procedencia que garantiza su correspondencia con la ejecución en curso.</p>
+
+    <p>Las etapas dos y tres requieren la disponibilidad de una capacidad de orquestación de modelos que no siempre está presente en el entorno de ejecución. En su ausencia, el sistema lo comunica explícitamente y entrega el reporte determinístico de la primera etapa, el cual constituye por sí solo un análisis completo. <strong>El puntaje, el arquetipo, las dimensiones y el plan de mejora se calculan en todos los casos, independientemente de la disponibilidad de la capa de IA.</strong></p>
+  </section>
+
+  <!-- 3 -->
+  <section class="doc" id="decontaminacion">
+    <h2><span class="num">03</span><a class="anchor-h" href="#decontaminacion">Procesamiento y de-contaminación de datos</a></h2>
+    <p class="kicker">Criterios de filtrado aplicados a los registros con rol de usuario.</p>
+
+    <p>Previamente a cualquier medición, el sistema separa los prompts efectivamente escritos por el usuario del conjunto total de registros marcados con rol de usuario. Esta distinción resulta crítica para la validez del análisis. Una sesión con un agente de IA contiene una cantidad significativa de texto que figura con rol de usuario pero cuyo origen no es la escritura humana: salidas de herramientas reinyectadas como contexto, turnos de subagentes, recordatorios del sistema, plantillas de comandos, prompts de sistema embebidos y bloques de texto pegados. La ausencia de este filtrado distorsiona el análisis de forma sustancial, ya que las métricas terminan reflejando el comportamiento del agente en lugar del usuario.</p>
+
+    <p>El sistema descarta un registro con rol de usuario cuando este cumple cualquiera de los siguientes criterios:</p>
+
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Criterio de descarte</th><th>Fundamento</th><th>Etiqueta interna</th></tr></thead>
+        <tbody>
+          <tr><td>El contenido corresponde a una salida de herramienta (<code>tool_result</code>).</td><td>El origen del texto no es la escritura del usuario, sino la ejecución de una herramienta.</td><td>salidas de herramientas</td></tr>
+          <tr><td>El registro pertenece a un turno de subagente (campo <code>isSidechain</code> activo).</td><td>El contenido fue generado por otro agente, no por el usuario.</td><td>turnos de subagentes</td></tr>
+          <tr><td>El registro figura como meta o inyectado (campo <code>isMeta</code> activo).</td><td>El texto fue insertado por el sistema y no constituye una entrada del usuario.</td><td>meta-inyectados</td></tr>
+          <tr><td>El contenido del registro es vacío tras la normalización.</td><td>No existe información susceptible de ser evaluada.</td><td>vacíos</td></tr>
+          <tr><td>La longitud del registro excede los <strong>6.000 caracteres</strong>.</td><td>A partir de dicho umbral, el contenido se considera un bloque pegado, no una entrada tipeada.</td><td>inyectados / pegados</td></tr>
+          <tr><td>El registro se inicia con fórmulas características de prompts de sistema: <em>"Sos un…"</em>, <em>"Actuás como…"</em>, <em>"You are…"</em>, o una etiqueta XML.</td><td>El texto corresponde a un prompt de sistema de subagente, no a una instrucción del usuario.</td><td>inyectados / pegados</td></tr>
+          <tr><td>El registro contiene marcadores de sistema reconocibles.</td><td>Marcadores como <code>&lt;command-name&gt;</code>, <code>&lt;system-reminder&gt;</code>, <code>&lt;bash-input&gt;</code> u otros equivalentes identifican texto del sistema.</td><td>inyectados / pegados</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>Únicamente los registros que superan la totalidad de los criterios anteriores son considerados prompts genuinos del usuario y participan del cálculo subsiguiente.</p>
+
+    <p>Una decisión arquitectónica adicional refuerza la integridad del proceso: las transcripciones correspondientes a comunicaciones entre agentes (subagentes, ejecuciones de workflow) se almacenan en una subcarpeta específica del directorio de proyectos (<code>.../subagents/...</code>) y se excluyen del proceso de descubrimiento desde el inicio. Su inclusión inflaría el conteo cada vez que se ejecuta un workflow e incorporaría al análisis texto cuyo autor no es el usuario.</p>
+
+    <div class="callout">
+      <div class="label">Localización de las transcripciones</div>
+      <p>La búsqueda predeterminada se realiza en los directorios <code>~/.claude/projects</code> y <code>~/.claude/sessions</code>, o en la ruta indicada por la variable de entorno <code>CLAUDE_PROJECTS_DIR</code>. Cuando una misma sesión aparece referenciada en más de una ubicación, el sistema conserva la copia de mayor tamaño, dado que las transcripciones únicamente crecen y, por consiguiente, el archivo más voluminoso constituye la versión más completa.</p>
+    </div>
+  </section>
+
+  <!-- 4 -->
+  <section class="doc" id="tiempo-activo">
+    <h2><span class="num">04</span><a class="anchor-h" href="#tiempo-activo">Cálculo del tiempo de actividad</a></h2>
+    <p class="kicker">Reconstrucción del tiempo efectivo de trabajo a partir de las marcas temporales.</p>
+
+    <p>El sistema reconstruye el tiempo efectivo de trabajo del usuario a partir de las marcas temporales de los eventos registrados en cada sesión. La metodología aplica una corrección sustancial: los intervalos de inactividad superiores a cinco minutos no se contabilizan como tiempo de trabajo. De este modo, una pausa prolongada con la sesión abierta no incrementa artificialmente el tiempo de actividad reportado.</p>
+
+    <p>Formalmente, entre dos eventos consecutivos de una misma sesión se acumula el tiempo transcurrido entre ellos, sujeto a un máximo de 300 segundos. Un silencio de varias horas aporta como máximo cinco minutos al cómputo. El valor resultante constituye una medida del tiempo efectivo de interacción y participa, entre otros indicadores, del cálculo de la tasa de delegación, expresada como hand-offs por hora activa.</p>
+  </section>
+
+  <!-- 5 -->
+  <section class="doc" id="dimensiones">
+    <h2><span class="num">05</span><a class="anchor-h" href="#dimensiones">Definición de las cinco dimensiones</a></h2>
+    <p class="kicker">Las cinco dimensiones que componen el puntaje general.</p>
+
+    <p>El puntaje general del usuario se construye a partir de cinco dimensiones independientes. Cada una evalúa un aspecto diferenciado de la conducción del agente, opera sobre un conjunto distinto de señales observables en el texto y contribuye con un peso específico al cálculo del puntaje general. Los detectores de señales operan de forma bilingüe (español e inglés), de manera que la utilización del idioma castellano no introduce penalización alguna en la medición.</p>
+
+    <div class="dims-grid">
+      <div class="dim-card"><span class="wbadge">peso 24%</span><h4>Instrucción</h4><p>Mide la claridad con la cual el usuario comunica sus intenciones al agente: presencia de un objetivo explícito acompañado de un ancla (referencia a un archivo, restricción operativa o criterio de aceptación).</p></div>
+      <div class="dim-card"><span class="wbadge">peso 22%</span><h4>Verificación</h4><p>Mide la disciplina de validación posterior a las modificaciones: ejecución de pruebas, compilaciones, linters o levantamiento de la aplicación para su comprobación funcional.</p></div>
+      <div class="dim-card"><span class="wbadge">peso 22%</span><h4>Contexto</h4><p>Mide el grado en que las ediciones se realizan sobre código previamente leído por el agente, en lugar de aplicarse sobre suposiciones no verificadas.</p></div>
+      <div class="dim-card"><span class="wbadge">peso 18%</span><h4>Iteración</h4><p>Mide la precisión con la cual el usuario corrige el rumbo del agente: identificación explícita del síntoma y la regla incumplida, frente a rechazos no informativos.</p></div>
+      <div class="dim-card"><span class="wbadge">peso 14%</span><h4>Herramientas</h4><p>Mide la amplitud y el balance del instrumental empleado por el agente: búsqueda en código, ejecución de comandos, levantamiento de servicios, delegación a subagentes.</p></div>
+    </div>
+
+    <h3>Fundamento del peso asignado a cada dimensión</h3>
+
+    <p>La dimensión <strong>Instrucción</strong> recibe el mayor peso (24%) por dos motivos. En primer lugar, es la dimensión cuya variabilidad depende más directamente del usuario, sin mediación del comportamiento autónomo del agente. En segundo lugar, su mejora produce el efecto agregado más significativo sobre la calidad del resultado, dado que un encuadre adecuado del pedido reduce la necesidad de iteraciones correctivas posteriores.</p>
+
+    <p>La dimensión <strong>Verificación</strong> reconoce un hecho empírico ampliamente documentado en el desarrollo asistido por IA: el código que aparenta corrección pero no ha sido ejecutado constituye la principal fuente de errores en producción. La validación funcional posterior a cada modificación transforma una hipótesis de correctitud en una observación verificada.</p>
+
+    <p>La dimensión <strong>Contexto</strong> evalúa que las modificaciones se apliquen sobre el código tal como existe efectivamente en el repositorio, y no sobre una representación inferida del mismo. Cuando el agente lee el código previamente a su modificación, los cambios encajan en la estructura real y reducen la probabilidad de ediciones inválidas.</p>
+
+    <p>La dimensión <strong>Iteración</strong> reconoce que una corrección precisa, que identifica explícitamente el síntoma observado y la regla incumplida, resuelve el problema en una sola ronda, en tanto que un rechazo no informativo induce al agente a una nueva tentativa basada en conjeturas.</p>
+
+    <p>La dimensión <strong>Herramientas</strong> evalúa la amplitud del instrumental puesto en juego y el equilibrio de su distribución, evitando la concentración excesiva del trabajo en una única herramienta.</p>
+  </section>
+
+  <!-- 6 -->
+  <section class="doc" id="senales">
+    <h2><span class="num">06</span><a class="anchor-h" href="#senales">Catálogo de señales detectables</a></h2>
+    <p class="kicker">Inventario de los detectores aplicados sobre prompts y comandos.</p>
+
+    <p>Las dimensiones del puntaje no se calculan mediante interpretación cualitativa de los prompts, sino a partir de detectores formales que identifican señales puntuales en el texto. Cada detector opera mediante expresiones regulares y reconoce variantes en inglés y en español rioplatense (incluyendo formas voseantes). La siguiente tabla enumera el inventario completo de señales detectables.</p>
+
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Señal</th><th>Definición operativa</th><th>Ejemplos representativos (ES / EN)</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Artefacto</strong></td><td>Referencia concreta a un elemento de código.</td><td>Nombres de archivo con extensión (<code>session.ts</code>), rutas multi-segmento, código en líneas (<code>`fragmento`</code>), referencias a funciones (<code>función()</code>).</td></tr>
+          <tr><td><strong>Restricción</strong></td><td>Límite operativo explícito acompañado de un verbo de acción.</td><td>solo, no toques, no rompas, mantené, asegurate, en vez de · only, must, don't, keep, ensure.</td></tr>
+          <tr><td><strong>Intención</strong></td><td>Declaración de propósito, motivación o criterio de éxito.</td><td>para que, porque, el objetivo es, necesito, la idea es · so that, because, the goal is, I need.</td></tr>
+          <tr><td><strong>Verbo de acción</strong></td><td>Solicitud de ejecución de una operación concreta (imperativo voseante o infinitivo).</td><td>agregá, creá, arreglá, refactorizá, eliminá, corré · add, create, fix, refactor, run.</td></tr>
+          <tr><td><strong>Verificación</strong></td><td>Comando de ejecución de pruebas o validación detectado en una llamada a Bash.</td><td><code>pytest</code>, <code>jest</code>, <code>npm test</code>, <code>ruff</code>, <code>tsc</code>, <code>py -m pytest</code>, <code>curl localhost</code>, <code>cargo test</code>, <code>pester</code>.</td></tr>
+          <tr><td><strong>Desmontaje</strong></td><td>Comando de cierre ordenado de un sistema en ejecución (otorga bonificación).</td><td><code>lsof -ti … kill</code>, <code>pkill</code>, <code>docker compose down</code>.</td></tr>
+          <tr><td><strong>Corrección</strong></td><td>Rechazo o solicitud de cambio de rumbo respecto a la acción precedente del agente.</td><td>no, mal, incorrecto, eso no, revertí, no funciona, no anda · wrong, not quite, revert, doesn't work.</td></tr>
+          <tr><td><strong>Elogio</strong> (señal de exclusión)</td><td>Marcador de aprobación que evita la clasificación errónea de un mensaje positivo como corrección.</td><td>genial, perfecto, listo, dale, bárbaro · great, perfect, nice, exactly.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout">
+      <div class="label">Relevancia del soporte bilingüe</div>
+      <p>La versión original del motor, desarrollada únicamente para inglés, infravaloraba sistemáticamente los prompts redactados en español rioplatense en las dimensiones de Instrucción e Iteración. La incorporación de las formas voseantes (<em>agregá, mantené, no toques, no anda</em>) y de los marcadores de intención en español permite una valoración equitativa de dichos prompts.</p>
+    </div>
+  </section>
+
+  <!-- 7 -->
+  <section class="doc" id="formulas">
+    <h2><span class="num">07</span><a class="anchor-h" href="#formulas">Especificación matemática del puntaje</a></h2>
+    <p class="kicker">Formulación exacta del cálculo de cada dimensión.</p>
+
+    <p>Cada dimensión produce un puntaje en el intervalo [0, 100]. Dos funciones auxiliares aparecen de forma recurrente en las fórmulas: la función saturante <code>squash(x, objetivo) = mín(1, máx(0, x / objetivo))</code> y la función de recorte <code>clamp(x, 0, 1) = mín(1, máx(0, x))</code>.</p>
+
+    <h3>7.1. Instrucción · peso 24% · objetivo de confianza: 60 prompts</h3>
+    <p>La dimensión combina tres tasas calculadas por prompt (restricción, artefacto, intención) y un componente adicional denominado <em>front-loading</em>, que evalúa la proporción en que las reglas se establecen anticipadamente, en oposición a su revelación tardía mediante correcciones de alta información.</p>
+    <div class="formula">
+<span class="c"># Tasas calculadas sobre el total de prompts reales (n)</span>
+constraint_rate = (#prompts con <span class="k">restricción</span> + <span class="k">verbo de acción</span>) / n
+artifact_rate   = (#prompts con <span class="k">artefacto</span>) / n
+intent_rate     = (#prompts con <span class="k">intención</span>) / n
+front_loading   = <b>1 − clamp(</b>correcciones_de_alta_información / prompts_de_acción<b>, 0, 1)</b>
+
+<b>score</b> = 100 · ( <span class="v">0.30</span>·squash(constraint_rate, <span class="v">0.45</span>)
+              + <span class="v">0.20</span>·squash(artifact_rate,   <span class="v">0.45</span>)
+              + <span class="v">0.25</span>·squash(intent_rate,     <span class="v">0.30</span>)
+              + <span class="v">0.25</span>·front_loading )
+    </div>
+
+    <h3>7.2. Verificación · peso 22% · objetivo de confianza: 15 episodios</h3>
+    <p>Una secuencia de modificaciones consecutivas (<em>ráfaga de edición</em>) inaugura un episodio de verificación. El episodio se considera verificado cuando, posteriormente, se detecta alguna de las siguientes situaciones: la ejecución de un comando de prueba en Bash; un prompt del usuario que solicita la ejecución o confirmación del cambio; o la relectura del archivo recién modificado. El cierre ordenado de un sistema en ejecución otorga una bonificación adicional al puntaje de la dimensión.</p>
+    <div class="formula">
+rate = episodios_verificados / episodios_totales
+<b>score</b> = mín(100, 100 · squash(rate, <span class="v">0.60</span>) + <span class="v">teardown_bonus</span>)   <span class="c"># bonus = 5 ante desmontaje</span>
+    </div>
+
+    <h3>7.3. Contexto · peso 22% · objetivo de confianza: 25 ediciones</h3>
+    <p>Para cada sesión, el sistema registra el conjunto de archivos leídos y el conjunto de archivos modificados. Una edición se considera <em>anclada</em> cuando se cumple alguna de las siguientes condiciones: el archivo había sido leído previamente en la sesión, el archivo había sido escrito por el agente en una operación anterior de la misma sesión, o se trata de la creación de un archivo nuevo. Las ediciones que no pueden atribuirse a una ruta específica no penalizan el puntaje.</p>
+    <div class="formula">
+rate = ediciones_ancladas / ediciones_totales
+<b>score</b> = 100 · squash(rate, <span class="v">0.85</span>)
+    </div>
+
+    <h3>7.4. Iteración · peso 18% · objetivo de confianza: 12 correcciones</h3>
+    <p>La dimensión evalúa la tasa de corrección (proporción de prompts que constituyen correcciones a una acción inmediatamente precedente del agente) y la especificidad de dichas correcciones (proporción de correcciones de alta información, definidas como aquellas que contienen un valor numérico, una referencia a un artefacto, una declaración de intención, o que poseen una extensión mínima de ocho palabras). Una tasa menor de correcciones, combinada con una mayor especificidad, produce un puntaje superior.</p>
+    <div class="formula">
+rate        = #correcciones / n_prompts
+specificity = #correcciones_de_alta_información / #correcciones
+<b>score</b> = 100 · ( <span class="v">0.6</span>·(1 − clamp(rate / <span class="v">0.35</span>, 0, 1)) + <span class="v">0.4</span>·specificity )
+    </div>
+    <p class="lead-note">El cálculo de confianza para esta dimensión se efectúa sobre el total de prompts y no sobre el número de correcciones. Un usuario que produce una elevada cantidad de prompts sin generar correcciones constituye evidencia robusta de una iteración eficaz, y no debe interpretarse como ausencia de datos.</p>
+
+    <h3>7.5. Herramientas · peso 14% · objetivo de confianza: 40 llamadas</h3>
+    <p>La dimensión integra tres componentes: la amplitud del instrumental empleado (cantidad de herramientas distintas), la uniformidad de su distribución (entropía de Shannon normalizada, que penaliza la concentración del uso en una única herramienta) y la tasa de delegación (hand-offs por hora activa).</p>
+    <div class="formula">
+breadth    = squash(herramientas_distintas / <span class="v">20</span>, 1.0)
+evenness   = H / log(distinct)            <span class="c"># H: entropía de Shannon del uso</span>
+delegation = squash(eventos_delegación / horas_activas, <span class="v">2.0</span>)
+<b>score</b> = 100 · ( <span class="v">0.45</span>·breadth + <span class="v">0.30</span>·evenness + <span class="v">0.25</span>·delegation )
+    </div>
+    <p class="lead-note">Se contabilizan como eventos de delegación: las invocaciones a subagentes, tareas y workflows; las transiciones de entrada y salida del modo de planificación; y los procesos Bash lanzados en segundo plano.</p>
+
+    <h3>7.6. Cuadro resumen de parámetros</h3>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Dimensión</th><th>Peso</th><th>Objetivo de confianza (N)</th><th>Insumo principal</th></tr></thead>
+        <tbody>
+          <tr><td>Instrucción</td><td class="num-cell">24%</td><td class="num-cell">60</td><td>Restricción, artefacto, intención, front-loading.</td></tr>
+          <tr><td>Verificación</td><td class="num-cell">22%</td><td class="num-cell">15</td><td>Episodios de edición efectivamente verificados.</td></tr>
+          <tr><td>Contexto</td><td class="num-cell">22%</td><td class="num-cell">25</td><td>Ediciones ancladas en una lectura previa.</td></tr>
+          <tr><td>Iteración</td><td class="num-cell">18%</td><td class="num-cell">12</td><td>Tasa y especificidad de las correcciones.</td></tr>
+          <tr><td>Herramientas</td><td class="num-cell">14%</td><td class="num-cell">40</td><td>Amplitud, uniformidad y delegación.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- 8 -->
+  <section class="doc" id="squash-shrink">
+    <h2><span class="num">08</span><a class="anchor-h" href="#squash-shrink">Mecanismos de saturación y ajuste por confianza</a></h2>
+    <p class="kicker">Dos mecanismos transversales que condicionan la totalidad del cálculo.</p>
+
+    <p>Dos mecanismos atraviesan la totalidad del cálculo del puntaje. Su comprensión resulta indispensable para la correcta interpretación de los resultados.</p>
+
+    <h3>8.1. Función saturante (<em>squash</em>)</h3>
+    <p>Cada señal del sistema se expresa como una tasa que se compara contra un objetivo predefinido. La consecución del objetivo satura la señal: su superación no produce incrementos adicionales en el puntaje. Este mecanismo es el que garantiza, de forma estructural, que el incremento del volumen de uso no pueda elevar el puntaje del usuario. Una vez alcanzada, por ejemplo, una tasa de verificación del 60% sobre las ráfagas de edición, el componente correspondiente se encuentra en su valor máximo; la elevación de dicha tasa al 80% no genera variación. El sistema premia la consolidación del hábito, no la acumulación de eventos.</p>
+    <div class="formula">squash(x, objetivo) = mín(1, máx(0, x / objetivo))</div>
+
+    <h3>8.2. Ajuste por confianza (<em>shrink</em>)</h3>
+    <p>Cada dimensión registra el número de oportunidades en que ha sido posible observarla. Cuando dicho número resulta reducido, el puntaje de la dimensión se aproxima a un valor neutro de 50, en proporción inversa a la cantidad de evidencia disponible. El fundamento metodológico es directo: la inferencia de un rasgo estilístico a partir de cien observaciones no posee la misma robustez que la realizada a partir de dos. Ante una evidencia escasa, el sistema modera explícitamente sus afirmaciones. El reporte presenta en todos los casos tanto el puntaje crudo como el puntaje ajustado, lo que permite cuantificar la magnitud de la corrección aplicada.</p>
+    <div class="formula">
+c = mín(1, n_oportunidades / objetivo_de_confianza)
+<b>puntaje_ajustado</b> = 50 + (puntaje_crudo − 50) · c
+    </div>
+
+    <div class="callout warn">
+      <div class="label">Marcado del reporte como provisional</div>
+      <p>Cuando el análisis dispone de menos de <strong>30 prompts reales</strong>, el reporte se identifica explícitamente como provisional: el puntaje se presenta acompañado de un margen aproximado de ±10 puntos, y la clasificación de arquetipo se matiza, dado que con volúmenes reducidos de evidencia constituye el indicador menos estable del análisis.</p>
+    </div>
+  </section>
+
+  <!-- 9 -->
+  <section class="doc" id="puntaje-bandas">
+    <h2><span class="num">09</span><a class="anchor-h" href="#puntaje-bandas">Composición del puntaje y bandas de clasificación</a></h2>
+    <p class="kicker">Agregación final y traducción del puntaje a una clasificación cualitativa.</p>
+
+    <p>El puntaje general se obtiene como el <strong>promedio ponderado de las cinco dimensiones, una vez ajustadas por confianza</strong>. La asignación de pesos no responde a una decisión arbitraria, sino a dos criterios técnicos: el grado en que cada dimensión depende del control directo del usuario, y el impacto agregado que su mejora produce sobre la calidad del resultado. La dimensión Instrucción recibe un peso superior al de Herramientas dado que el encuadre adecuado de un pedido tiene un efecto sobre el resultado mayor que la diversificación del instrumental empleado.</p>
+
+    <div class="formula">
+<b>puntaje_general</b> = 0.24·Instrucción + 0.22·Verificación + 0.22·Contexto
+                 + 0.18·Iteración + 0.14·Herramientas
+    </div>
+
+    <p>El puntaje general se clasifica en una de cinco bandas, ordenadas desde Operador hasta Experto. Las bandas no constituyen calificaciones valorativas, sino caracterizaciones del modo de trabajo del usuario. La progresión entre bandas refleja, en lo fundamental, el grado de consistencia con el cual el usuario aplica los hábitos de mayor valor en su práctica habitual.</p>
+
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Banda</th><th>Rango</th><th>Caracterización</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Operador</strong></td><td class="num-cell">0–39</td><td>El agente se emplea como ejecutor de instrucciones rápidas. Los prompts son breves y carecen de especificación. Las modificaciones suelen aplicarse sin lectura previa del archivo y rara vez se verifican.</td></tr>
+          <tr><td><strong>En desarrollo</strong></td><td class="num-cell">40–54</td><td>Se observa interacción consolidada en uno o dos hábitos. La brecha hacia la banda siguiente reside en la consistencia de aplicación.</td></tr>
+          <tr><td><strong>Competente</strong></td><td class="num-cell">55–69</td><td>El usuario conduce al agente de forma deliberada. La mayoría de los prompts son específicos y la verificación se aplica con regularidad. Las áreas de mejora residen en la altitud del encuadre y la orquestación.</td></tr>
+          <tr><td><strong>Avanzado</strong></td><td class="num-cell">70–84</td><td>El usuario orquesta al agente en lugar de operarlo. Los prompts codifican objetivos, restricciones y criterios de aceptación; el ciclo lectura-edición-verificación opera como hábito consolidado; la planificación y la delegación se emplean con fluidez.</td></tr>
+          <tr><td><strong>Experto</strong></td><td class="num-cell">85–100</td><td>El usuario opera el agente como un sistema de ingeniería gestionado: los prompts presentan un alto contenido contextual, los ciclos de lectura-edición-verificación son disciplinados, y los ciclos de corrección improductivos resultan prácticamente inexistentes.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- 10 -->
+  <section class="doc" id="arquetipo">
+    <h2><span class="num">10</span><a class="anchor-h" href="#arquetipo">Clasificación de arquetipo</a></h2>
+    <p class="kicker">Caracterización del estilo de conducción mediante vectores ponderados por agencia.</p>
+
+    <p>El arquetipo constituye un indicador distinto del puntaje general, y la diferencia entre ambos resulta metodológicamente significativa. El <strong>puntaje general</strong> evalúa la calidad de la colaboración entre el usuario y el agente; el <strong>arquetipo</strong>, en cambio, caracteriza exclusivamente el estilo de conducción del usuario. En consecuencia, ambos indicadores pueden divergir: es posible que un usuario obtenga un puntaje elevado y, simultáneamente, presente un arquetipo que destaque una faceta particular de su estilo.</p>
+
+    <p>La distinción se apoya en el concepto de <strong>agencia</strong>. Determinados hábitos son ejecutados por el agente de forma autónoma (la lectura de un archivo previa a su modificación, la ejecución de pruebas), en tanto que otros corresponden inequívocamente a la conducción del usuario (el encuadre de un pedido, la formulación de una corrección, la decisión de delegar). Para caracterizar el estilo del usuario, el sistema descuenta significativamente los primeros y contabiliza por completo los segundos. Resultaría metodológicamente incorrecto atribuir al usuario un estilo "verificador" en virtud de una disciplina cuya autoría corresponde, en realidad, al agente.</p>
+
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Eje</th><th>Peso de agencia</th><th>Fundamento</th></tr></thead>
+        <tbody>
+          <tr><td>Instrucción</td><td class="num-cell">1.00</td><td>Conducción íntegra del usuario.</td></tr>
+          <tr><td>Iteración</td><td class="num-cell">1.00</td><td>Conducción íntegra del usuario.</td></tr>
+          <tr><td>Delegación</td><td class="num-cell">1.00</td><td>Conducción íntegra del usuario.</td></tr>
+          <tr><td>Herramientas</td><td class="num-cell">0.80</td><td>Mayoritariamente conducida por el usuario, parcialmente por el agente.</td></tr>
+          <tr><td>Verificación</td><td class="num-cell">0.35</td><td>Hábito frecuentemente ejecutado por el agente de forma autónoma.</td></tr>
+          <tr><td>Contexto</td><td class="num-cell">0.15</td><td>Hábito frecuentemente ejecutado por el agente de forma autónoma.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>Al vector ponderado por agencia se incorpora un eje adicional: la tasa de delegación, expresada como hand-offs por hora activa (incluyendo trabajos a subagentes, procesos en segundo plano y planificación). El vector resultante se compara contra cinco prototipos de estilo mediante similitud coseno aplicada sobre valores normalizados (puntuación z), y se selecciona el prototipo de mayor proximidad. Cuando los dos prototipos más cercanos presentan una diferencia inferior a <code>0.06</code>, el sistema no impone una clasificación única: <strong>reporta una caracterización mixta</strong>. En condiciones de evidencia reducida, el arquetipo constituye el indicador menos estable del análisis y se acompaña de un calificativo explícito de provisionalidad.</p>
+
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Prototipo</th><th>Caracterización del estilo</th></tr></thead>
+        <tbody>
+          <tr><td>🤖 <strong>Agente Autónomo</strong></td><td>Delega trabajos completos de extremo a extremo y confía en su ejecución por parte del agente: define el resultado esperado y permite que el agente seleccione los pasos intermedios.</td></tr>
+          <tr><td>🏗️ <strong>Arquitecto</strong></td><td>Planifica y explora previamente a la construcción: realiza lectura y diseño en primera instancia, de modo que las modificaciones posteriores se apliquen sobre una estructura clarificada.</td></tr>
+          <tr><td>🐛 <strong>Depurador</strong></td><td>Aborda los problemas con método: lee para diagnosticar, modifica, verifica y repite el ciclo hasta la resolución efectiva.</td></tr>
+          <tr><td>🤝 <strong>Colaborador</strong></td><td>Trabaja con el agente como con un par: solicita alternativas, proporciona retroalimentación y conduce el proceso hacia el alineamiento.</td></tr>
+          <tr><td>⚡ <strong>Velocista</strong></td><td>Privilegia la velocidad y la economía: prompts concisos, turnos rápidos, ceremonia reducida. Las áreas de mejora típicas son el encuadre inicial y la verificación posterior.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- 11 -->
+  <section class="doc" id="niveles">
+    <h2><span class="num">11</span><a class="anchor-h" href="#niveles">Niveles de competencia (1 a 5)</a></h2>
+    <p class="kicker">Traducción de los puntajes dimensionales a una escala progresiva.</p>
+
+    <p>De forma complementaria a la clasificación en bandas, cada dimensión se traduce a un nivel comprendido entre 1 y 5, desde Emergente hasta Experto, acompañado de una descripción del estado actual del usuario y de una indicación específica del siguiente paso de progresión. El nivel se deriva directamente del puntaje de la dimensión, mediante una partición en cinco tramos uniformes. Esta presentación entrega la misma información que los puntajes dimensionales, pero organizada como una escalera de progresión que indica explícitamente el siguiente estadio de desarrollo.</p>
+
+    <div class="formula">nivel(score) = máx(1, mín(5, ⌊score / 20⌋ + 1))   <span class="c"># 0–19→1, 20–39→2, … 80–100→5</span></div>
+
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Nivel</th><th>Denominación</th><th>Caracterización</th></tr></thead>
+        <tbody>
+          <tr><td class="num-cell">1</td><td><strong>Emergente</strong></td><td>Modo de operación predominantemente reactivo; delegación con estructuración mínima; verificación y acotamiento poco frecuentes.</td></tr>
+          <tr><td class="num-cell">2</td><td><strong>En desarrollo</strong></td><td>Aparición intermitente de estructura; aplicación ocasional de restricciones y verificaciones.</td></tr>
+          <tr><td class="num-cell">3</td><td><strong>Competente</strong></td><td>El hábito se manifiesta en la mayoría de los momentos relevantes; constituye una línea base confiable de operación.</td></tr>
+          <tr><td class="num-cell">4</td><td><strong>Avanzado</strong></td><td>Aplicación consistente y deliberada; anticipación de los modos de falla; vacíos infrecuentes.</td></tr>
+          <tr><td class="num-cell">5</td><td><strong>Experto</strong></td><td>El hábito opera como un reflejo y resulta transmisible: se establece anticipadamente, se compone en capas y se sistematiza de forma reutilizable.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- 12 -->
+  <section class="doc" id="framework">
+    <h2><span class="num">12</span><a class="anchor-h" href="#framework">Marco conceptual: las cuatro competencias</a></h2>
+    <p class="kicker">Fundamento teórico que sustenta la interpretación cualitativa del análisis.</p>
+
+    <p>La interpretación cualitativa del análisis se apoya en un marco conceptual denominado <strong>framework de las cuatro D</strong>, adaptado del trabajo de Anthropic sobre fluidez con sistemas de inteligencia artificial (<em>AI Fluency: Frameworks &amp; Foundations</em>, de Rick Dakan y Joseph Feller). Las cuatro competencias que componen el marco son Delegación, Descripción, Discernimiento y Diligencia.</p>
+
+    <h3>12.1. Definición de las cuatro competencias</h3>
+
+    <dl class="terms">
+      <dt>Delegación</dt>
+      <dd>Competencia de decidir qué trabajo se transfiere al agente y en qué proporción: el conocimiento de qué tareas corresponden al usuario y cuáles al agente, y la capacidad de subdividir un objetivo en componentes del tamaño adecuado para su ejecución.</dd>
+
+      <dt>Descripción</dt>
+      <dd>Competencia de prompting: la capacidad de comunicar de forma efectiva la intención, las restricciones operativas y la forma esperada de la respuesta.</dd>
+
+      <dt>Discernimiento</dt>
+      <dd>Competencia de evaluación crítica de los outputs del agente: la verificación de la corrección del resultado, la detección de desviaciones en el proceso, y el juicio sobre la pertinencia del estilo de interacción.</dd>
+
+      <dt>Diligencia</dt>
+      <dd>Competencia de uso responsable: la asunción de responsabilidad sobre los productos entregados, la verificación previa a las acciones de impacto, y el mantenimiento ordenado del entorno.</dd>
+    </dl>
+
+    <h3>12.2. Correspondencia entre señales del motor y competencias del marco</h3>
+
+    <p>El motor determinístico no mide directamente las cuatro competencias del marco, sino que computa señales observables en el texto. La interpretación cualitativa mapea posteriormente dichas señales sobre el marco, de acuerdo con la siguiente correspondencia:</p>
+
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Señal del motor</th><th>Competencia primaria</th><th>Competencia secundaria</th></tr></thead>
+        <tbody>
+          <tr><td>Instrucción (restricción, artefacto, intención).</td><td>Descripción</td><td>Delegación (conciencia del problema).</td></tr>
+          <tr><td>Eje de delegación (hand-offs por hora activa).</td><td>Delegación</td><td>—</td></tr>
+          <tr><td>Herramientas (amplitud, balance, orquestación).</td><td>Delegación (conciencia de plataforma).</td><td>—</td></tr>
+          <tr><td>Verificación (ejecución de pruebas posteriores a la edición).</td><td>Discernimiento</td><td>Diligencia.</td></tr>
+          <tr><td>Contexto (lectura previa a la edición).</td><td>Discernimiento</td><td>Diligencia.</td></tr>
+          <tr><td>Iteración (tasa y especificidad de las correcciones).</td><td>Descripción (re-descripción).</td><td>Discernimiento.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>La interpretación cualitativa debe respetar dos restricciones metodológicas. La primera es la <strong>agencia</strong>, ya formalizada: el análisis no debe acreditar al usuario hábitos cuya autoría efectiva corresponde al agente. La segunda es la <strong>confianza</strong>: las señales con evidencia insuficiente deben presentarse de forma matizada, sin afirmarse como hechos verificados.</p>
+  </section>
+
+  <!-- 13 -->
+  <section class="doc" id="pipeline">
+    <h2><span class="num">13</span><a class="anchor-h" href="#pipeline">Capa opcional de análisis con IA</a></h2>
+    <p class="kicker">Pipeline de dos modelos y salvaguarda de procedencia.</p>
+
+    <p>Cuando el entorno de ejecución dispone de la capacidad correspondiente, el sistema activa una capa adicional de análisis basada en dos modelos de lenguaje. La secuencia de operaciones es la siguiente. En primer término, el motor determinístico produce un paquete de evidencia descontaminado, del cual se han suprimido las rutas que identifican la máquina del usuario. A continuación, un primer modelo (Claude Sonnet) examina dicho paquete competencia por competencia. Finalmente, un segundo modelo de mayor capacidad (Claude Opus) compone el mapa de habilidades final, anclando cada afirmación en los prompts reales del usuario y en el marco conceptual de las cuatro D.</p>
+
+    <p>El modelo de síntesis opera bajo restricciones estrictas: la totalidad de las afirmaciones debe anclarse en la evidencia disponible, se requiere la citación de prompts reales del usuario, se prohíbe la formulación de recomendaciones genéricas, y la insuficiencia de evidencia debe declararse explícitamente.</p>
+
+    <h3>13.1. Salvaguarda criptográfica de procedencia</h3>
+
+    <p>El paquete de evidencia incorpora una <strong>huella digital criptográfica</strong> consistente en un hash SHA-256 de los prompts reales correspondientes a la ejecución en curso. En el momento de la fusión del análisis de IA con el reporte final, el sistema verifica la coincidencia entre la huella del análisis y la huella de la ejecución. Ante una discrepancia (por ejemplo, cuando el archivo de análisis corresponde a una ejecución anterior o a una sesión de otro usuario en una máquina compartida), el sistema rechaza la fusión y procede a renderizar exclusivamente el reporte determinístico. Esta salvaguarda impide que el resultado escrito de un usuario pueda incorporarse al reporte de otro.</p>
+
+    <div class="callout">
+      <div class="label">Reporte determinístico exclusivo</div>
+      <p>Cuando el entorno no provee la capacidad de orquestación de modelos, o cuando el análisis no supera la verificación de procedencia, el sistema entrega exclusivamente el reporte derivado de la etapa determinística. <strong>El reporte resultante no es una versión degradada</strong>: el puntaje, el arquetipo, las dimensiones y el plan de mejora se calculan en su integridad a partir de los datos del usuario. La diferencia respecto al reporte completo reside únicamente en la ausencia del mapa de habilidades redactado por la IA.</p>
+    </div>
+  </section>
+
+  <!-- 14 -->
+  <section class="doc" id="privacidad">
+    <h2><span class="num">14</span><a class="anchor-h" href="#privacidad">Garantías de privacidad y reproducibilidad</a></h2>
+    <p class="kicker">Garantías técnicas que sustentan la credibilidad del sistema.</p>
+
+    <p>El sistema ofrece tres garantías técnicas que constituyen la base de su credibilidad metodológica.</p>
+
+    <p><strong>Ejecución local.</strong> La totalidad del procesamiento se efectúa en la máquina del usuario. Las transcripciones no se transmiten a servicios externos en ningún punto del análisis.</p>
+
+    <p><strong>Reproducibilidad determinística.</strong> El cálculo se realiza sin elementos estocásticos. Un mismo conjunto de transcripciones produce, en todas las ejecuciones, idéntico puntaje, idéntica clasificación y idéntico arquetipo.</p>
+
+    <p><strong>Anonimización en presentación.</strong> Las rutas que pueden identificar la máquina del usuario se suprimen del texto previamente a su presentación o almacenamiento. Esta operación se aplica exclusivamente en la capa de presentación, y nunca sobre el corpus utilizado para el cálculo, lo que garantiza la invariabilidad de los puntajes.</p>
+
+    <h3>14.1. Política de persistencia de transcripciones</h3>
+
+    <p>El agente elimina automáticamente las transcripciones con antigüedad superior al umbral configurado (treinta días por defecto, mediante el parámetro <code>cleanupPeriodDays</code>). Para habilitar el análisis de períodos más extensos, el sistema dispone de la opción de mantener un archivo persistente que conserva copias de las transcripciones.</p>
+
+    <div class="callout warn">
+      <div class="label">Requisitos del archivo persistente</div>
+      <p>El archivo persistente debe mantenerse <strong>privado e individual</strong>. Su almacenamiento en una ubicación compartida o sincronizada entre múltiples usuarios o máquinas (por ejemplo, una carpeta de Dropbox de equipo) provocaría la fusión de transcripciones de distintos usuarios en un único reporte. Por este motivo, el análisis de fluidez se ejecuta con el archivado <strong>desactivado por defecto</strong> (parámetro <code>--no-archive</code>), evitando la duplicación involuntaria de volúmenes significativos de datos.</p>
+    </div>
+  </section>
+
+  <!-- 15 -->
+  <section class="doc" id="limitaciones">
+    <h2><span class="num">15</span><a class="anchor-h" href="#limitaciones">Limitaciones y alcance</a></h2>
+    <p class="kicker">Declaración explícita de las limitaciones metodológicas del sistema.</p>
+
+    <p>La presente sección documenta las limitaciones conocidas del sistema, en consonancia con su principio de transparencia metodológica.</p>
+
+    <p><strong>Medición de comportamiento observable.</strong> El sistema evalúa el comportamiento manifiesto del usuario, no su intención subyacente. Las inferencias se basan en el contenido efectivamente escrito, y no en el contexto mental que el usuario pueda haber tenido al producirlo.</p>
+
+    <p><strong>Naturaleza heurística de los detectores.</strong> Los detectores de señales operan mediante expresiones regulares y reglas explícitas. No constituyen modelos de comprensión semántica y, en consecuencia, pueden producir falsos positivos y falsos negativos en casos específicos.</p>
+
+    <p><strong>Análisis transversal.</strong> El reporte constituye una observación puntual del estado del usuario, no una serie temporal. La evaluación de la evolución requiere la comparación de reportes sucesivos.</p>
+
+    <p><strong>Sesgo conocido en prompts contextuales.</strong> Existe un sesgo documentado en el análisis: los prompts breves cuya intención se sostiene en el turno inmediatamente anterior tienden a infravalorar la dimensión Instrucción. El motor analiza cada prompt de forma independiente y no incorpora el contexto conversacional implícito.</p>
+
+    <p>El reconocimiento explícito de estas limitaciones permite la correcta interpretación del puntaje: <strong>el reporte constituye una herramienta de reflexión sobre la propia práctica, no un veredicto definitivo.</strong></p>
+  </section>
+
+  <!-- 16 -->
+  <section class="doc" id="referencia">
+    <h2><span class="num">16</span><a class="anchor-h" href="#referencia">Apéndice: referencia de parámetros</a></h2>
+    <p class="kicker">Inventario consolidado de las constantes del motor.</p>
+
+    <p>La siguiente tabla presenta el inventario completo de las constantes que rigen el comportamiento del motor de análisis. La totalidad de los parámetros se encuentra definida en la cabecera del módulo <code>insight.py</code> y resulta susceptible de ajuste sin alteración de la lógica de medición.</p>
+
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Parámetro</th><th>Valor</th><th>Función</th></tr></thead>
+        <tbody>
+          <tr><td>Directorios de búsqueda predeterminados.</td><td><code>~/.claude/projects</code>, <code>~/.claude/sessions</code></td><td>Ubicaciones donde el sistema localiza las transcripciones del usuario.</td></tr>
+          <tr><td>Tope máximo de intervalo inactivo.</td><td class="num-cell">300 s (5 min)</td><td>Los silencios de duración superior no contribuyen al cómputo del tiempo activo.</td></tr>
+          <tr><td>Longitud máxima de un prompt.</td><td class="num-cell">6.000 caracteres</td><td>Por encima de este umbral, el registro se clasifica como bloque pegado o inyección de sistema.</td></tr>
+          <tr><td>Volumen mínimo para análisis no provisional.</td><td class="num-cell">30 prompts</td><td>Por debajo de este valor, el puntaje se presenta acompañado de un margen aproximado de ±10 puntos.</td></tr>
+          <tr><td>Pesos del puntaje general.</td><td><span class="pill w">Instr. 24%</span> <span class="pill w">Verif. 22%</span> <span class="pill w">Cont. 22%</span> <span class="pill w">Iter. 18%</span> <span class="pill w">Herr. 14%</span></td><td>Coeficientes de ponderación de cada dimensión en el cálculo del puntaje agregado.</td></tr>
+          <tr><td>Objetivos de confianza (N) por dimensión.</td><td>Instr. 60 · Verif. 15 · Cont. 25 · Iter. 12 · Herr. 40</td><td>Número de oportunidades requerido para que la dimensión no se aproxime al valor neutro.</td></tr>
+          <tr><td>Objetivos de saturación.</td><td>restricción/artefacto: 0.45 · intención: 0.30 · verificación: 0.60 · contexto: 0.85 · amplitud: 20 herramientas · delegación: 2.0/hora</td><td>Tasa a partir de la cual la señal correspondiente alcanza su valor máximo.</td></tr>
+          <tr><td>Techo de la tasa de corrección.</td><td class="num-cell">0.35</td><td>Tasa de corrección considerada elevada en el cálculo de la dimensión Iteración.</td></tr>
+          <tr><td>Bonificación por desmontaje.</td><td class="num-cell">+5 puntos</td><td>Suplemento aplicado a la dimensión Verificación ante la detección de un cierre ordenado de sistema.</td></tr>
+          <tr><td>Margen de clasificación mixta de arquetipo.</td><td class="num-cell">0.06</td><td>Distancia coseno por debajo de la cual el sistema reporta un arquetipo en clasificación mixta.</td></tr>
+          <tr><td>Pesos de agencia (vector de arquetipo).</td><td>Instr./Iter./Deleg.: 1.00 · Herr.: 0.80 · Verif.: 0.35 · Cont.: 0.15</td><td>Coeficiente que pondera la contribución de cada eje al vector de estilo de conducción.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <p>Documento técnico de referencia · Sistema de Análisis de Fluidez con IA · Versión 1.0</p>
+  <p>Motor de cálculo implementado en Python (<code>insight.py</code>). Ejecución íntegramente local; las transcripciones del usuario no abandonan la máquina en ningún punto del proceso.</p>
+</footer>
+
+<script>
+  /* Marcado del ítem activo en el índice según la sección visible en el viewport */
+  (function(){
+    const links = document.querySelectorAll('aside.sidebar a[href^="#"]');
+    const map = new Map();
+    links.forEach(a => {
+      const id = a.getAttribute('href').slice(1);
+      const el = document.getElementById(id);
+      if (el) map.set(el, a);
+    });
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        const link = map.get(e.target);
+        if (!link) return;
+        if (e.isIntersecting) {
+          links.forEach(l => l.classList.remove('active'));
+          link.classList.add('active');
+        }
+      });
+    }, { rootMargin: '-15% 0px -75% 0px', threshold: 0 });
+    map.forEach((_, section) => observer.observe(section));
+
+    /* Cierre del índice al seleccionar un enlace en viewport reducido */
+    links.forEach(a => a.addEventListener('click', () => {
+      if (window.innerWidth <= 900) {
+        document.querySelector('aside.sidebar').classList.remove('open');
+      }
+    }));
+  })();
+</script>
+
+</body>
+</html>
