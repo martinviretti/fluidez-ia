@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Fluidez con IA — interactiva</title>
+<title>Fluidez con IA: qué es, para qué sirve y cómo lo hace</title>
 
 <link rel="preconnect" href="https://api.fontshare.com" />
 <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=clash-display@600,500,700&f[]=general-sans@400,500,600&display=swap" />
@@ -12,16 +12,16 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" />
 
 <style>
-/* ===== TEMA ===== */
+/* ===== TEMA (mismo sistema visual que el deck de 7 slides) ===== */
 :root{
   --bg:#0a0d13;--bg-2:#121823;--bg-3:#1a2230;
   --ink:#eef2f7;--mut:#8b97a8;--faint:#5a6678;
   --accent:#ffc24b;--accent-2:#4fd1c5;--accent-3:#e86a92;
   --glow:rgba(255,194,75,.22);--line:rgba(255,255,255,.08);--line-2:rgba(255,255,255,.14);
   --font-display:"Clash Display",sans-serif;--font-body:"General Sans",sans-serif;--font-mono:"JetBrains Mono",monospace;
-  --title-size:clamp(2rem,5.5vw,4.4rem);--h2-size:clamp(1.5rem,3.8vw,3rem);--h3-size:clamp(1rem,2vw,1.5rem);
-  --body-size:clamp(.82rem,1.4vw,1.12rem);--small-size:clamp(.66rem,1vw,.86rem);--tiny-size:clamp(.58rem,.82vw,.74rem);
-  --slide-padding:clamp(1.4rem,4.5vw,4.5rem);--content-gap:clamp(.8rem,2vw,1.7rem);--element-gap:clamp(.4rem,1vw,.9rem);
+  --title-size:clamp(2rem,5.5vw,4.4rem);--h2-size:clamp(1.55rem,3.5vw,2.8rem);--h3-size:clamp(1.05rem,2vw,1.55rem);
+  --body-size:clamp(.95rem,1.5vw,1.22rem);--small-size:clamp(.82rem,1.2vw,1.02rem);--tiny-size:clamp(.74rem,.98vw,.88rem);
+  --slide-padding:clamp(1.4rem,4.5vw,4.5rem);--content-gap:clamp(.7rem,1.8vw,1.5rem);--element-gap:clamp(.4rem,1vw,.9rem);
   --ease:cubic-bezier(.16,1,.3,1);--dur:.7s;
 }
 *{margin:0;padding:0;box-sizing:border-box}
@@ -29,237 +29,216 @@ html,body{height:100%;overflow-x:hidden}
 html{scroll-snap-type:y mandatory;scroll-behavior:smooth}
 .slide{width:100vw;height:100vh;height:100dvh;overflow:hidden;scroll-snap-align:start;display:flex;flex-direction:column;position:relative}
 .slide-content{flex:1;display:flex;flex-direction:column;justify-content:center;max-height:100%;width:100%;max-width:1180px;margin:0 auto;overflow:hidden;padding:var(--slide-padding);position:relative;z-index:2}
-@media (max-height:700px){:root{--slide-padding:clamp(1rem,3vw,2.5rem);--content-gap:clamp(.5rem,1.4vw,1rem);--title-size:clamp(1.5rem,4.3vw,2.7rem);--h2-size:clamp(1.2rem,3vw,2rem)}}
-@media (max-height:600px){:root{--slide-padding:clamp(.6rem,2.4vw,1.4rem);--content-gap:clamp(.4rem,1vw,.7rem);--title-size:clamp(1.2rem,3.8vw,2rem);--h2-size:clamp(1.05rem,2.8vw,1.6rem);--body-size:clamp(.72rem,1.1vw,.92rem)}.nav-dots,.keyboard-hint,.decorative{display:none}}
-@media (max-height:500px){:root{--slide-padding:clamp(.45rem,1.8vw,1rem);--title-size:clamp(1rem,3.4vw,1.5rem);--h2-size:clamp(.9rem,2.4vw,1.25rem);--body-size:clamp(.64rem,.95vw,.82rem)}}
+.slide.dense .slide-content{padding-bottom:clamp(4.75rem,8.5vh,6rem)}
+@media (max-height:880px){:root{--slide-padding:clamp(1rem,3vw,2.5rem);--content-gap:clamp(.5rem,1.3vw,.9rem);--h2-size:clamp(1.2rem,2.9vw,2rem)}}
+@media (max-height:620px){:root{--slide-padding:clamp(.6rem,2.4vw,1.4rem);--content-gap:clamp(.4rem,1vw,.65rem);--h2-size:clamp(1.05rem,2.6vw,1.55rem);--body-size:clamp(.72rem,1.1vw,.92rem)}.nav-dots{display:none}}
 @media (max-width:600px){:root{--title-size:clamp(1.5rem,8vw,2.5rem)}}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.2s!important}html{scroll-behavior:auto}}
 
 body{background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:var(--body-size);line-height:1.5;-webkit-font-smoothing:antialiased}
-/* Fondo 3D (three.js) — detrás de todo */
 #bg3d{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.42}
 .slide::before{content:"";position:absolute;inset:0;z-index:0;background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);background-size:clamp(26px,3.6vw,48px) clamp(26px,3.6vw,48px);mask-image:radial-gradient(ellipse 92% 82% at 50% 42%,#000 26%,transparent 92%);opacity:.35}
 .slide::after{content:"";position:absolute;z-index:0;width:60vw;height:60vw;max-width:800px;max-height:800px;top:-16%;right:-12%;background:radial-gradient(circle,var(--glow),transparent 60%);filter:blur(22px);pointer-events:none}
 .slide:nth-child(even)::after{right:auto;left:-12%;top:auto;bottom:-16%;background:radial-gradient(circle,rgba(79,209,197,.16),transparent 60%)}
 
 h1,h2,h3{font-family:var(--font-display);font-weight:600;line-height:1.06;letter-spacing:-.02em}
-h1{font-size:var(--title-size)}h2{font-size:var(--h2-size)}h3{font-size:var(--h3-size)}
+h2{font-size:var(--h2-size)}h3{font-size:var(--h3-size)}
 .mono{font-family:var(--font-mono)}
 .accent{color:var(--accent)}.accent-2{color:var(--accent-2)}.accent-3{color:var(--accent-3)}
 em{color:var(--ink);font-style:normal;font-weight:600;border-bottom:2px solid var(--accent);padding-bottom:1px}
-.lead{color:var(--mut);max-width:66ch;font-size:clamp(.88rem,1.7vw,1.3rem)}
+.lead{color:var(--mut);max-width:96ch;font-size:clamp(.85rem,1.45vw,1.1rem)}
+.lead b{color:var(--ink);font-weight:600}
 .spec{font-family:var(--font-mono);font-size:var(--tiny-size);color:var(--faint);letter-spacing:.03em}
 .qhead{display:flex;align-items:center;gap:clamp(.6rem,1.6vw,1.3rem);margin-bottom:var(--element-gap)}
 .qnum{font-family:var(--font-mono);font-weight:700;font-size:clamp(1.1rem,2.4vw,1.9rem);color:#0a0d13;background:var(--accent);border-radius:10px;padding:.15em .5em;line-height:1}
 .qkick{font-family:var(--font-mono);font-size:var(--small-size);letter-spacing:.2em;text-transform:uppercase;color:var(--accent)}
-.qsub{display:block;font-family:var(--font-mono);font-size:var(--small-size);color:var(--mut);font-weight:400;letter-spacing:.03em;margin-top:.45em}
+.qsub{display:block;font-family:var(--font-mono);font-size:var(--small-size);color:var(--mut);font-weight:400;letter-spacing:.03em;margin-top:.5em}
+.h2sub{display:block;font-family:var(--font-display);font-weight:500;font-size:clamp(1.1rem,2.2vw,1.75rem);color:var(--mut);margin-top:.2em;letter-spacing:-.01em}
 
 /* Animaciones de entrada */
-.reveal{opacity:0;transform:translateY(26px);transition:opacity var(--dur) var(--ease),transform var(--dur) var(--ease)}
+.reveal{opacity:0;transform:translateY(24px);transition:opacity var(--dur) var(--ease),transform var(--dur) var(--ease)}
 .slide.visible .reveal{opacity:1;transform:translateY(0)}
-.slide.visible .reveal:nth-child(1){transition-delay:.05s}.slide.visible .reveal:nth-child(2){transition-delay:.14s}
-.slide.visible .reveal:nth-child(3){transition-delay:.23s}.slide.visible .reveal:nth-child(4){transition-delay:.32s}
-.stagger>*{opacity:0;transform:translateY(18px);transition:opacity .55s var(--ease),transform .55s var(--ease)}
-.slide.visible .stagger>*{opacity:1;transform:translateY(0)}
-.slide.visible .stagger>*:nth-child(1){transition-delay:.25s}.slide.visible .stagger>*:nth-child(2){transition-delay:.34s}
-.slide.visible .stagger>*:nth-child(3){transition-delay:.43s}.slide.visible .stagger>*:nth-child(4){transition-delay:.52s}
-.slide.visible .stagger>*:nth-child(5){transition-delay:.61s}
+.slide.visible .reveal:nth-child(1){transition-delay:.05s}.slide.visible .reveal:nth-child(2){transition-delay:.13s}
+.slide.visible .reveal:nth-child(3){transition-delay:.21s}.slide.visible .reveal:nth-child(4){transition-delay:.29s}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+@media (prefers-reduced-motion:reduce){.ditem,.maprow{animation:none!important}}
 
-/* Diagramas SVG animados */
-.diagram{width:100%;max-height:min(48vh,420px);display:block;margin:var(--content-gap) 0}
-.diagram text{font-family:var(--font-mono)}
-.flow-line{stroke-dasharray:120;stroke-dashoffset:120;transition:stroke-dashoffset 1s var(--ease)}
-.slide.visible .flow-line{stroke-dashoffset:0}
-.node-box{opacity:0;transform-box:fill-box;transform-origin:center;transform:scale(.9);transition:opacity .6s var(--ease),transform .6s var(--ease)}
-.slide.visible .node-box{opacity:1;transform:scale(1)}
-.slide.visible .node-box.d1{transition-delay:.1s}.slide.visible .node-box.d2{transition-delay:.35s}
-.slide.visible .node-box.d3{transition-delay:.6s}.slide.visible .node-box.d4{transition-delay:.85s}
-.dataflow{opacity:0}.slide.visible .dataflow{opacity:1;transition:opacity .4s ease 1s}
+/* Interactivo (click) */
+.info{cursor:pointer}
 
-/* Elementos interactivos (doble click) */
-.info{position:relative;cursor:pointer;transition:transform .3s var(--ease),box-shadow .3s var(--ease),border-color .3s var(--ease)}
-.info:hover{transform:translateY(-8px) scale(1.025)!important;border-color:var(--accent)!important;box-shadow:0 16px 44px rgba(0,0,0,.5),0 0 22px var(--glow);animation-play-state:paused;z-index:3}
-.info::after{content:"› click para ver";position:absolute;top:.55em;right:.7em;font-family:var(--font-mono);font-size:var(--tiny-size);color:var(--accent);opacity:0;transition:opacity .25s}
-.info:hover::after{opacity:1}
-@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
-@media (prefers-reduced-motion:reduce){.kpoint,.dimcard,.rule{animation:none!important}}
+/* ===== SLIDE 1 · dos columnas ===== */
+.split2{display:grid;grid-template-columns:1fr 1.05fr;gap:clamp(1rem,3.2vw,2.6rem);margin-top:var(--content-gap);align-items:start}
+@media (max-width:860px){.split2{grid-template-columns:1fr;gap:1.1rem}}
+.colhead{font-family:var(--font-mono);font-size:var(--tiny-size);letter-spacing:.15em;text-transform:uppercase;color:var(--accent);display:flex;align-items:center;gap:.6em;margin-bottom:.6em}
+.colhead.cyan{color:var(--accent-2)}
+.colhead::after{content:"";flex:1;height:1px;background:var(--line)}
 
-/* Cards / puntos */
-.keys-row{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(.6rem,1.6vw,1.3rem)}
-.keys-row.two{grid-template-columns:repeat(2,1fr)}
-@media (max-width:740px){.keys-row,.keys-row.two{grid-template-columns:1fr}}
-.kpoint{background:rgba(20,27,39,.5);backdrop-filter:blur(12px) saturate(1.3);-webkit-backdrop-filter:blur(12px) saturate(1.3);border:1px solid rgba(255,255,255,.1);border-radius:13px;padding:clamp(.8rem,1.6vw,1.3rem);display:flex;flex-direction:column;gap:.3em;min-height:clamp(90px,13vh,140px);justify-content:center;animation:float 7s ease-in-out infinite}
-.kpoint .h{font-family:var(--font-display);font-weight:600;font-size:clamp(.92rem,1.6vw,1.25rem)}
-.kpoint .p{color:var(--mut);font-size:var(--small-size)}
-.kpoint .tag{font-family:var(--font-mono);font-size:var(--tiny-size);color:var(--accent-2)}
+/* SLIDE 1 · 4D en grilla 2×2 + qué obtenés */
+.d4grid{display:grid;grid-template-columns:1fr 1fr;gap:clamp(.9rem,2vw,1.5rem);margin-top:calc(var(--content-gap) + .3rem)}
+@media (max-width:680px){.d4grid{grid-template-columns:1fr}}
+.gives{margin-top:var(--content-gap);font-family:var(--font-mono);font-size:var(--small-size);color:var(--mut)}
+.gives span{color:#0a0d13;background:var(--accent-2);border-radius:6px;padding:.18em .6em;font-weight:700;margin-right:.7em;text-transform:uppercase;letter-spacing:.07em;font-size:.85em}
+/* línea de aclaración (slide 2) */
+.clarifyline{position:relative;cursor:pointer;border:1px solid rgba(79,209,197,.25);background:rgba(79,209,197,.05);border-radius:12px;padding:.8em 1em;margin-top:var(--content-gap);font-size:clamp(.85rem,1.4vw,1.05rem);color:var(--mut);display:flex;align-items:center;gap:.6em;flex-wrap:wrap;transition:transform .3s var(--ease),border-color .3s,background .3s}
+.clarifyline:hover{transform:translateY(-3px);border-color:var(--accent-2);background:rgba(79,209,197,.09)}
+.clarifyline b{color:var(--ink)}
+.clarifyline .go{margin-left:auto;font-family:var(--font-mono);font-size:var(--tiny-size);color:var(--accent-2);white-space:nowrap}
 
-/* Portada / cierre */
-.title-badge{font-family:var(--font-mono);font-size:var(--small-size);color:var(--mut);border:1px solid var(--line-2);border-radius:999px;padding:.4em 1em;display:inline-flex;align-items:center;gap:.6em;width:fit-content;margin-bottom:var(--element-gap)}
-.title-badge .dot{width:7px;height:7px;border-radius:50%;background:var(--accent-2);box-shadow:0 0 10px var(--accent-2);animation:pulse 2.4s infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
-.kicker{font-family:var(--font-mono);font-size:var(--small-size);letter-spacing:.2em;text-transform:uppercase;color:var(--accent);display:inline-flex;align-items:center;gap:.6em;margin-bottom:var(--element-gap)}
-.kicker::before{content:"";width:clamp(18px,3vw,40px);height:1px;background:var(--accent);display:inline-block}
-.agenda{display:flex;flex-wrap:wrap;gap:.5em;margin-top:1rem}
-.agenda span{font-family:var(--font-mono);font-size:var(--small-size);color:var(--mut);border:1px solid var(--line-2);border-radius:999px;padding:.3em .9em}
+/* IZQUIERDA · las 4D */
+.dlist{display:flex;flex-direction:column;gap:clamp(.4rem,1vw,.6rem)}
+.ditem{position:relative;display:grid;grid-template-columns:auto 1fr;gap:clamp(.85rem,1.7vw,1.3rem);align-items:center;padding:clamp(1rem,2vw,1.5rem) clamp(1.2rem,2.3vw,1.8rem);border-radius:16px;border:1px solid var(--line-2);background:linear-gradient(155deg,rgba(28,37,53,.78),rgba(13,18,27,.55));cursor:pointer;overflow:hidden;animation:float 7s ease-in-out infinite;transition:transform .3s var(--ease),border-color .3s var(--ease),box-shadow .3s var(--ease)}
+.ditem::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--accent)}
+.ditem:nth-child(2)::before,.ditem:nth-child(3)::before{background:var(--accent-2)}
+.ditem:nth-child(2){animation-delay:-1.4s}.ditem:nth-child(3){animation-delay:-2.8s}.ditem:nth-child(4){animation-delay:-4.2s}
+.ditem:hover{transform:translateY(-5px);border-color:var(--accent);box-shadow:0 18px 50px rgba(0,0,0,.45),0 0 24px var(--glow)}
+.ditem .dmark{font-family:var(--font-mono);font-weight:700;font-size:clamp(1.1rem,1.9vw,1.6rem);color:#0a0d13;background:linear-gradient(140deg,var(--accent),#ffd884);border-radius:13px;width:2.1em;height:2.1em;display:grid;place-items:center;line-height:1;box-shadow:0 5px 16px rgba(255,194,75,.28)}
+.ditem:nth-child(2) .dmark,.ditem:nth-child(3) .dmark{background:linear-gradient(140deg,var(--accent-2),#93ebe1);box-shadow:0 5px 16px rgba(79,209,197,.24)}
+.ditem .dt{font-family:var(--font-display);font-weight:600;font-size:clamp(1.2rem,2vw,1.6rem);line-height:1.08}
+.ditem .dd{display:block;color:var(--mut);font-size:clamp(.85rem,1.2vw,1.02rem);margin-top:.3em}
 
-/* Slide técnica: dimensiones */
-.dimgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr));gap:clamp(.6rem,1.5vw,1rem)}
-.dimcard{background:rgba(20,27,39,.5);backdrop-filter:blur(12px) saturate(1.3);-webkit-backdrop-filter:blur(12px) saturate(1.3);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:clamp(.85rem,1.7vw,1.3rem);display:flex;flex-direction:column;gap:.55em;min-height:clamp(110px,15vh,160px);justify-content:center;animation:float 7s ease-in-out infinite}
-.dimcard .top{display:flex;justify-content:space-between;align-items:baseline}
-.dimcard .nm{font-family:var(--font-display);font-weight:600;font-size:clamp(.92rem,1.6vw,1.25rem)}
-.dimcard .wt{font-family:var(--font-mono);color:var(--accent);font-size:var(--small-size)}
-.dimcard .bar{height:7px;background:rgba(255,255,255,.06);border-radius:999px;overflow:hidden}
-.dimcard .bar>span{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,var(--accent),var(--accent-2));width:0;transition:width 1.1s var(--ease) .4s}
-.slide.visible .dimcard .bar>span{width:var(--w)}
-.dimcard .ds{color:var(--mut);font-size:var(--tiny-size)}
-.rules{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(.5rem,1.3vw,1rem)}
-@media (max-width:740px){.rules{grid-template-columns:1fr}}
-.rule{background:rgba(20,27,39,.5);backdrop-filter:blur(12px) saturate(1.3);-webkit-backdrop-filter:blur(12px) saturate(1.3);border:1px solid rgba(255,255,255,.1);border-left:3px solid var(--accent-2);border-radius:0 12px 12px 0;padding:clamp(.7rem,1.4vw,1.1rem) clamp(.85rem,1.6vw,1.2rem);min-height:clamp(80px,11vh,120px);display:flex;flex-direction:column;justify-content:center;animation:float 7s ease-in-out infinite}
-.rule .rn{font-family:var(--font-display);font-weight:600;font-size:clamp(.85rem,1.4vw,1.1rem)}
-.rule .rf{font-family:var(--font-mono);color:var(--accent-2);font-size:var(--tiny-size);display:block;margin-top:.25em}
+/* DERECHA · señales + cálculo */
+.maprows{display:flex;flex-direction:column;gap:clamp(.25rem,.7vw,.42rem)}
+.maprow{position:relative;display:grid;grid-template-columns:1fr auto auto;align-items:center;gap:clamp(.5rem,1.3vw,.9rem);padding:clamp(.34rem,.9vw,.55rem) clamp(.45rem,1.1vw,.75rem);border-radius:9px;cursor:pointer;transition:background .3s var(--ease),transform .3s var(--ease)}
+.maprow:hover{background:linear-gradient(90deg,rgba(255,194,75,.08),transparent);transform:translateX(4px)}
+.maprow .nmw{display:flex;flex-direction:column;gap:.02em;min-width:0}
+.maprow .nm{font-family:var(--font-display);font-weight:600;font-size:clamp(.85rem,1.45vw,1.1rem);line-height:1.1}
+.maprow .sub{font-family:var(--font-mono);font-size:var(--tiny-size);color:var(--faint)}
+.maprow .dbadge{font-family:var(--font-mono);font-size:var(--tiny-size);color:var(--accent-2);border:1px solid rgba(79,209,197,.3);border-radius:999px;padding:.18em .65em;white-space:nowrap}
+.maprow .wt{font-family:var(--font-mono);color:var(--accent);font-size:clamp(.8rem,1.35vw,1rem);min-width:2.6em;text-align:right}
 
-.callout{border:1px solid var(--line-2);border-radius:11px;padding:clamp(.7rem,1.5vw,1.1rem);background:rgba(255,194,75,.06);color:var(--ink);font-size:var(--small-size);max-width:80ch}
-/* MAQUETA del dashboard (preview del reporte real) */
-.mock{border:1px solid var(--line-2);border-radius:14px;overflow:hidden;background:rgba(14,19,28,.72);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);box-shadow:0 24px 60px rgba(0,0,0,.5);width:100%}
-.mock-bar{display:flex;align-items:center;gap:.45em;padding:.55em .8em;background:rgba(255,255,255,.04);border-bottom:1px solid var(--line)}
+.pipe{display:flex;align-items:center;gap:.35em;flex-wrap:wrap;margin-top:.5em}
+.scorepill{position:relative;cursor:pointer;display:inline-flex;flex-direction:column;gap:.05em;padding:.35em .6em;border:1px solid var(--line-2);border-radius:9px;background:rgba(20,27,39,.5);transition:background .25s,border-color .25s,transform .25s}
+.scorepill b{font-family:var(--font-display);font-weight:600;font-size:var(--tiny-size);color:var(--ink);transition:color .25s}
+.scorepill code{font-family:var(--font-mono);font-size:.62rem;color:var(--accent-2)}
+.scorepill:hover{background:rgba(255,194,75,.08);border-color:var(--accent);transform:translateY(-3px)}
+.scorepill:hover b{color:var(--accent)}
+.pipe .arr{color:var(--faint);font-size:.95em}
+
+/* ===== SLIDE 2 · mockup del dashboard real ===== */
+.mockcap{color:var(--mut);font-size:var(--small-size);max-width:88ch}
+.mock{border:1px solid var(--line-2);border-radius:14px;overflow:hidden;background:rgba(14,19,28,.74);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);box-shadow:0 24px 60px rgba(0,0,0,.5);width:100%;max-width:940px;margin:var(--content-gap) auto 0}
+.mock-bar{display:flex;align-items:center;gap:.45em;padding:.5em .8em;background:rgba(255,255,255,.04);border-bottom:1px solid var(--line)}
 .mock-bar i{width:10px;height:10px;border-radius:50%;display:inline-block}
 .mock-bar i:nth-child(1){background:#e86a92}.mock-bar i:nth-child(2){background:#ffc24b}.mock-bar i:nth-child(3){background:#4fd1c5}
 .mock-bar em{margin-left:.5em;font-family:var(--font-mono);font-size:var(--tiny-size);color:var(--mut);font-style:normal;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.mock-body{padding:clamp(.9rem,2vw,1.5rem);display:flex;flex-direction:column;gap:clamp(.7rem,1.6vw,1.15rem)}
-.mock-hero{display:flex;align-items:center;gap:clamp(1rem,3vw,2rem)}
-.ring{position:relative;width:clamp(94px,12vw,132px);height:clamp(94px,12vw,132px);flex-shrink:0}
+.mock-body{padding:clamp(.85rem,2vw,1.4rem);display:flex;flex-direction:column;gap:clamp(.6rem,1.5vw,1rem)}
+.mock-hero{display:flex;align-items:center;gap:clamp(.9rem,2.6vw,1.8rem)}
+.ring{position:relative;width:clamp(82px,10vw,116px);height:clamp(82px,10vw,116px);flex-shrink:0}
 .ring svg{width:100%;height:100%;transform:rotate(-90deg)}
 .ring .track{fill:none;stroke:rgba(255,255,255,.08);stroke-width:9}
 .ring .prog{fill:none;stroke:url(#rg);stroke-width:9;stroke-linecap:round;stroke-dasharray:327;stroke-dashoffset:327;transition:stroke-dashoffset 1.5s var(--ease) .4s}
-.slide.visible .ring .prog{stroke-dashoffset:85}
+.slide.visible .ring .prog{stroke-dashoffset:78}
 .ring .num{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
-.ring .num b{font-family:var(--font-display);font-size:clamp(1.5rem,3.2vw,2.3rem);line-height:1}
+.ring .num b{font-family:var(--font-display);font-size:clamp(1.4rem,3vw,2.1rem);line-height:1}
 .ring .num small{font-family:var(--font-mono);font-size:var(--tiny-size);color:var(--mut)}
-.mock-band{font-family:var(--font-display);font-weight:600;font-size:clamp(1.1rem,2.4vw,1.7rem);color:var(--accent);line-height:1}
-.mock-arch{color:var(--ink);font-size:var(--small-size);margin-top:.35em}
+.mock-hero .hx{min-width:0}
+.mock-band{font-family:var(--font-display);font-weight:600;font-size:clamp(1.05rem,2.3vw,1.6rem);color:var(--accent);line-height:1.05}
+.mock-arch{color:var(--ink);font-size:var(--small-size);margin-top:.3em}
 .mock-arch b{color:var(--accent-2)}
 .mock-ex{font-family:var(--font-mono);font-size:var(--tiny-size);color:var(--faint);margin-top:.3em}
-.mock-dims{display:flex;flex-direction:column;gap:.45em;border-top:1px solid var(--line);padding-top:clamp(.6rem,1.4vw,1rem)}
-.mock-dims .md{display:grid;grid-template-columns:clamp(5rem,9vw,7rem) 1fr auto;align-items:center;gap:.7em}
+.mock-grid{display:grid;grid-template-columns:1fr 1fr;gap:clamp(.9rem,2.6vw,1.8rem);border-top:1px solid var(--line);padding-top:clamp(.6rem,1.5vw,1rem)}
+@media (max-width:680px){.mock-grid{grid-template-columns:1fr;gap:.8rem}}
+.ttl{font-family:var(--font-mono);font-size:var(--tiny-size);letter-spacing:.13em;text-transform:uppercase;color:var(--accent);margin-bottom:.5em}
+.ttl.cyan{color:var(--accent-2)}
+.mock-dims{display:flex;flex-direction:column;gap:.42em}
+.mock-dims .md{display:grid;grid-template-columns:clamp(4.5rem,8vw,6.5rem) 1fr auto;align-items:center;gap:.6em}
 .mock-dims .mn{font-size:var(--tiny-size);color:var(--mut)}
 .mock-dims .mb{height:6px;background:rgba(255,255,255,.06);border-radius:999px;overflow:hidden}
 .mock-dims .mb>span{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,var(--accent),var(--accent-2));width:0;transition:width 1.1s var(--ease) .5s}
 .slide.visible .mock-dims .mb>span{width:var(--w)}
 .mock-dims .mv{font-family:var(--font-mono);font-size:var(--tiny-size);color:var(--ink)}
-.ttl{font-family:var(--font-mono);font-size:var(--tiny-size);letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin-bottom:.4em}
-.mlist{list-style:none;display:flex;flex-direction:column;gap:.4em}
-.mlist li{display:flex;gap:.5em;align-items:flex-start;font-size:var(--small-size);color:var(--mut);line-height:1.4}
-.mlist li::before{content:"▸";color:var(--accent-2);flex-shrink:0}
-.mlist li b{color:var(--ink);font-weight:600}
-@media (max-width:820px){.mock-split{grid-template-columns:1fr!important}}
-.callout .mono{color:var(--accent)}
+.mskill{display:flex;flex-direction:column;gap:.42em}
+.ms{display:grid;grid-template-columns:1fr auto;align-items:center;gap:.5em}
+.ms .msn{font-size:var(--small-size);color:var(--ink);font-weight:600}
+.ms .msn s{display:block;font-family:var(--font-mono);font-size:var(--tiny-size);color:var(--faint);font-weight:400;text-decoration:none}
+.ms .dots{display:flex;gap:3px}
+.ms .dots i{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.12)}
+.ms .dots i.on{background:linear-gradient(90deg,var(--accent),var(--accent-2))}
+.mock-foot{display:flex;gap:1.2em;flex-wrap:wrap;border-top:1px solid var(--line);padding-top:.7em}
+.mock-foot .mf{display:flex;flex-direction:column}
+.mock-foot .mf b{font-family:var(--font-display);font-size:clamp(.95rem,1.7vw,1.3rem);color:var(--ink)}
+.mock-foot .mf span{font-family:var(--font-mono);font-size:var(--tiny-size);color:var(--faint)}
 
-/* ===== MODAL (pop-up de doble click) ===== */
-.modal-overlay{position:fixed;inset:0;z-index:10000;background:rgba(6,8,12,.72);backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px);display:flex;align-items:center;justify-content:center;padding:clamp(1rem,4vw,3rem);opacity:0;pointer-events:none;transition:opacity .3s var(--ease)}
+/* ===== SLIDE técnico · pipeline (de dónde → limpieza → detección) + aclaración ===== */
+.flow{display:flex;align-items:stretch;width:100%;margin:var(--content-gap) 0;gap:0}
+.flow-node{flex:1 1 0;min-width:0;position:relative;background:rgba(20,27,39,.5);backdrop-filter:blur(12px) saturate(1.3);-webkit-backdrop-filter:blur(12px) saturate(1.3);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:clamp(.8rem,1.7vw,1.25rem);display:flex;flex-direction:column;gap:.32em;justify-content:center;cursor:pointer;animation:float 7s ease-in-out infinite;transition:transform .3s var(--ease),border-color .3s,box-shadow .3s}
+.flow-node:nth-child(3){animation-delay:-1.4s}.flow-node:nth-child(5){animation-delay:-2.8s}
+.flow-node:hover{transform:translateY(-6px);border-color:var(--accent);box-shadow:0 14px 40px rgba(0,0,0,.5),0 0 22px var(--glow);z-index:3}
+.flow-node.primary{border-color:rgba(255,194,75,.5);box-shadow:0 0 30px rgba(255,194,75,.1)}
+.flow-node .badge{font-family:var(--font-mono);font-size:var(--tiny-size);letter-spacing:.1em;text-transform:uppercase;color:var(--mut)}
+.flow-node .ttl2{font-family:var(--font-display);font-weight:600;font-size:clamp(1rem,1.9vw,1.4rem);line-height:1.1}
+.flow-node .desc{color:var(--mut);font-size:var(--small-size);line-height:1.42}
+.flow-node .desc code{font-family:var(--font-mono);color:var(--accent-2);font-size:.9em}
+.flow-node .desc b{color:var(--ink)}
+.flow-conn{flex:0 0 clamp(20px,3vw,50px);display:flex;align-items:center;justify-content:center}
+.flow-conn .chev{width:9px;height:9px;border-top:2px solid var(--accent);border-right:2px solid var(--accent);transform:rotate(45deg)}
+@media (max-width:740px){.flow{flex-direction:column}.flow-conn{flex-basis:auto;height:clamp(14px,2.4vh,22px)}.flow-conn .chev{transform:rotate(135deg)}}
+.clarify{border:1px solid rgba(79,209,197,.25);background:rgba(79,209,197,.05);border-radius:14px;padding:clamp(.85rem,2vw,1.3rem);margin-top:var(--content-gap)}
+.clarify .ch{font-family:var(--font-display);font-weight:600;font-size:clamp(1.02rem,2vw,1.4rem);margin-bottom:.65em;line-height:1.15}
+.cgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(.7rem,1.8vw,1.2rem)}
+@media (max-width:780px){.cgrid{grid-template-columns:1fr;gap:.6rem}}
+.cpt{position:relative;border:1px solid var(--line);border-radius:11px;background:rgba(255,255,255,.025);padding:.7em .85em;cursor:pointer;transition:transform .3s var(--ease),border-color .3s,background .3s}
+.cpt:hover{transform:translateY(-4px);border-color:var(--accent-2);background:rgba(79,209,197,.06)}
+.cpt b{color:var(--ink);display:block;font-size:clamp(.92rem,1.5vw,1.1rem);line-height:1.15}
+.cpt span{color:var(--mut);font-size:var(--small-size)}
+
+/* ===== SLIDE 4 · repositorios (cierre) ===== */
+.repos{display:grid;grid-template-columns:1fr 1fr;gap:clamp(1rem,2.6vw,1.8rem);margin-top:var(--content-gap)}
+@media (max-width:760px){.repos{grid-template-columns:1fr}}
+.repo{display:flex;flex-direction:column;gap:.5em;text-decoration:none;color:var(--ink);border:1px solid var(--line-2);border-radius:16px;padding:clamp(1.1rem,2.4vw,1.8rem);background:linear-gradient(155deg,rgba(28,37,53,.78),rgba(13,18,27,.55));transition:transform .3s var(--ease),border-color .3s,box-shadow .3s}
+.repo:hover{transform:translateY(-5px);border-color:var(--accent);box-shadow:0 18px 50px rgba(0,0,0,.45),0 0 24px var(--glow)}
+.repo .repo-k{font-family:var(--font-mono);font-size:var(--tiny-size);letter-spacing:.14em;text-transform:uppercase;color:var(--accent)}
+.repo .repo-k.orig{color:var(--accent-2)}
+.repo b{font-family:var(--font-display);font-weight:600;font-size:clamp(1.3rem,2.5vw,1.95rem);line-height:1.05}
+.repo .repo-desc{color:var(--mut);font-size:var(--small-size);line-height:1.5}
+.repo .repo-url{display:inline-flex;align-items:center;gap:.5em;color:var(--faint);font-size:var(--tiny-size);margin-top:.25em;word-break:break-all}
+.repo .repo-url::before{content:"↗";color:var(--accent)}
+.repo:nth-child(2) .repo-url::before{color:var(--accent-2)}
+.repo-foot{color:var(--faint);font-size:var(--small-size);text-align:center;max-width:70ch;margin:var(--content-gap) auto 0}
+
+/* ===== Sello de atribución (4D · Anthropic) ===== */
+.colhead.colbrand{gap:.7em;flex-wrap:wrap;row-gap:.45em}
+.colhead.colbrand::after{display:none}
+.anthropic-lock{margin-left:auto;display:inline-flex;align-items:center;gap:.5em;padding:.34em .8em;border:1px solid var(--line-2);border-radius:999px;background:rgba(255,255,255,.04);transition:border-color .3s var(--ease),background .3s}
+.anthropic-lock::before{content:"";width:.52em;height:.52em;border-radius:50%;background:#d4a27f;box-shadow:0 0 9px rgba(212,162,127,.55);flex-shrink:0}
+.anthropic-lock .aword{font-family:var(--font-body);font-weight:600;font-size:1.02em;letter-spacing:.005em;text-transform:none;color:var(--ink);line-height:1}
+.anthropic-lock:hover{border-color:#d4a27f;background:rgba(212,162,127,.08)}
+
+/* ===== MODAL ===== */
+.modal-overlay{position:fixed;inset:0;z-index:10000;background:rgba(6,8,12,.78);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;padding:clamp(.7rem,2.4vw,1.8rem);opacity:0;pointer-events:none;transition:opacity .3s var(--ease)}
 .modal-overlay.open{opacity:1;pointer-events:auto}
-.modal{background:linear-gradient(165deg,#141b27,#0e131c);border:1px solid var(--line-2);border-radius:18px;max-width:720px;width:100%;max-height:88vh;overflow-y:auto;padding:clamp(1.3rem,3vw,2.4rem);transform:translateY(20px) scale(.98);transition:transform .35s var(--ease);box-shadow:0 30px 80px rgba(0,0,0,.6)}
+.modal{background:linear-gradient(165deg,#141b27,#0e131c);border:1px solid var(--line-2);border-radius:18px;max-width:min(1080px,95vw);width:100%;max-height:94vh;overflow-y:auto;padding:clamp(1.6rem,3.4vw,3rem);transform:translateY(20px) scale(.98);transition:transform .35s var(--ease);box-shadow:0 30px 80px rgba(0,0,0,.6)}
 .modal-overlay.open .modal{transform:translateY(0) scale(1)}
 .modal-head{display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;border-bottom:1px solid var(--line);padding-bottom:1rem;margin-bottom:1.1rem}
-.modal-head h3{font-size:clamp(1.3rem,3vw,2rem);color:var(--ink)}
+.modal-head h3{font-size:clamp(1.7rem,3.6vw,2.6rem);color:var(--ink)}
 .modal-head .meta{font-family:var(--font-mono);font-size:var(--small-size);color:var(--accent);margin-top:.3em;display:flex;gap:.8em;flex-wrap:wrap}
 .modal-head .meta b{color:var(--accent-2);font-weight:500}
 .modal-close{flex-shrink:0;width:36px;height:36px;border-radius:9px;border:1px solid var(--line-2);background:transparent;color:var(--mut);font-size:1.3rem;cursor:pointer;line-height:1;transition:all .2s}
 .modal-close:hover{background:var(--accent);color:#0a0d13;border-color:var(--accent)}
 .msec{margin-bottom:1.05rem}
 .msec .lbl{font-family:var(--font-mono);font-size:var(--tiny-size);letter-spacing:.16em;text-transform:uppercase;color:var(--accent);display:block;margin-bottom:.35em}
-.msec p{color:var(--ink);font-size:var(--small-size);line-height:1.6}
-.msec.formula code{display:block;font-family:var(--font-mono);font-size:clamp(.72rem,1.3vw,.95rem);color:var(--accent-2);background:rgba(79,209,197,.08);border:1px solid rgba(79,209,197,.22);border-radius:9px;padding:.7em .9em;line-height:1.7;overflow-x:auto}
+.msec{margin-bottom:1.25rem}
+.msec .lbl{font-size:clamp(.72rem,1vw,.84rem)}
+.msec p{color:var(--ink);font-size:clamp(1.04rem,1.5vw,1.22rem);line-height:1.6}
+.msec.easy{background:rgba(255,194,75,.05);border:1px solid rgba(255,194,75,.18);border-radius:12px;padding:1em 1.15em}
+.msec.easy .lbl{color:var(--accent)}
+.msec.easy p{font-size:clamp(1.14rem,1.95vw,1.45rem);line-height:1.5}
+.msec.formula{margin-top:.2em}
+.msec.formula code{display:block;font-family:var(--font-mono);font-size:clamp(.88rem,1.3vw,1.05rem);color:var(--accent-2);background:rgba(79,209,197,.08);border:1px solid rgba(79,209,197,.22);border-radius:9px;padding:.85em 1em;line-height:1.75;overflow-x:auto;white-space:pre-wrap}
+/* "Qué busca", cada señal: badge + pregunta clara + ejemplos */
+.looks{display:flex;flex-direction:column;gap:.55em}
+.look{display:grid;grid-template-columns:auto 1fr;gap:.85em;align-items:start;padding:.7em .85em;border:1px solid var(--line);border-radius:11px;background:rgba(255,255,255,.025)}
+.look .lk{font-family:var(--font-mono);font-size:.82rem;letter-spacing:.05em;text-transform:uppercase;color:#0a0d13;background:var(--accent);border-radius:7px;padding:.32em .7em;white-space:nowrap;font-weight:700}
+.looks.agn .look .lk{background:var(--accent-2)}
+.look .lc{min-width:0}
+.look .lq{font-size:clamp(1.02rem,1.5vw,1.2rem);color:var(--ink);line-height:1.45}
+.look .lex{display:flex;flex-wrap:wrap;gap:.45em;margin-top:.55em}
+.look .lex span{font-family:var(--font-mono);font-size:.88rem;color:var(--mut);background:var(--bg-3);border:1px solid var(--line-2);border-radius:6px;padding:.26em .6em}
 .chips{display:flex;flex-wrap:wrap;gap:.45em}
-.chips span{font-family:var(--font-mono);font-size:var(--tiny-size);color:var(--mut);background:var(--bg-3);border:1px solid var(--line-2);border-radius:6px;padding:.3em .6em}
+.chips span{font-family:var(--font-mono);font-size:var(--small-size);color:var(--mut);background:var(--bg-3);border:1px solid var(--line-2);border-radius:6px;padding:.35em .65em}
 .lang-pill{font-family:var(--font-mono);font-size:var(--tiny-size);padding:.2em .7em;border-radius:999px;border:1px solid;display:inline-block}
 .lang-pill.txt{color:var(--accent);border-color:var(--accent)}
 .lang-pill.agn{color:var(--accent-2);border-color:var(--accent-2)}
-
-/* Chrome */
-.progress-bar{position:fixed;top:0;left:0;height:3px;width:0%;background:linear-gradient(90deg,var(--accent),var(--accent-2));z-index:9999;box-shadow:0 0 12px var(--glow);transition:width .15s linear}
-.nav-dots{position:fixed;right:clamp(.7rem,2vw,1.5rem);top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:.6rem;z-index:9998}
-.nav-dots button{width:9px;height:9px;border-radius:50%;border:1px solid var(--line-2);background:transparent;cursor:pointer;padding:0;transition:all .3s var(--ease)}
-.nav-dots button.active{background:var(--accent);border-color:var(--accent);box-shadow:0 0 10px var(--glow);transform:scale(1.3)}
-.hint-bar{position:fixed;bottom:clamp(.7rem,2.2vw,1.4rem);left:clamp(.9rem,2.4vw,1.6rem);font-family:var(--font-mono);font-size:var(--tiny-size);color:var(--faint);z-index:9998;display:flex;align-items:center;gap:1.2em;max-width:min(46vw,360px)}
-.hint-bar kbd{border:1px solid var(--line-2);border-radius:5px;padding:.1em .5em;color:var(--mut)}
-.hint-bar .live{color:var(--accent-2)}
-.pagenum{position:fixed;top:clamp(.7rem,2vw,1.3rem);right:clamp(.9rem,2vw,1.6rem);bottom:auto;font-family:var(--font-mono);font-size:var(--small-size);color:var(--faint);z-index:9998}
-/* desfase de la flotación */
-.keys-row>*:nth-child(2),.dimgrid>*:nth-child(2),.rules>*:nth-child(2){animation-delay:-1.2s}
-.keys-row>*:nth-child(3),.dimgrid>*:nth-child(3),.rules>*:nth-child(3){animation-delay:-2.4s}
-.keys-row>*:nth-child(4),.dimgrid>*:nth-child(4){animation-delay:-3.6s}
-.dimgrid>*:nth-child(5){animation-delay:-4.8s}
-/* flechas de navegación (un solo click) */
-/* navegación: dos botones centrados, micro-interacción de relleno radial + nudge */
-.nav-ctrl{position:fixed;bottom:clamp(.8rem,2.4vw,1.7rem);right:clamp(.9rem,2.4vw,1.7rem);display:flex;gap:.6rem;z-index:9998}
-.nav-arrow{position:relative;width:clamp(44px,5vw,56px);height:clamp(44px,5vw,56px);border-radius:50%;border:1px solid var(--line-2);background:rgba(20,27,39,.55);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);cursor:pointer;display:grid;place-items:center;overflow:hidden;transition:transform .3s var(--ease),border-color .3s,box-shadow .3s}
-.nav-arrow::before{content:"";position:absolute;inset:0;border-radius:50%;background:radial-gradient(circle at center,var(--accent),var(--accent-2));transform:scale(0);transition:transform .4s var(--ease)}
-.nav-arrow svg{position:relative;z-index:1;width:40%;height:40%;fill:none;stroke:var(--ink);stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round;transition:transform .3s var(--ease),stroke .3s}
-.nav-arrow:hover{border-color:var(--accent);box-shadow:0 12px 32px var(--glow);transform:translateY(-3px)}
-.nav-arrow:hover::before{transform:scale(1)}
-.nav-arrow:hover svg{stroke:#0a0d13}
-.nav-arrow:active{transform:translateY(-1px) scale(.93)}
-#prevBtn:hover svg{transform:translateX(-3px)}
-#nextBtn:hover svg{transform:translateX(3px)}
-/* componente de FLUJO (reemplaza los diagramas SVG poco legibles) */
-.flow{display:flex;align-items:stretch;width:100%;margin:var(--content-gap) 0}
-.flow-node{flex:1 1 0;min-width:0;background:rgba(20,27,39,.55);backdrop-filter:blur(12px) saturate(1.3);-webkit-backdrop-filter:blur(12px) saturate(1.3);border:1px solid rgba(255,255,255,.1);border-radius:15px;padding:clamp(.85rem,1.8vw,1.5rem);display:flex;flex-direction:column;gap:.4em;justify-content:center;min-height:clamp(112px,16vh,166px);animation:float 7s ease-in-out infinite}
-.flow-node .badge{font-family:var(--font-mono);font-size:var(--tiny-size);letter-spacing:.12em;text-transform:uppercase;color:var(--mut)}
-.flow-node .ttl{font-family:var(--font-display);font-weight:600;font-size:clamp(1.05rem,2vw,1.6rem);line-height:1.1}
-.flow-node .desc{color:var(--mut);font-size:var(--small-size);line-height:1.45}
-.flow-node.primary{border-color:rgba(255,194,75,.5);box-shadow:0 0 32px rgba(255,194,75,.1)}
-.flow-node.out{border-color:rgba(79,209,197,.42)}
-.flow-conn{flex:0 0 clamp(26px,4vw,66px);position:relative;display:flex;align-items:center;justify-content:center}
-.flow-conn .line{position:absolute;left:4px;right:4px;top:50%;height:2px;transform:translateY(-50%);background:linear-gradient(90deg,transparent,var(--line-2) 35%,var(--line-2) 65%,transparent)}
-.flow-conn .chev{width:9px;height:9px;border-top:2px solid var(--accent);border-right:2px solid var(--accent);transform:rotate(45deg);position:relative;z-index:1}
-.flow-conn .pulse{position:absolute;top:50%;width:6px;height:6px;border-radius:50%;background:var(--accent-2);box-shadow:0 0 10px var(--accent-2);transform:translateY(-50%);animation:travelx 1.9s var(--ease) infinite}
-@keyframes travelx{0%{left:2px;opacity:0}15%{opacity:1}85%{opacity:1}100%{left:calc(100% - 8px);opacity:0}}
-.flow-cap{text-align:center;color:var(--faint);font-size:var(--small-size);font-family:var(--font-mono);margin-top:.2em}
-/* lista editorial numerada (formato tipográfico, sin cajas) */
-.steplist{display:flex;flex-direction:column;width:100%;margin-top:var(--content-gap)}
-.step{display:grid;grid-template-columns:auto 1fr auto;gap:clamp(1rem,3.5vw,3rem);align-items:center;padding:clamp(.45rem,1.4vw,1rem) clamp(.2rem,1vw,.6rem);border-bottom:1px solid var(--line);cursor:pointer;transition:padding-left .35s var(--ease),border-color .35s var(--ease),background .35s}
-.step:first-child{border-top:1px solid var(--line)}
-.step:hover{padding-left:clamp(.8rem,2vw,1.5rem);border-color:var(--accent);background:linear-gradient(90deg,rgba(255,194,75,.06),transparent)}
-.step .n{font-family:var(--font-mono);font-weight:700;font-size:clamp(2.1rem,6vw,4rem);line-height:.9;color:rgba(139,151,168,.28);transition:color .35s var(--ease),transform .35s var(--ease)}
-.step:hover .n{color:var(--accent);transform:scale(1.06)}
-.step .b{display:flex;flex-direction:column;gap:.15em;min-width:0}
-.step .b .t{font-family:var(--font-display);font-weight:600;font-size:clamp(1.15rem,2.6vw,1.9rem);line-height:1.05}
-.step .b .d{color:var(--mut);font-size:var(--small-size);line-height:1.4}
-.step .go{font-family:var(--font-mono);font-size:var(--tiny-size);color:var(--faint);white-space:nowrap;opacity:0;transform:translateX(-6px);transition:opacity .3s,transform .3s,color .3s}
-.step:hover .go{opacity:1;transform:translateX(0);color:var(--accent)}
-@media (max-width:600px){.step .go{display:none}.step{gap:1rem}}
-/* dimensiones como barras horizontales (ranking) — no cajas */
-.dimrows{display:flex;flex-direction:column;gap:clamp(.35rem,1vw,.65rem);width:100%;margin-top:var(--content-gap)}
-.dimrow{display:grid;grid-template-columns:clamp(8rem,17vw,12rem) 1fr auto auto;align-items:center;gap:clamp(.6rem,1.6vw,1.3rem);padding:clamp(.45rem,1.1vw,.75rem) clamp(.5rem,1.2vw,.9rem);border-radius:10px;cursor:pointer;transition:background .3s var(--ease),transform .3s var(--ease)}
-.dimrow:hover{background:linear-gradient(90deg,rgba(255,194,75,.08),transparent);transform:translateX(5px)}
-.dimrow .nmw{display:flex;flex-direction:column;gap:.05em;min-width:0}
-.dimrow .nm{font-family:var(--font-display);font-weight:600;font-size:clamp(.9rem,1.6vw,1.25rem);line-height:1.1}
-.dimrow .sub{font-family:var(--font-mono);font-size:var(--tiny-size);color:var(--faint)}
-.dimrow .track{height:10px;background:rgba(255,255,255,.06);border-radius:999px;overflow:hidden}
-.dimrow .track>span{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,var(--accent),var(--accent-2));width:0;transition:width 1s var(--ease) .35s}
-.slide.visible .dimrow .track>span{width:var(--w)}
-.dimrow .wt{font-family:var(--font-mono);color:var(--accent);font-size:clamp(.85rem,1.4vw,1.1rem)}
-.dimrow .more{font-family:var(--font-mono);font-size:var(--tiny-size);color:var(--faint);white-space:nowrap;opacity:0;transition:opacity .3s,color .3s}
-.dimrow:hover .more{opacity:1;color:var(--accent)}
-/* reglas de scoring: inline, sin tarjetas */
-.scoreline{display:flex;align-items:center;gap:clamp(.4rem,1.2vw,.9rem);flex-wrap:wrap;margin-top:var(--content-gap);padding-top:clamp(.6rem,1.4vw,1rem);border-top:1px solid var(--line)}
-.scoreline .lbl{font-family:var(--font-mono);font-size:var(--tiny-size);text-transform:uppercase;letter-spacing:.14em;color:var(--faint)}
-.scorepill{cursor:pointer;display:inline-flex;flex-direction:column;gap:.05em;padding:.2em .4em;border-radius:8px;transition:background .25s}
-.scorepill b{font-family:var(--font-display);font-weight:600;font-size:var(--small-size);color:var(--ink);transition:color .25s}
-.scorepill code{font-family:var(--font-mono);font-size:var(--tiny-size);color:var(--accent-2)}
-.scorepill:hover{background:rgba(255,194,75,.08)}
-.scorepill:hover b{color:var(--accent)}
-.scoreline .arr{color:var(--faint);font-size:1.1em}
-@media (max-width:640px){.dimrow{grid-template-columns:1fr auto}.dimrow .track,.dimrow .more{display:none}.scoreline .arr{display:none}}
-@media (max-width:740px){
-  .flow{flex-direction:column}
-  .flow-conn{flex-basis:auto;width:100%;height:clamp(16px,2.6vh,26px)}
-  .flow-conn .line{left:50%;right:auto;top:4px;bottom:4px;width:2px;height:auto;transform:translateX(-50%);background:linear-gradient(180deg,transparent,var(--line-2),transparent)}
-  .flow-conn .chev{transform:rotate(135deg)}
-  .flow-conn .pulse{display:none}
-}
-@media (prefers-reduced-motion:reduce){.flow-node{animation:none!important}.flow-conn .pulse{display:none}}
-/* ejemplo dentro del modal */
 .mexample{display:grid;grid-template-columns:1fr 1fr;gap:.6em;margin-top:.4em}
 @media (max-width:560px){.mexample{grid-template-columns:1fr}}
 .mexample .b{border-radius:9px;padding:.6em .75em;border:1px solid var(--line)}
@@ -268,6 +247,52 @@ em{color:var(--ink);font-style:normal;font-weight:600;border-bottom:2px solid va
 .mexample .el{font-family:var(--font-mono);font-size:var(--tiny-size);letter-spacing:.1em;text-transform:uppercase;display:block;margin-bottom:.25em}
 .mexample .before .el{color:var(--accent-3)}.mexample .after .el{color:var(--accent-2)}
 .mexample .tx{font-size:var(--small-size);color:var(--ink)}
+.subskills{list-style:none;display:flex;flex-direction:column;gap:.4em}
+.subskills li{display:flex;gap:.5em;align-items:flex-start;font-size:var(--small-size);color:var(--ink);line-height:1.45}
+.subskills li::before{content:"›";color:var(--accent-2);font-weight:800;flex-shrink:0}
+.subskills li b{color:var(--accent-2);font-weight:600}
+
+/* Chrome */
+.progress-bar{position:fixed;top:0;left:0;height:3px;width:0%;background:linear-gradient(90deg,var(--accent),var(--accent-2));z-index:9999;box-shadow:0 0 12px var(--glow);transition:width .15s linear}
+.nav-dots{position:fixed;right:clamp(.7rem,2vw,1.5rem);top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:.6rem;z-index:9998}
+.nav-dots button{width:9px;height:9px;border-radius:50%;border:1px solid var(--line-2);background:transparent;cursor:pointer;padding:0;transition:all .3s var(--ease)}
+.nav-dots button.active{background:var(--accent);border-color:var(--accent);box-shadow:0 0 10px var(--glow);transform:scale(1.3)}
+.pagenum{position:fixed;top:clamp(.7rem,2vw,1.3rem);right:clamp(.9rem,2vw,1.6rem);font-family:var(--font-mono);font-size:var(--small-size);color:var(--faint);z-index:9998}
+.nav-ctrl{position:fixed;bottom:clamp(.7rem,2vw,1.2rem);right:clamp(.8rem,2vw,1.3rem);display:flex;gap:.6rem;z-index:9998}
+.nav-arrow{position:relative;width:clamp(40px,4.2vw,48px);height:clamp(40px,4.2vw,48px);border-radius:50%;border:1px solid var(--line-2);background:rgba(20,27,39,.55);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);cursor:pointer;display:grid;place-items:center;overflow:hidden;transition:transform .3s var(--ease),border-color .3s,box-shadow .3s}
+.nav-arrow::before{content:"";position:absolute;inset:0;border-radius:50%;background:radial-gradient(circle at center,var(--accent),var(--accent-2));transform:scale(0);transition:transform .4s var(--ease)}
+.nav-arrow svg{position:relative;z-index:1;width:40%;height:40%;fill:none;stroke:var(--ink);stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round;transition:transform .3s var(--ease),stroke .3s}
+.nav-arrow:hover{border-color:var(--accent);box-shadow:0 12px 32px var(--glow);transform:translateY(-3px)}
+.nav-arrow:hover::before{transform:scale(1)}
+.nav-arrow:hover svg{stroke:#0a0d13}
+.nav-arrow:active{transform:translateY(-1px) scale(.93)}
+#prevBtn:hover svg{transform:translateY(-3px)}
+#nextBtn:hover svg{transform:translateY(3px)}
+.hint-bar{position:fixed;bottom:clamp(.7rem,2.2vw,1.4rem);left:clamp(.9rem,2.4vw,1.6rem);font-family:var(--font-mono);font-size:var(--tiny-size);color:var(--faint);z-index:9998;display:flex;align-items:center;gap:1.1em;max-width:min(56vw,460px)}
+.hint-bar kbd{border:1px solid var(--line-2);border-radius:5px;padding:.1em .5em;color:var(--mut)}
+.hint-bar .live{color:var(--accent-2)}
+@media (max-height:620px){.hint-bar{display:none}}
+
+/* Compactación por altura, DEBE ir después de las reglas base para ganar por orden de fuente */
+@media (max-height:880px){
+  .lead{font-size:clamp(.8rem,1.3vw,1rem)}
+  .ditem{padding:.42rem .7rem}
+  .dlist{gap:.4rem}
+  .maprows{gap:.28rem}
+  .mock-body{gap:.55rem}
+  .mock-dims{gap:.34em}.mskill{gap:.34em}
+}
+@media (max-height:790px){
+  .colhead{margin-bottom:.35em}
+  .dlist{gap:.3rem}.maprows{gap:.2rem}
+  .maprow{padding-top:.36rem;padding-bottom:.36rem}
+  .ditem{padding-top:.8rem;padding-bottom:.8rem}
+  .flow-node{padding:.65rem .85rem;gap:.2em}
+  .flow-node .desc{font-size:clamp(.8rem,1vw,.9rem)}
+  .clarifyline{padding:.6em .9em;margin-top:.6rem}
+  .d4grid{gap:.7rem}.gives{margin-top:.65rem}
+  .h2sub{font-size:clamp(1rem,1.9vw,1.35rem)}
+}
 </style>
 </head>
 <body>
@@ -276,103 +301,24 @@ em{color:var(--ink);font-style:normal;font-weight:600;border-bottom:2px solid va
 <div class="progress-bar" id="progress"></div>
 <nav class="nav-dots" id="navDots" aria-label="Navegación"></nav>
 <div class="nav-ctrl">
-  <button class="nav-arrow" id="prevBtn" aria-label="Anterior"><svg viewBox="0 0 24 24"><polyline points="15 4 7 12 15 20"/></svg></button>
-  <button class="nav-arrow" id="nextBtn" aria-label="Siguiente"><svg viewBox="0 0 24 24"><polyline points="9 4 17 12 9 20"/></svg></button>
+  <button class="nav-arrow" id="prevBtn" aria-label="Anterior"><svg viewBox="0 0 24 24"><polyline points="4 15 12 7 20 15"/></svg></button>
+  <button class="nav-arrow" id="nextBtn" aria-label="Siguiente"><svg viewBox="0 0 24 24"><polyline points="4 9 12 17 20 9"/></svg></button>
 </div>
 <div class="pagenum mono" id="pagenum">01</div>
+<div class="hint-bar"><span><span class="live">●</span> 4 slides</span><span><kbd>↓</kbd> avanzar</span><span>tocá cualquier tarjeta para profundizar</span></div>
 
-<!-- ===== PORTADA ===== -->
-<section class="slide">
+<!-- ============================================================= -->
+<!-- SLIDE 1 · QUÉ ES, la interfaz + descripción (clicable)        -->
+<!-- ============================================================= -->
+<section class="slide dense">
   <div class="slide-content">
-    <span class="title-badge reveal"><span class="dot"></span> presentación interactiva · tocá las tarjetas para profundizar</span>
-    <h1 class="reveal">Fluidez con <span class="accent">IA</span></h1>
-    <p class="lead reveal">Lo cuento en cinco preguntas: qué es, qué hace, cómo lo hace, la parte técnica y qué te llevás. <em>Tocá cualquier tarjeta</em> y se abre el detalle: qué mide, cómo puntúa y de dónde saca la info.</p>
-    <div class="agenda reveal"><span>01 · ¿Qué es?</span><span>02 · ¿Qué hace?</span><span>03 · ¿Cómo?</span><span>04 · ¿De qué manera?</span><span>05 · Resultados</span></div>
-  </div>
-</section>
+    <div class="qhead reveal"><span class="qnum">01</span><div><span class="qkick">Qué es</span></div></div>
+    <h2 class="reveal">Fluidez con IA
+      <span class="h2sub">Un analizador local de tu trabajo con Claude&nbsp;Code</span>
+      <span class="qsub">Examina tu historial de sesiones y elabora un informe sobre tu forma de colaborar con la inteligencia artificial: un puntaje de 0 a 100, tu arquetipo de trabajo y un mapa de competencias. No evalúa cuánto usás la IA, sino con qué criterio la usás.</span></h2>
 
-<!-- ===== 01 · QUÉ ES ===== -->
-<section class="slide">
-  <div class="slide-content">
-    <div class="qhead reveal"><span class="qnum">01</span><div><span class="qkick">¿Qué es?</span></div></div>
-    <h2 class="reveal">Un medidor de <span class="accent">cómo trabajás</span> con la IA<span class="qsub">no mide cuánto la usás — mide la calidad de tus hábitos al colaborar</span></h2>
-    <div class="flow reveal">
-      <div class="flow-node"><span class="badge">entrada</span><span class="ttl">Tu historial</span><span class="desc">tus conversaciones guardadas con Claude Code</span></div>
-      <div class="flow-conn"><span class="line"></span><span class="pulse"></span><span class="chev"></span></div>
-      <div class="flow-node primary"><span class="badge" style="color:var(--accent)">el motor</span><span class="ttl accent">Fluidez con IA</span><span class="desc">analiza CÓMO le hablás y lo dirigís</span></div>
-      <div class="flow-conn"><span class="line"></span><span class="pulse"></span><span class="chev"></span></div>
-      <div class="flow-node out"><span class="badge" style="color:var(--accent-2)">salida</span><span class="ttl accent-2">Tu perfil</span><span class="desc">puntaje · estilo · fortalezas y mejoras</span></div>
-    </div>
-    <p class="flow-cap reveal">como un entrenador que mira tus grabaciones y te dice qué afinar</p>
-    <div class="keys-row reveal stagger">
-      <div class="kpoint"><span class="tag">qué es</span><span class="h">Un espejo de hábitos</span><span class="p">Refleja tu forma de colaborar, no tu productividad.</span></div>
-      <div class="kpoint"><span class="tag">qué NO es</span><span class="h">No es un ranking de uso</span><span class="p">Usar más la IA no sube el número.</span></div>
-      <div class="kpoint"><span class="tag">para quién</span><span class="h">Quien use Claude Code</span><span class="p">Te da un diagnóstico tuyo, con acciones concretas.</span></div>
-    </div>
-  </div>
-</section>
-
-<!-- ===== 02 · QUÉ HACE ===== -->
-<section class="slide">
-  <div class="slide-content">
-    <div class="qhead reveal"><span class="qnum">02</span><div><span class="qkick">¿Qué hace?</span></div></div>
-    <h2 class="reveal">Convierte tus chats en <span class="accent">métricas</span><span class="qsub">cuatro pasos · hacé click en cada uno para el detalle</span></h2>
-    <div class="steplist reveal">
-      <div class="step info" data-modal="paso1"><span class="n">01</span><div class="b"><span class="t">Lee</span><span class="d">Abre todo lo que charlaste con Claude Code (tus archivos <span class="mono">.jsonl</span>).</span></div><span class="go">ver detalle →</span></div>
-      <div class="step info" data-modal="paso2"><span class="n">02</span><div class="b"><span class="t">Limpia</span><span class="d">Se queda solo con lo que escribiste vos y tira el ruido.</span></div><span class="go">ver detalle →</span></div>
-      <div class="step info" data-modal="paso3"><span class="n">03</span><div class="b"><span class="t">Mide</span><span class="d">Saca los números de tus cinco hábitos al usar la IA.</span></div><span class="go">ver detalle →</span></div>
-      <div class="step info" data-modal="paso4"><span class="n">04</span><div class="b"><span class="t accent-2">Reporta</span><span class="d">Te arma el informe en HTML, listo para abrir.</span></div><span class="go">ver detalle →</span></div>
-    </div>
-    <p class="callout reveal">De cada 100 registros, la mayoría es ruido (tool results, inyecciones, pastes): <span class="mono">solo se puntúa lo que tipeaste de verdad</span>.</p>
-  </div>
-</section>
-
-<!-- ===== 03 · CÓMO LO HACE ===== -->
-<section class="slide">
-  <div class="slide-content">
-    <div class="qhead reveal"><span class="qnum">03</span><div><span class="qkick">¿Cómo lo hace?</span></div></div>
-    <h2 class="reveal">Tres etapas: <span class="accent">Python</span> mide, la <span class="accent-2">IA</span> interpreta<span class="qsub">el cálculo es determinístico · la IA solo interpreta, no toca los números</span></h2>
-    <p class="lead reveal" style="margin-top:.2em;max-width:90ch">Primero Python saca todos los números —puntaje, tasas, arquetipo—. Recién ahí entra la IA a <b>interpretarlos</b>: cuatro Sonnet leen la evidencia en paralelo y Opus arma el mapa final y chequea que nada quede sin respaldo. <span class="accent">Tocá cada etapa</span> para ver qué hace y con qué modelo.</p>
-    <div class="flow reveal">
-      <div class="flow-node info out" data-modal="etapa1"><span class="badge" style="color:var(--accent-2)">etapa 1 · determinístico</span><span class="ttl accent-2">Medir</span><span class="desc">Python hace todas las cuentas. Mismo input → mismo número.</span></div>
-      <div class="flow-conn"><span class="line"></span><span class="pulse"></span><span class="chev"></span></div>
-      <div class="flow-node info" data-modal="etapa2"><span class="badge">etapa 2 · exploración</span><span class="ttl">Explorar</span><span class="desc">Sonnet lee la evidencia, una pasada por competencia, en paralelo.</span></div>
-      <div class="flow-conn"><span class="line"></span><span class="pulse"></span><span class="chev"></span></div>
-      <div class="flow-node info primary" data-modal="etapa3"><span class="badge" style="color:var(--accent)">etapa 3 · síntesis</span><span class="ttl accent">Analizar</span><span class="desc">Opus escribe el mapa y verifica que esté anclado en datos.</span></div>
-    </div>
-  </div>
-</section>
-
-<!-- ===== 04 · DE QUÉ MANERA (TÉCNICO + MODALES) ===== -->
-<section class="slide">
-  <div class="slide-content">
-    <div class="qhead reveal"><span class="qnum">04</span><div><span class="qkick">¿De qué manera? · técnico</span></div></div>
-    <h2 class="reveal">Cinco dimensiones — <span class="accent">tocá</span> cada una<span class="qsub">la barra muestra cuánto pesa cada hábito en el puntaje final</span></h2>
-    <div class="dimrows reveal">
-      <div class="dimrow" data-modal="instruccion" style="--w:96%"><div class="nmw"><span class="nm">Instrucción</span><span class="sub">qué tan bien briefeás</span></div><div class="track"><span></span></div><span class="wt">0.24</span><span class="more">ver detalle →</span></div>
-      <div class="dimrow" data-modal="verificacion" style="--w:88%"><div class="nmw"><span class="nm">Verificación</span><span class="sub">si prueba lo que hace</span></div><div class="track"><span></span></div><span class="wt">0.22</span><span class="more">ver detalle →</span></div>
-      <div class="dimrow" data-modal="contexto" style="--w:88%"><div class="nmw"><span class="nm">Contexto</span><span class="sub">si lee antes de editar</span></div><div class="track"><span></span></div><span class="wt">0.22</span><span class="more">ver detalle →</span></div>
-      <div class="dimrow" data-modal="iteracion" style="--w:72%"><div class="nmw"><span class="nm">Iteración</span><span class="sub">si corregís fino o vago</span></div><div class="track"><span></span></div><span class="wt">0.18</span><span class="more">ver detalle →</span></div>
-      <div class="dimrow" data-modal="herramientas" style="--w:56%"><div class="nmw"><span class="nm">Herramientas</span><span class="sub">variedad + delegación</span></div><div class="track"><span></span></div><span class="wt">0.14</span><span class="more">ver detalle →</span></div>
-    </div>
-    <div class="scoreline reveal">
-      <span class="lbl">cómo se puntúa</span>
-      <span class="scorepill" data-modal="tasas"><b>Tasa</b><code>buenos / oportunidades</code></span>
-      <span class="arr">→</span>
-      <span class="scorepill" data-modal="saturacion"><b>Saturación</b><code>min(1, tasa/objetivo)</code></span>
-      <span class="arr">→</span>
-      <span class="scorepill" data-modal="hedging"><b>Hedging</b><code>50+(crudo−50)·confianza</code></span>
-    </div>
-  </div>
-</section>
-
-<!-- ===== 05 · RESULTADOS Y BENEFICIOS ===== -->
-<section class="slide">
-  <div class="slide-content">
-    <div class="qhead reveal"><span class="qnum">05</span><div><span class="qkick">Resultados &amp; beneficios</span></div></div>
-    <h2 class="reveal">Qué obtenés — la pantalla real<span class="qsub">así se ve el reporte: puntaje, banda, arquetipo y el mapa de dimensiones</span></h2>
-    <div class="reveal mock-split" style="display:grid;grid-template-columns:1.3fr 1fr;gap:clamp(1rem,3vw,2.4rem);align-items:center;margin-top:var(--content-gap)">
-      <!-- MAQUETA del dashboard -->
+    <div class="qes-split reveal">
+      <!-- La interfaz: el reporte que abre en tu navegador -->
       <div class="mock">
         <div class="mock-bar"><i></i><i></i><i></i><em>reporte_fluidez_ia.html</em></div>
         <div class="mock-body">
@@ -380,51 +326,142 @@ em{color:var(--ink);font-style:normal;font-weight:600;border-bottom:2px solid va
             <div class="ring">
               <svg viewBox="0 0 120 120"><defs><linearGradient id="rg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffc24b"/><stop offset="1" stop-color="#4fd1c5"/></linearGradient></defs>
                 <circle class="track" cx="60" cy="60" r="52"/><circle class="prog" cx="60" cy="60" r="52"/></svg>
-              <div class="num"><b>74</b><small>/100</small></div>
+              <div class="num"><b>76</b><small>/ 100</small></div>
             </div>
-            <div>
+            <div class="hx">
               <div class="mock-band">Avanzado</div>
-              <div class="mock-arch">Arquetipo · <b>Agente Autónomo</b></div>
-              <div class="mock-ex">ejemplo ilustrativo — no son datos reales</div>
+              <div class="mock-arch">Arquetipo: <b>🤖 Agente Autónomo</b></div>
+              <div class="mock-ex">Ejemplo ilustrativo. Tu informe utiliza tus datos reales.</div>
             </div>
           </div>
-          <div class="mock-dims">
-            <div class="md"><span class="mn">Instrucción</span><span class="mb" style="--w:68%"><span></span></span><span class="mv">68</span></div>
-            <div class="md"><span class="mn">Verificación</span><span class="mb" style="--w:92%"><span></span></span><span class="mv">92</span></div>
-            <div class="md"><span class="mn">Contexto</span><span class="mb" style="--w:90%"><span></span></span><span class="mv">90</span></div>
-            <div class="md"><span class="mn">Iteración</span><span class="mb" style="--w:75%"><span></span></span><span class="mv">75</span></div>
-            <div class="md"><span class="mn">Herramientas</span><span class="mb" style="--w:80%"><span></span></span><span class="mv">80</span></div>
+          <div class="mock-grid">
+            <div>
+              <div class="ttl">Las 5 dimensiones</div>
+              <div class="mock-dims">
+                <div class="md"><span class="mn">Instrucción</span><span class="mb" style="--w:64%"><span></span></span><span class="mv">64</span></div>
+                <div class="md"><span class="mn">Verificación</span><span class="mb" style="--w:88%"><span></span></span><span class="mv">88</span></div>
+                <div class="md"><span class="mn">Contexto</span><span class="mb" style="--w:90%"><span></span></span><span class="mv">90</span></div>
+                <div class="md"><span class="mn">Iteración</span><span class="mb" style="--w:72%"><span></span></span><span class="mv">72</span></div>
+                <div class="md"><span class="mn">Herramientas</span><span class="mb" style="--w:80%"><span></span></span><span class="mv">80</span></div>
+              </div>
+            </div>
+            <div>
+              <div class="ttl cyan">Mapa de competencias · 4D</div>
+              <div class="mskill">
+                <div class="ms"><span class="msn">Delegación <s>conducís el trabajo</s></span><span class="dots"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i></span></div>
+                <div class="ms"><span class="msn">Descripción <s>tu palanca de crecimiento</s></span><span class="dots"><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i></span></div>
+                <div class="ms"><span class="msn">Discernimiento <s>fortaleza</s></span><span class="dots"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i></span></div>
+                <div class="ms"><span class="msn">Diligencia <s>sólida</s></span><span class="dots"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i></span></div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
-      <!-- leyenda -->
-      <div style="display:flex;flex-direction:column;gap:clamp(.8rem,2vw,1.3rem)">
-        <div><div class="ttl">El reporte incluye</div>
-          <ul class="mlist">
-            <li><b>Puntaje + banda</b> — tu nivel 0–100</li>
-            <li><b>Arquetipo</b> — tu estilo de trabajo</li>
-            <li><b>Mapa de habilidades</b> — fuerte y débil por dimensión</li>
-            <li><b>Growth cards</b> — antes/después de tus propios prompts</li>
-          </ul></div>
-        <div><div class="ttl" style="color:var(--accent-2)">Por qué sirve</div>
-          <ul class="mlist">
-            <li>Sabés <b>qué hábito cambiar</b>, no un consejo vago</li>
-            <li>Diagnóstico <b>honesto</b> (tasas saturadas, sin inflar)</li>
-            <li>Corre <b>local</b> y es reproducible</li>
-            <li>Re-corrés y <b>medís tu progreso</b></li>
-          </ul></div>
-      </div>
+    </div>
+
+    <!-- En tres ideas · clic para profundizar -->
+    <div class="cgrid reveal" style="margin-top:var(--content-gap)">
+      <div class="cpt info" data-modal="q-que"><b>El proyecto</b><span>Una adaptación al español de claude-insight, el analizador de sesiones de Claude Code.</span></div>
+      <div class="cpt info" data-modal="q-local"><b>Ejecución local</b><span>Funciona en tu propio equipo y nunca modifica tus archivos originales.</span></div>
+      <div class="cpt info" data-modal="q-determinista"><b>Resultados reproducibles</b><span>El mismo historial produce siempre el mismo puntaje.</span></div>
     </div>
   </div>
 </section>
 
-<!-- ===== CIERRE ===== -->
+<!-- ============================================================= -->
+<!-- SLIDE 2 · PARA QUÉ SIRVE, el valor (clicable)                 -->
+<!-- ============================================================= -->
+<section class="slide dense">
+  <div class="slide-content">
+    <div class="qhead reveal"><span class="qnum">02</span><div><span class="qkick">Para qué sirve</span></div></div>
+    <h2 class="reveal">Un diagnóstico para crecer<span class="qsub">No es un medidor de uso, sino un reflejo de tu criterio: muestra en qué te destacás y cuál es tu próxima oportunidad de mejora. Tocá cada beneficio para ver el detalle.</span></h2>
+
+    <div class="d4grid reveal stagger">
+      <div class="ditem info" data-modal="s-diagnostico"><span class="dmark">1</span><div><span class="dt">Diagnóstico objetivo</span><span class="dd">Un puntaje basado en tu trabajo real, no en tu percepción.</span></div></div>
+      <div class="ditem info" data-modal="s-palanca"><span class="dmark">2</span><div><span class="dt">Palanca de mejora</span><span class="dd">La competencia que conviene practicar para avanzar más rápido.</span></div></div>
+      <div class="ditem info" data-modal="s-arquetipo"><span class="dmark">3</span><div><span class="dt">Arquetipo de trabajo</span><span class="dd">Tu manera de colaborar, más allá del puntaje.</span></div></div>
+      <div class="ditem info" data-modal="s-privado"><span class="dmark">4</span><div><span class="dt">Privacidad por diseño</span><span class="dd">Te evaluás sin exponer tu trabajo.</span></div></div>
+    </div>
+
+    <div class="clarifyline info reveal" data-modal="s-paraquien"><b>¿Para quién?</b> Para quienes desean afinar su forma de trabajar con agentes de código y seguir su evolución en el tiempo. <span class="go">ver casos de uso</span></div>
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<!-- SLIDE 3 · CÓMO LO HACE, 4D de Anthropic + el motor            -->
+<!-- ============================================================= -->
+<section class="slide dense">
+  <div class="slide-content">
+    <div class="qhead reveal"><span class="qnum">03</span><div><span class="qkick">Cómo lo hace</span></div></div>
+    <h2 class="reveal">Del historial a un puntaje<span class="qsub">Un proceso determinístico, local y auditable, apoyado en el marco <span class="accent-2">4D de Anthropic</span>. Ninguna inteligencia artificial asigna la nota.</span></h2>
+
+    <div class="split2 reveal" style="margin-top:var(--element-gap)">
+      <!-- IZQUIERDA · el marco de referencia: las 4D -->
+      <div>
+        <div class="colhead colbrand">Marco de referencia · 4D
+          <span class="anthropic-lock" title="Framework de AI Fluency de Anthropic"><span class="aword">Anthropic</span></span>
+        </div>
+        <div class="dlist">
+          <div class="ditem info" data-modal="d-delegacion"><span class="dmark">1</span><div><span class="dt">Delegación</span><span class="dd">Qué tareas asignás a la IA y de qué tamaño.</span></div></div>
+          <div class="ditem info" data-modal="d-descripcion"><span class="dmark">2</span><div><span class="dt">Descripción</span><span class="dd">Con cuánta claridad expresás lo que necesitás.</span></div></div>
+          <div class="ditem info" data-modal="d-discernimiento"><span class="dmark">3</span><div><span class="dt">Discernimiento</span><span class="dd">Si evaluás críticamente lo que recibís.</span></div></div>
+          <div class="ditem info" data-modal="d-diligencia"><span class="dmark">4</span><div><span class="dt">Diligencia</span><span class="dd">Si asumís la responsabilidad del resultado.</span></div></div>
+        </div>
+      </div>
+
+      <!-- DERECHA · el motor: pipeline + señales -->
+      <div>
+        <div class="colhead cyan">El proceso de cálculo</div>
+        <div class="flow">
+          <div class="flow-node info" data-modal="p-lee"><span class="badge">paso 1</span><span class="ttl2">Lee tus sesiones</span><span class="desc">Los archivos <code>.jsonl</code> que Claude Code guarda en tu equipo.</span></div>
+          <div class="flow-conn"><span class="chev"></span></div>
+          <div class="flow-node info" data-modal="p-limpia"><span class="badge">paso 2</span><span class="ttl2">Aísla tus mensajes</span><span class="desc">Descarta el ruido y conserva solo tus instrucciones.</span></div>
+          <div class="flow-conn"><span class="chev"></span></div>
+          <div class="flow-node info primary" data-modal="p-detecta"><span class="badge">paso 3</span><span class="ttl2">Detecta y puntúa</span><span class="desc">Cinco señales se convierten en un puntaje.</span></div>
+        </div>
+        <div class="colhead cyan" style="margin-top:var(--element-gap)">Las cinco señales y la competencia que alimentan</div>
+        <div class="maprows">
+          <div class="maprow info" data-modal="instruccion"><div class="nmw"><span class="nm">Instrucción</span></div><span class="dbadge">Descripción</span><span class="wt">24%</span></div>
+          <div class="maprow info" data-modal="verificacion"><div class="nmw"><span class="nm">Verificación</span></div><span class="dbadge">Discernimiento</span><span class="wt">22%</span></div>
+          <div class="maprow info" data-modal="contexto"><div class="nmw"><span class="nm">Contexto</span></div><span class="dbadge">Discernimiento</span><span class="wt">22%</span></div>
+          <div class="maprow info" data-modal="iteracion"><div class="nmw"><span class="nm">Iteración</span></div><span class="dbadge">Descripción</span><span class="wt">18%</span></div>
+          <div class="maprow info" data-modal="herramientas"><div class="nmw"><span class="nm">Herramientas</span></div><span class="dbadge">Delegación</span><span class="wt">14%</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="clarifyline info reveal" data-modal="c-reconoce"><b>¿Reconoce solo ciertas palabras?</b> Sí, y precisamente por eso resulta auditable. <span class="go">por qué sigue siendo válido</span></div>
+    <div class="pipe reveal" style="justify-content:center">
+      <span class="scorepill info" data-modal="tasa"><b>tasa</b><code>buenos/oport.</code></span><span class="arr">›</span>
+      <span class="scorepill info" data-modal="saturacion"><b>saturación</b><code>min(1,x/obj)</code></span><span class="arr">›</span>
+      <span class="scorepill info" data-modal="hedging"><b>confianza</b><code>ajuste por datos</code></span><span class="arr">›</span>
+      <span class="scorepill info" data-modal="suma"><b>puntaje final</b><code>0 a 100</code></span>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<!-- SLIDE 4 · REPOSITORIOS (cierre)                                -->
+<!-- ============================================================= -->
 <section class="slide">
   <div class="slide-content">
-    <span class="kicker reveal">En una frase</span>
-    <h1 class="reveal">Medí <span class="accent">cómo</span> construís,<br>no cuánto.</h1>
-    <p class="lead reveal" style="margin-top:var(--content-gap)">Un instrumento determinístico con criterio de IA por encima — para mejorar tu forma de trabajar con datos, no con intuición.</p>
-    <p class="spec reveal" style="margin-top:1.2rem">Fluidez con IA · análisis local de transcripts de Claude Code · versión ES bilingüe</p>
+    <div class="qhead reveal"><span class="qnum">04</span><div><span class="qkick">Código abierto</span></div></div>
+    <h2 class="reveal">Repositorios<span class="qsub">Para revisar el funcionamiento en profundidad o instalarlo en tu propio equipo.</span></h2>
+    <div class="repos reveal">
+      <a class="repo" href="https://github.com/martinviretti/fluidez-ia" target="_blank" rel="noopener">
+        <span class="repo-k">esta versión</span>
+        <b>fluidez-ia</b>
+        <span class="repo-desc">Análisis en español de cómo colaborás con Claude Code. Adaptación localizada de claude-insight.</span>
+        <span class="repo-url mono">github.com/martinviretti/fluidez-ia</span>
+      </a>
+      <a class="repo" href="https://github.com/Feloguarin/claude-insight" target="_blank" rel="noopener">
+        <span class="repo-k orig">proyecto original</span>
+        <b>claude-insight</b>
+        <span class="repo-desc">El analizador de sesiones de Claude Code en su versión original: privado, de solo lectura y enfocado en arquetipos y puntaje de eficiencia.</span>
+        <span class="repo-url mono">github.com/Feloguarin/claude-insight</span>
+      </a>
+    </div>
+    <p class="repo-foot reveal">Ambos proyectos son de código abierto, se ejecutan de forma local y no modifican tus archivos originales.</p>
   </div>
 </section>
 
@@ -434,99 +471,249 @@ em{color:var(--ink);font-style:normal;font-weight:600;border-bottom:2px solid va
 </div>
 
 <script>
-/* ===========================================
-   1) CONTENIDO DE LOS POP-UPS (doble-click)
-   =========================================== */
+/* =========================================================================
+   CONTENIDO DE LOS POP-UPS (click)
+   - 4 modales de competencia (las 4D, framework de Anthropic)
+   - 5 modales de señal (cómo lo mide + contra qué reconoce + a qué D)
+   - 4 modales de regla de scoring
+   Valores exactos: insight.py + reference/framework-fluidez-ia.md.
+   ========================================================================= */
 const M = {
-  instruccion:{t:"Instrucción",meta:["peso 0.24","objetivo_n 60","<b>señal de texto</b>"],lang:"txt",
-    mide:"Qué tan bien briefeás al agente <em>antes</em> de que actúe: si tu pedido lleva un objetivo y algo a lo que apuntar.",
-    signif:"Un buen briefing combina un objetivo con un ancla: el archivo a tocar, una restricción a respetar, o un criterio de \"listo cuando…\".",
-    ve:"Sobre cada prompt de acción detecta cuatro señales: <b>artifact</b> (nombra un archivo/path/función), <b>constraint</b> (una restricción junto a un verbo), <b>intent</b> (el para qué) y <b>front_loading</b> (que la regla esté al frente, no recién en una corrección posterior).",
-    formula:"score = 100 · ( 0.30·sat(constraint,.45) + 0.20·sat(artifact,.45)\n              + 0.25·sat(intent,.30) + 0.25·front_loading )",
-    ref:["constraint: solo · no toques · sin · must · without","intent: para que · porque · so that · in order to","artifact: rutas · .py/.ts · `código` · función()","verbos: agregá|add · arreglá|fix · creá|create"],
+
+  /* ---------- QUÉ ES (slide 1) ---------- */
+  "q-que":{t:"Qué es Fluidez con IA",meta:["resumen","versión localizada"],
+    mide:"Una herramienta de línea de comandos que analiza tu historial local de Claude Code y arma un reporte de qué tan bien colaborás con la IA.",lmide:"Qué es",
+    signif:"No mide cuánto usás la IA: mide la <b>habilidad</b> de trabajar con ella. El reporte trae un puntaje 0–100, una banda (Inicial→Experto), tu arquetipo de constructor y un mapa de las 4 competencias.",lsignif:"Qué te da",
+    ve:"Es una adaptación al español rioplatense de <b>claude-insight</b> (Feloguarin). Mismo motor de análisis, con la lectura localizada y el marco 4D explicado en términos sencillos.",lve:"De dónde viene",
+    refnote:"Read-only y local: lee tus transcripts, <b>nunca los modifica</b>, y el cálculo no sale de tu máquina."},
+
+  "q-local":{t:"Ejecución local y de solo lectura",meta:["privacidad"],
+    mide:"Todo el cálculo corre en tu máquina, sobre los archivos que Claude Code ya guarda en disco.",lmide:"Qué significa",
+    signif:"No hay nada que subir ni conectar a internet para tener tu puntaje. Y tus transcripts originales nunca se tocan: se <b>leen</b>, no se modifican.",lsignif:"Por qué importa",
+    formula:"~/.claude/projects/**/*.jsonl   →   (solo lectura)",lform:"De dónde lee",
+    refnote:"La única parte opcional que usa red es la capa de <b>insights escritos</b> (Sonnet + Opus), que interpreta pero no toca los números. Podés correr solo la capa determinística."},
+
+  "q-determinista":{t:"Determinístico y auditable",meta:["sin caja negra"],
+    mide:"El puntaje sale de reglas fijas (regex + Python), no de un modelo que opina.",lmide:"Qué significa",
+    signif:"Mismo historial → mismo número, siempre. Y como cada regla está escrita, podés <b>abrirla y discutirla</b>: a un juez-LLM no lo podés auditar.",lsignif:"Por qué importa",
+    refnote:"El detalle de cómo se calcula está en la slide <b>Cómo lo hace</b>."},
+
+  /* ---------- PARA QUÉ SIRVE (slide 2) ---------- */
+  "s-diagnostico":{t:"Un diagnóstico objetivo",meta:["para qué sirve · 1"],
+    mide:"Te da un 0–100 de cómo colaborás con la IA, basado en lo que realmente hiciste, no en cómo creés que trabajás.",lmide:"Para qué sirve",
+    signif:"La autopercepción engaña: casi todos creen que redactan buenas instrucciones. Esto se mide sobre cientos o miles de prompts reales, así que refleja tu <b>tendencia</b>, no una impresión.",lsignif:"Por qué sirve",
+    refnote:"La banda (Inicial / Competente / Avanzado / Experto) sale del puntaje total."},
+
+  "s-palanca":{t:"Palanca de mejora",meta:["para qué sirve · 2"],
+    mide:"Te marca qué dimensión rinde más si la practicás: dónde está tu mayor retorno.",lmide:"Para qué sirve",
+    signif:"No todas las habilidades pesan igual. Si tu Descripción está floja, mejorarla mueve el número más que pulir lo que ya hacés bien, y el reporte te lo dice explícito.",lsignif:"Cómo ayuda",
+    refnote:"Cada dimensión trae tarjetas de mejora con ejemplos <b>flojo → fuerte</b>."},
+
+  "s-arquetipo":{t:"Arquetipo de trabajo",meta:["para qué sirve · 3"],
+    mide:"Resume <b>cómo</b> trabajás con la IA en un perfil, por ejemplo, Agente Autónomo, Verificador Riguroso, Explorador.",lmide:"Para qué sirve",
+    signif:"Dos personas con el mismo puntaje pueden trabajar muy distinto. El arquetipo captura tu estilo: cuánto delegás, cuánto verificás, cuánto iterás.",lsignif:"Qué aporta",
+    refnote:"Sale del perfil de tus 5 dimensiones, no solo del total."},
+
+  "s-privado":{t:"Privacidad por diseño",meta:["para qué sirve · 4"],
+    mide:"Podés medirte sin exponer tu trabajo: el cálculo del puntaje es 100% local.",lmide:"Para qué sirve",
+    signif:"Importa cuando tus transcripts tienen código de clientes o cosas sensibles. El número sale sin que <b>nada</b> salga de tu máquina.",lsignif:"Por qué importa",
+    refnote:"La capa opcional de insights escritos sí manda extractos a los modelos de Anthropic; es opcional y no cambia los números."},
+
+  "s-paraquien":{t:"Para quién y cuándo",meta:["casos de uso"],
+    mide:"Pensado para quien quiere mejorar su forma de trabajar con agentes de código, no para vigilar a nadie.",lmide:"Para quién",
+    ve:"<ul class='subskills'><li><b>Desarrolladores</b> que quieren afilar prompting y criterio (verificar, dar contexto, iterar fino).</li><li><b>Quien arranca con Claude Code</b> y quiere una brújula de qué practicar.</li><li><b>Vos mismo, en el tiempo</b>: corrés el análisis cada tanto y ves cómo evolucionás entre corridas.</li></ul>",lve:"Casos típicos",
+    refnote:"Como es determinístico, comparar dos corridas tiene sentido: si subís, es porque cambió tu forma de trabajar (o por más datos, ver la regla de confianza)."},
+
+  /* ---------- LAS 4 COMPETENCIAS (4D de Anthropic) ---------- */
+  "d-delegacion":{t:"Delegación · Delegation",meta:["competencia 1 de 4","decidir qué le pasás a la IA"],
+    mide:"Decidir qué hacés vos y qué le pasás al agente, y partir el objetivo en piezas del tamaño justo para él.",lmide:"Qué es",
+    signif:"Delegar de más o de menos cuesta tiempo: o microgestionás cada paso, o le pasás un objetivo enorme sin estructura y el agente se pierde.",lsignif:"Por qué importa",
+    ve:"<ul class='subskills'><li><b>Conciencia del problema</b>: tener claro qué querés antes de delegar.</li><li><b>Conciencia de la plataforma</b>: saber en qué es bueno o malo este agente y derivar el trabajo en consecuencia.</li><li><b>Conciencia del camino</b>: elegir cómo: una delegación grande, un ciclo ajustado, sub-agentes, o planificar primero.</li></ul>",lve:"Las 3 sub-habilidades",
+    formula:"Señal del motor → Herramientas (peso 14%)\namplitud de tools + uniformidad + delegación (agente/tarea/workflow/plan)",lform:"Cómo la mide el motor",
+    ref:["eventos de delegación: sub-agentes · background · planificación","amplitud de tools usadas","delegaciones de punta a punta vs micro-pasos","objetivos acotados antes de arrancar"],lref:"Señales observables que la informan",
+    refnote:"Es una competencia que <b>vos conducís claramente</b>, así que pesa fuerte en tu fluidez."},
+
+  "d-descripcion":{t:"Descripción · Description",meta:["competencia 2 de 4","decirle a la IA qué querés"],
+    mide:"La competencia de prompting: comunicar la intención, las restricciones y la forma que tiene una buena respuesta.",lmide:"Qué es",
+    signif:"Cuando el objetivo y los límites están claros desde el arranque, el agente lo hace bien a la primera en vez de adivinar y arrastrarte a rondas de arreglos.",lsignif:"Por qué importa",
+    ve:"<ul class='subskills'><li><b>Producto</b>: qué debería ser el output (objetivo, archivo, test de aceptación).</li><li><b>Proceso</b>: cómo llegar (pasos, orden, qué tocar / qué no).</li><li><b>Desempeño</b>: el rol/estilo/formato que el agente debería adoptar.</li></ul>",lve:"Las 3 sub-habilidades",
+    formula:"Señales del motor → Instrucción (24%) + Iteración (18%)\nInstrucción = la instrucción inicial · Iteración = re-descripción al corregir",lform:"Cómo la mide el motor",
+    ref:["¿el prompt nombra un archivo / error?","¿lleva una restricción ('tocá solo X', 'no cambies Y')?","¿plantea un porqué / criterio de aceptación?"],lref:"Señales observables que la informan",
+    refnote:"Los pedidos de una sola línea, que delegan toda la decisión, puntúan bajo; los pedidos específicos y cargados al frente, alto."},
+
+  "d-discernimiento":{t:"Discernimiento · Discernment",meta:["competencia 3 de 4","evaluar lo que te devuelve"],
+    mide:"Juzgar críticamente los outputs y el proceso en lugar de aceptarlos: ¿está realmente bien?, ¿tomó un mal camino?",lmide:"Qué es",
+    signif:"Es lo que separa 'probablemente funciona' de 'lo vi funcionar', y encarrilar al agente antes de que un error se arrastre por toda la sesión.",lsignif:"Por qué importa",
+    ve:"<ul class='subskills'><li><b>Producto</b>: chequear que el resultado sea correcto (tests, build, run, leer antes de confiar).</li><li><b>Proceso</b>: notar cuándo el agente tomó un rumbo equivocado y redirigir.</li><li><b>Desempeño</b>: juzgar si el estilo de interacción te está sirviendo.</li></ul>",lve:"Las 3 sub-habilidades",
+    formula:"Señales del motor → Verificación (22%) + Contexto (22%)\ntambién Iteración (corregir fino)",lform:"Cómo la mide el motor",
+    ref:["verificación tras ráfagas de ediciones","anclar las ediciones en una lectura previa","correcciones que nombran síntoma + regla"],lref:"Señales observables que la informan",
+    refnote:"Claude suele hacer parte de esto por su cuenta, así que el análisis lo modera para no acreditarte de más."},
+
+  "d-diligencia":{t:"Diligencia · Diligence",meta:["competencia 4 de 4","ser responsable con la IA"],
+    mide:"Usar la IA de forma reflexiva y responsable: hacerte cargo de lo que entregás, verificar antes de que salga y dejar todo ordenado.",lmide:"Qué es",
+    signif:"La fluidez también es responsabilidad: no publicar a ciegas lo generado, ser honesto sobre la participación de la IA donde importa, y desmontar lo que pusiste en marcha.",lsignif:"Por qué importa",
+    ve:"<ul class='subskills'><li><b>Creación</b>: hacerte cargo del output; no publicar a ciegas.</li><li><b>Transparencia</b>: honestidad sobre el uso de IA donde corresponde.</li><li><b>Despliegue</b>: verificar antes de producción, desmontar sistemas en vivo, limpiar.</li></ul>",lve:"Las 3 sub-habilidades",
+    formula:"En un transcript de coding se mide junto con Discernimiento:\nel ángulo de '¿chequeaste antes de que importara?' (Verificación + Contexto + teardown)",lform:"Cómo la mide el motor",
+    ref:["disciplina de verificación","desmontaje de sistemas en vivo","ediciones ancladas, no a ciegas","revisar antes de seguir"],lref:"Señales observables que la informan",
+    refnote:"Por eso, en un transcript de código, Diligencia y Discernimiento comparten buena parte de la evidencia."},
+
+  /* ---------- LAS 5 SEÑALES (fácil → qué busca → técnico) ---------- */
+  instruccion:{t:"Instrucción → Descripción",meta:["alimenta <b>Descripción</b> (4D)","peso 24%","texto, bilingüe"],lang:"txt",
+    easy:"Mira cada prompt en el que pedís una acción y se pregunta: ¿le diste al agente con qué trabajar? Un “arreglá esto” suelto puntúa bajo; un pedido que dice <b>dónde tocar</b>, <b>qué no romper</b> y <b>para qué</b>, puntúa alto.",
+    looks:[
+      {k:"Archivo",q:"¿Decís dónde tocar, un archivo, ruta o función?",ex:["session.ts","src/api/client.ts","request()","`config`"]},
+      {k:"Restricción",q:"¿Ponés un límite a respetar?",ex:["solo","no toques","sin","mantené los tests","must","never"]},
+      {k:"Intención",q:"¿Explicás para qué lo querés?",ex:["para que","porque","necesito","so that"]},
+      {k:"Verbo",q:"¿Hay una orden de acción concreta?",ex:["arreglá / fix","agregá / add","creá / create","corré / run"]}
+    ],
+    tech:"Por cada una de esas señales cuenta en qué porcentaje de tus prompts de acción aparece, y lo compara con un objetivo (la tasa que ya se considera buena). Llegar al objetivo da el máximo; pasarse no suma.",
+    formula:"objetivos: restricción 45% · archivo 45% · porqué 30%\nscore = 100·( .30·sat(restr,.45) + .20·sat(arch,.45)\n             + .25·sat(intent,.30) + .25·front_loading )",lform:"La cuenta exacta",
     ej:{a:"arreglá el bug de login",d:"El login falla en Safari con contraseña correcta. El check está en src/auth/session.ts. Arreglalo y mantené los tests en verde."},
-    refnote:"Detectores por expresiones regulares <b>bilingües (ES+EN)</b>. Por eso un prompt en español rioplatense puntúa igual que uno en inglés."},
-  verificacion:{t:"Verificación",meta:["peso 0.22","objetivo_n 15","objetivo sat .60","<b>agnóstica al idioma</b>"],lang:"agn",
-    mide:"Si el agente <em>prueba su propio trabajo</em> antes de declararlo terminado.",
-    signif:"Correr los tests, el build, el lint, o levantar la app tras editar. Es lo que separa \"probablemente anda\" de \"lo vi andar\".",
-    ve:"Un burst de ediciones abre un \"episodio\". El episodio se cuenta verificado si después aparece un comando que prueba el cambio, o un prompt tuyo tipo \"corré / funciona\". Hay un bonus si además tirás abajo lo que levantaste (teardown).",
-    formula:"score = min(100, 100·sat(verificados / episodios, .60) + bonus_teardown)",
-    ref:["pytest · unittest · jest · vitest · go test","npm/yarn/pnpm test|build|lint","ruff · eslint · flake8 · mypy · tsc","curl localhost · docker compose · playwright"],
+    refnote:"Los detectores son <b>bilingües (ES+EN)</b>: un prompt en rioplatense puntúa igual que su equivalente en inglés. Hacen falta ~60 prompts de acción para confiar plenamente en este número."},
+
+  verificacion:{t:"Verificación → Discernimiento",meta:["alimenta <b>Discernimiento</b> (+ Diligencia)","peso 22%","acción, agnóstico"],lang:"agn",
+    easy:"Agrupa tus ediciones en “episodios”. Un episodio cuenta como <b>verificado</b> si, después de editar, corrés algo que prueba el cambio o preguntás “¿funciona?”. Mide qué fracción de tus episodios terminan con esa comprobación, en vez de darlos por buenos sin comprobar.",
+    looks:[
+      {k:"Tests",q:"¿Corriste los tests después de editar?",ex:["pytest","jest","vitest","go test"]},
+      {k:"Build / lint",q:"¿Compilaste o pasaste el linter?",ex:["npm run build","ruff","eslint","tsc"]},
+      {k:"Levantar",q:"¿Levantaste la app para verla funcionar?",ex:["curl localhost","docker compose","playwright"]}
+    ],
+    tech:"score = qué porcentaje de tus episodios verificás, comparado con un objetivo del 60%. Hay un pequeño bonus si además desmontás lo que levantaste (teardown).",
+    formula:"score = min(100, 100·sat(verificados / episodios, .60) + bonus_teardown)",lform:"La cuenta exacta",
     ej:{a:"arreglá el off-by-one en la paginación",d:"…después corré pytest tests/test_pagination.py -x y pegá la salida. No lo des por arreglado hasta que el test pase."},
-    refnote:"Mira <b>comandos de Bash</b> ejecutados — no texto. Por eso no depende del idioma."},
-  contexto:{t:"Contexto",meta:["peso 0.22","objetivo_n 25","objetivo sat .85","<b>agnóstica al idioma</b>"],lang:"agn",
-    mide:"Si las ediciones caen sobre código que el agente <em>leyó primero</em>, en vez de editar a ciegas.",
-    signif:"El patrón leer→editar hace que los cambios encajen con lo que realmente hay, y apliquen limpio a la primera.",
-    ve:"Por sesión, rastrea qué archivos se leyeron. Cada edición es \"grounded\" si ese archivo se leyó antes en la sesión, se creó ahí, o es un archivo nuevo que se está escribiendo.",
-    formula:"score = 100 · sat(ediciones_grounded / total_ediciones, .85)",
-    ref:["lee: Read · Grep · Glob","edita: Edit · Write · MultiEdit · NotebookEdit","compara los paths leídos vs editados por sesión"],
+    refnote:"Mira los <b>comandos que ejecutaste</b>, no tus palabras, por eso da igual el idioma. Hacen falta ~15 episodios para confiar plenamente."},
+
+  contexto:{t:"Contexto → Discernimiento",meta:["alimenta <b>Discernimiento</b> (+ Diligencia)","peso 22%","acción, agnóstico"],lang:"agn",
+    easy:"Por cada edición revisa si ese archivo <b>se leyó antes</b> en la sesión. Editar sobre algo que ya leíste tiene fundamento; editar a ciegas, no. Mide qué fracción de tus ediciones tienen ese fundamento.",
+    looks:[
+      {k:"Primero lee",q:"¿El agente leyó el archivo antes de tocarlo?",ex:["Read","Grep","Glob"]},
+      {k:"Después edita",q:"…y recién ahí lo modifica",ex:["Edit","Write","MultiEdit"]}
+    ],
+    tech:"score = qué porcentaje de tus ediciones caen sobre archivos ya leídos, comparado con un objetivo del 85%. Compara, por sesión, los paths que se leyeron contra los que se editaron.",
+    formula:"score = 100·sat(ediciones_grounded / total_ediciones, .85)",lform:"La cuenta exacta",
     ej:{a:"agregá retry al cliente de API",d:"Leé src/api/client.ts primero, después agregá retry-con-backoff al método request(). Mostrame el cambio antes de aplicarlo."},
-    refnote:"Mira <b>tool calls</b> y los paths de archivo — no texto. Agnóstico al idioma."},
-  iteracion:{t:"Iteración",meta:["peso 0.18","objetivo_n 12","<b>señal de texto</b>"],lang:"txt",
-    mide:"Cuando el agente agarra para el lado equivocado, si lo encarrilás con una <em>corrección precisa</em> o con un \"no, mal\".",
-    signif:"Una corrección que nombra el síntoma y la regla clava el arreglo en una ronda; un \"no\" vago hace adivinar de nuevo y quema turnos.",
-    ve:"Cuenta \"correcciones\": rechazos cortos que siguen a una acción del agente (descartando elogios). Mide qué fracción son \"high-info\": tienen un número, un archivo, una intención, o ≥8 palabras.",
-    formula:"score = 100 · ( 0.6·(1 − min(1, rate/0.35)) + 0.4·especificidad )\nrate = correcciones / prompts",
-    ref:["corrección: no · mal · wrong · revertí · de nuevo","síntomas: sigue roto · no funciona · no anda","elogio (excluye): genial · perfecto · great · listo"],
+    refnote:"Mira los <b>tool calls</b> y los paths, no texto. Agnóstico al idioma. Hacen falta ~25 ediciones para confiar plenamente."},
+
+  iteracion:{t:"Iteración → Descripción",meta:["alimenta <b>Descripción</b> (re-descripción)","peso 18%","texto, bilingüe"],lang:"txt",
+    easy:"Cuando el agente toma un rumbo equivocado, mira <b>cómo</b> lo corregís. Lo ideal: pocas correcciones y precisas (que nombran el problema). Muchos “no, mal” vagos bajan el puntaje, porque lo obligan a adivinar de nuevo y desperdician intercambios.",
+    looks:[
+      {k:"Corrección",q:"¿Frenás al agente cuando va mal?",ex:["no","mal","revertí","de nuevo","no funciona"]},
+      {k:"Específica ✓",q:"¿La corrección nombra el síntoma, un archivo o un número?",ex:["≥ 8 palabras","un path","un número"]},
+      {k:"Elogio ✗",q:"los “genial / listo” no cuentan como corrección",ex:["genial","perfecto","dale"]}
+    ],
+    tech:"Combina dos cosas: que las correcciones sean POCAS (bajo el 35% de tus prompts) y ESPECÍFICAS. Cuantas menos y más precisas, más alto el puntaje.",
+    formula:"score = 100·( .6·(1 − min(1, rate/.35)) + .4·especificidad )\nrate = correcciones / prompts",lform:"La cuenta exacta",
     ej:{a:"no, eso no, probá de nuevo",d:"El retry captura la excepción pero no la re-lanza tras el último intento, así las fallas parecen éxitos. Re-lanzala y mantené el backoff."},
-    refnote:"Detectores <b>bilingües (ES+EN)</b>. La confianza se ancla en la cantidad de prompts, no de correcciones: muchas sesiones limpias = evidencia fuerte de buena iteración."},
-  herramientas:{t:"Herramientas",meta:["peso 0.14","objetivo_n 40","<b>agnóstica al idioma</b>"],lang:"agn",
-    mide:"Si dejás que el agente use la <em>tool correcta</em> para cada paso (buscar, correr, levantar, delegar) en vez de forzar todo por el chat.",
-    signif:"El agente es más rápido y confiable cuando busca y ejecuta de verdad, en vez de razonar de memoria.",
-    ve:"Combina tres cosas: amplitud (cuántas tools distintas usás), uniformidad (qué tan parejo es el uso, por entropía de Shannon) y delegación (handoffs por hora activa).",
-    formula:"score = 100 · ( 0.45·amplitud + 0.30·uniformidad + 0.25·delegación )\namplitud = sat(tools_distintas/20, 1) · delegación = sat(handoffs/hora, 2)",
-    ref:["cuenta de uso por tool (tool_usage)","delegación: agent · task · workflow · plan mode","entropía de Shannon de la distribución de uso"],
-    ej:{a:"¿cómo funciona el login acá?",d:"Buscá el flujo de login en el codebase (grep auth, session), leé los archivos, después explicá cómo va del submit del form a la sesión logueada."},
-    refnote:"Mira el <b>registro de tool calls</b> — no texto. Agnóstico al idioma."},
-  tasas:{t:"Regla 1 · Tasas",meta:["fundamento del scoring"],lang:"",
+    refnote:"Bilingüe. La confianza se ancla en cuántos prompts tenés (~12), no en cuántas correcciones: muchas sesiones limpias = buena señal de iteración."},
+
+  herramientas:{t:"Herramientas → Delegación",meta:["alimenta <b>Delegación</b> (4D)","peso 14%","acción, agnóstico"],lang:"agn",
+    easy:"Mira si dejás que el agente use la <b>herramienta justa</b> para cada paso (buscar, correr, levantar, delegar) en vez de forzar todo por el chat. Premia variedad, uso parejo y delegar el trabajo grande.",
+    looks:[
+      {k:"Variedad",q:"¿Usás muchas tools distintas?",ex:["leer","buscar","correr","editar"]},
+      {k:"Uniformidad",q:"¿El uso es parejo, no todo una sola?",ex:["entropía de Shannon"]},
+      {k:"Delegación",q:"¿Pasás trabajo a sub-agentes o planes?",ex:["agent","task","workflow","plan mode"]}
+    ],
+    tech:"score = .45·variedad + .30·uniformidad + .25·delegación. La variedad satura cerca de 20 tools distintas; la delegación, cerca de 2 delegaciones por hora activa.",
+    formula:"score = 100·( .45·amplitud + .30·uniformidad + .25·delegación )\namplitud = sat(tools/20, 1) · delegación = sat(handoffs/h, 2)",lform:"La cuenta exacta",
+    ej:{a:"¿cómo funciona el login acá?",d:"Buscá el flujo de login en el código (grep auth, session), leé los archivos, después explicá cómo va del submit del form a la sesión logueada."},
+    refnote:"Mira el registro de tool calls, no texto. Agnóstico al idioma. Hacen falta ~40 tool calls para confiar plenamente."},
+
+  /* ---------- LAS TRES REGLAS DE SCORING ---------- */
+  tasa:{t:"Regla ① · Tasa",meta:["fundamento del scoring"],
     mide:"Todo se mide como una <em>tasa de calidad</em>, no como un conteo.",
-    signif:"Importa qué fracción de tus oportunidades resolvés bien, no cuántas veces hiciste algo.",
-    ve:"Para cada dimensión: cuántas \"oportunidades\" hubo (prompts, ediciones, episodios) y en cuántas se cumplió la buena práctica.",
-    formula:"tasa = casos_buenos / oportunidades",
-    ref:["evita premiar actividad sobre destreza"],refnote:"Es la base sobre la que se aplican la saturación y el hedging."},
-  saturacion:{t:"Regla 2 · Saturación",meta:["el techo del esfuerzo"],lang:"",
-    mide:"Cada señal sube hasta un <em>objetivo</em> y ahí satura: pasarse no suma más.",
-    signif:"Una vez que tu tasa llega al nivel considerado \"bueno\", hacer más de lo mismo no mueve el número — solo mejorar otra dimensión lo mueve.",
-    ve:"Cada dimensión define su propio objetivo (de .30 a .85) según qué tasa ya se considera excelente.",
-    formula:"sat(x, objetivo) = min(1, x / objetivo)",
-    ref:["Instrucción usa .45/.30 · Verificación .60 · Contexto .85"],refnote:"Por eso el volumen no infla el puntaje: la curva tiene techo."},
-  hedging:{t:"Regla 3 · Hedging",meta:["honestidad con poca data"],lang:"",
-    mide:"Con poca historia, el puntaje se <em>tira hacia 50</em> (neutro) y se marca \"pocos datos\".",
+    signif:"Importa qué fracción de tus oportunidades resolvés bien, no cuántas veces hiciste algo. Así, usar más la IA no infla el puntaje.",
+    ve:"Para cada señal cuenta cuántas \"oportunidades\" hubo (prompts, ediciones, episodios) y en cuántas se cumplió la buena práctica.",
+    formula:"tasa = casos_buenos / oportunidades",lform:"La fórmula",
+    refnote:"Es la base sobre la que se aplican la saturación y el hedging."},
+  saturacion:{t:"Regla ② · Saturación",meta:["el techo del esfuerzo"],
+    mide:"Cada tasa sube hasta un <em>objetivo</em> y ahí satura: pasarse no suma más.",
+    signif:"Una vez que tu tasa llega al nivel considerado \"bueno\", hacer más de lo mismo no mueve el número, solo mejorar otra señal lo mueve. Esto es \"el estándar\".",
+    ve:"Cada señal define su propio objetivo (de .30 a .85) según qué tasa ya se considera excelente.",
+    formula:"sat(x, objetivo) = min(1, x / objetivo)\nInstrucción .45/.30 · Verificación .60 · Contexto .85\nEjemplo: tasa 0.60 con objetivo 0.45 → min(1, 1.33) = 1.0 (saturado)",lform:"La fórmula",
+    refnote:"Por eso el volumen no infla el puntaje: la curva tiene techo."},
+  hedging:{t:"Regla ③ · Ajuste por confianza",meta:["honestidad con pocos datos"],
+    mide:"Con poca historia, el puntaje <em>se aproxima a 50</em> (neutro) y se marca \"pocos datos\".",
     signif:"Evita declarar un nivel alto o bajo sin evidencia suficiente. A medida que se acumulan oportunidades, converge a tu nivel real.",
-    ve:"La confianza de cada dimensión es min(1, n/objetivo_n): cuántas oportunidades tuviste sobre las que hacen falta.",
-    formula:"score = 50 + (crudo − 50) · min(1, n / objetivo_n)",
-    ref:["objetivo_n: Instr. 60 · Verif. 15 · Ctx. 25 · Iter. 12 · Herr. 40"],refnote:"Por eso los primeros runs salen conservadores: no es que mejores, es el hedge soltando."},
-  paso1:{t:"Paso 1 · Lee",meta:["entrada"],lang:"",mide:"Junta todos tus transcripts locales de Claude Code.",signif:"Son las conversaciones que Claude Code guarda en disco mientras trabajás.",ve:"Recorre de forma recursiva los .jsonl de tus proyectos (y un archivo persistente opcional para ver más allá de los 30 días).",formula:"~/.claude/projects/**/*.jsonl",ref:["de-duplica sesiones por su ID único de archivo"],refnote:"Los transcripts originales nunca se modifican."},
-  paso2:{t:"Paso 2 · Limpia",meta:["de-contaminación"],lang:"",mide:"Separa tus prompts reales del ruido.",signif:"De los registros con rol \"user\", la mayoría no son cosas que vos tipeaste.",ve:"Descarta resultados de tools, turnos de subagentes, texto inyectado por el sistema, stubs de slash-commands y pastes masivos.",formula:"se excluye: prompt > 6000 chars · cabeceras 'You are…/Sos un…' · <system-reminder>",ref:["también: gaps > 300s no cuentan como tiempo activo"],refnote:"Sin esta limpieza, el promedio de \"tu prompt\" quedaría inflado por pegotes y salidas de máquina."},
-  paso3:{t:"Paso 3 · Mide",meta:["núcleo determinístico"],lang:"",mide:"Calcula las 5 dimensiones y el puntaje.",signif:"Es donde vive toda la matemática — sin azar, reproducible.",ve:"Aplica tasas + saturación + hedging sobre el timeline de cada sesión, y pondera las 5 dimensiones.",formula:"overall = Σ peso · score_dimensión",ref:["Instrucción .24 · Verif .22 · Ctx .22 · Iter .18 · Herr .14"],refnote:"Tocá las dimensiones (slide 04) para ver el detalle de cada una."},
-  paso4:{t:"Paso 4 · Reporta",meta:["salida"],lang:"",mide:"Genera un reporte HTML autocontenido.",signif:"Un único archivo navegable con puntaje, arquetipo, mapa y mejoras.",ve:"Sobre los números determinísticos suma (si está disponible) el análisis de Sonnet + Opus.",formula:"~/.claude/fluidez-ia/reporte_fluidez_ia.html",ref:["también escribe evidence.json con un fingerprint de la corrida"],refnote:"El fingerprint impide que un análisis viejo o ajeno se mezcle en tu reporte."},
-  etapa1:{t:"Etapa 1 · Medir",meta:["Python · determinístico"],lang:"",mide:"Computa todas las métricas.",signif:"Mismo input → mismo número. Los modelos nunca alteran esto.",ve:"Parsea, de-contamina y calcula las tasas saturadas y hedgeadas de cada dimensión.",formula:"insight.py → evidence.json + reporte de fallback",ref:["reproducible y auditable"],refnote:"El reporte determinístico es completo por sí solo, aunque no corran las etapas 2-3."},
-  etapa2:{t:"Etapa 2 · Explorar",meta:["Sonnet · paralelo"],lang:"",mide:"Lee la evidencia desde cuatro ángulos.",signif:"Un explorador por cada competencia del framework (Delegación, Descripción, Discernimiento, Diligencia).",ve:"Cada uno lee SOLO la evidencia de-contaminada y estima un nivel con citas reales de tus prompts.",formula:"4 exploradores en paralelo",ref:["requiere la capability Workflow de Claude Code"],refnote:"Si no está disponible, se omite y queda el reporte determinístico."},
-  etapa3:{t:"Etapa 3 · Analizar",meta:["Opus · síntesis"],lang:"",mide:"Escribe el mapa de habilidades final.",signif:"Un evaluador reconcilia los hallazgos con los números y el framework; un verificador chequea que todo esté anclado en datos y repara lo que no.",ve:"Produce el skill map, las fortalezas y las growth cards (con reescrituras de tus propios prompts).",formula:"assessor → verificador → (repara si hace falta)",ref:["nunca cambia la matemática; solo agrega criterio"],refnote:"Cada afirmación queda atada a evidencia real de tu uso."}
+    ve:"La confianza de cada señal es min(1, n/objetivo_n): cuántas oportunidades tuviste sobre las que hacen falta.",
+    formula:"score = 50 + (crudo − 50) · min(1, n / objetivo_n)\nobjetivo_n: Instr. 60 · Verif. 15 · Ctx. 25 · Iter. 12 · Herr. 40",lform:"La fórmula",
+    refnote:"Si subís entre dos corridas sin cambiar nada, no es que mejores: es el ajuste por confianza aflojando a medida que hay más datos."},
+  suma:{t:"Total · suma ponderada",meta:["el 0–100 final"],
+    mide:"El puntaje general es el <em>promedio ponderado</em> de las cinco señales ya saturadas y ajustadas.",
+    signif:"Cada señal pesa según cuánto define la fluidez real al construir. Instrucción es la que más pesa; las herramientas, las que menos.",
+    ve:"Toma los cinco scores de 0–100, los multiplica por su peso y los suma.",
+    formula:"overall = Σ peso · score_señal\nInstrucción .24 · Verificación .22 · Contexto .22 · Iteración .18 · Herramientas .14",lform:"La fórmula",
+    refnote:"Todo determinístico: mismo historial → mismo número, siempre. La banda (Inicial/Competente/Avanzado/Experto) sale del total."},
+
+  /* ---------- EL PIPELINE (de dónde sale el dato · slide técnica) ---------- */
+  "p-lee":{t:"Paso 1 · Lee tus transcripts",meta:["de dónde sale el dato"],
+    mide:"Junta todas tus conversaciones locales de Claude Code.",lmide:"Qué hace",
+    signif:"Son los archivos que Claude Code guarda en disco mientras trabajás, no hay nada que subir ni conectar a internet.",lsignif:"De dónde",
+    ve:"Recorre recursivamente los .jsonl de tus proyectos (y un archivo persistente opcional, para ver más allá de la limpieza de 30 días de Claude Code). De-duplica por el ID único de cada sesión.",lve:"Cómo",
+    formula:"~/.claude/projects/**/*.jsonl",lform:"La ruta exacta",
+    refnote:"Los transcripts originales <b>nunca se modifican</b>: se leen, no se tocan."},
+  "p-limpia":{t:"Paso 2 · Aísla tus prompts",meta:["de-contaminación"],
+    mide:"De todos los registros con rol “user”, se queda solo con lo que escribiste vos.",lmide:"Qué hace",
+    signif:"La mayoría de los registros “user” no son cosas que escribiste: son ruido que una herramienta ingenua contaría mal e inflaría el promedio.",lsignif:"Por qué",
+    ve:"Descarta: salidas de herramientas, turnos de sub-agentes (sidechains), texto inyectado por el sistema, plantillas de slash-commands, y pegados o system-prompts de más de 6000 caracteres o que abren con “Sos un… / You are…”.",lve:"Qué filtra",
+    formula:"miles de registros “user” → solo los que escribiste vos\n(excluye salidas de herramientas, sidechains, pegados de +6000 caracteres, cabeceras “Sos un…” y &lt;system-reminder&gt;)",lform:"Qué entra y qué no",
+    refnote:"Sin esta limpieza, el “largo promedio de tu prompt” quedaría inflado por pegados y salidas de herramientas. <b>Solo lo que escribiste puntúa.</b>"},
+  "p-detecta":{t:"Paso 3 · Detecta y puntúa",meta:["núcleo determinístico"],
+    mide:"Sobre cada prompt real corre detectores fijos y cuenta tasas, sin LLM ni azar.",lmide:"Qué hace",
+    signif:"No hay un modelo puntuando: son reglas explícitas y auditables. Mismo historial → mismo número, siempre.",lsignif:"Por qué creerle",
+    ve:"Dos familias de detectores: <b>regex bilingües</b> sobre tu texto (alimentan Instrucción e Iteración) y el <b>registro de comandos y tool-calls</b> (alimentan Verificación, Contexto y Herramientas). Sobre cada señal calcula una tasa, la satura contra su objetivo y la ajusta por confianza.",lve:"Cómo",
+    formula:"texto    → regex (Instrucción, Iteración)\nacciones → tool-calls y Bash (Verificación, Contexto, Herramientas)\nluego: tasa → saturación → ajuste por confianza → suma ponderada",lform:"El flujo",
+    refnote:"Es la capa determinística. La capa de IA opcional (Sonnet + Opus) interpreta por encima, pero <b>nunca cambia los números</b>."},
+
+  /* ---------- ¿MACHEA SOLO PALABRAS? (aclaración · slide técnica) ---------- */
+  "c-lexico":{t:"Léxico, no semántico",meta:["cómo reconoce"],
+    mide:"El motor busca señales con detectores fijos (regex), no entendiendo el sentido de la frase.",lmide:"Qué significa",
+    ve:"Cada señal se evalúa por separado e independiente: <b>intención</b> dispara con cues como “para que / porque / necesito”; <b>restricción</b> con “solo / no toques” + un verbo; <b>archivo</b> con cualquier ruta, <code>.ext</code>, <code>`código`</code> o <code>función()</code>. No necesitás las cuatro en un prompt, cada una que aparezca suma su parte.",lve:"Cómo funciona",
+    refnote:"Las listas son <b>bilingües (ES+EN)</b>, así que el español rioplatense puntúa igual que el inglés."},
+  "c-tasa":{t:"Es una tasa, no una nota por prompt",meta:["por qué es confiable"],
+    mide:"No te califica prompt por prompt: cuenta en qué fracción de <b>todos</b> tus prompts aparece cada señal.",lmide:"Qué significa",
+    ve:"Por eso un parafraseo que el regex no reconozca casi no cambia el número: sobre cientos o miles de prompts, lo que mide es tu <b>tendencia</b>, no el acierto en cada caso. Crudo por prompt, sólido en volumen.",lve:"Por qué importa",
+    formula:"señal = prompts_con_la_señal / prompts_totales",lform:"La idea",
+    refnote:"Cada señal después se satura contra un objetivo y se ajusta por confianza (ver las reglas de scoring en la slide 1)."},
+  "c-reconoce":{t:"¿Reconoce solo palabras? Sí, y por eso es auditable",meta:["cómo reconoce","honestidad"],
+    mide:"Busca señales con detectores fijos (regex y patrones), sin entender el sentido de la frase. Cada señal se evalúa por separado: intención, restricción, archivo, verbo… no necesitás todas, cada una suma su parte.",lmide:"Léxico, no semántico",
+    signif:"No te califica prompt por prompt: cuenta en qué fracción de <b>todos</b> tus prompts aparece cada señal. Un parafraseo que se le escape casi no cambia el número, mide tu <b>tendencia</b>, no el acierto en cada caso. Crudo por prompt, sólido en volumen.",lsignif:"Por eso es confiable: es una tasa",
+    ve:"A cambio de correr 100% local y reproducible (sin LLM puntuando), acepta ese ruido. Y como cada regla está escrita y es fija, <b>podés abrirla y discutirla</b>: a un juez-LLM no lo podés auditar. La capa de IA opcional sí lee con semántica, pero interpreta: <b>no toca los números</b>.",lve:"El compromiso, con franqueza",
+    refnote:"Las listas son bilingües (ES+EN). El detalle exacto de cada señal está en las 5 tarjetas de arriba."},
+  "c-local":{t:"El compromiso, con franqueza",meta:["qué es local y qué no"],
+    mide:"El <b>cálculo</b> (puntaje, dimensiones, arquetipo) es 100% determinístico y local: regex + Python sobre tus <code>.jsonl</code>. Para esa parte no hay LLM ni sale nada de tu máquina.",lmide:"Lo que es local",
+    ve:"Pero los <b>insights escritos</b> (la evaluación, el mapa 4D, las tarjetas de mejora) los redacta un LLM: Sonnet explora la evidencia y Opus la analiza. Esa capa corre en los modelos de Anthropic, así que <b>le manda el paquete de evidencia</b> (extractos de tus prompts), como cualquier llamada a Claude. Es opcional e <b>interpreta: no toca los números</b>.",lve:"Lo que usa IA (y red)",
+    formula:"números → 100% local (insight.py)\ninsights  → Sonnet + Opus (en la nube de Anthropic)",lform:"Las dos capas",
+    refnote:"Si esa capa de IA no corre (por ejemplo, si esa función no está disponible), el reporte es el <b>determinístico puro</b> y no sale nada de tu máquina."}
 };
 
 /* ===========================================
-   2) MODAL: abrir con click, cerrar con X/Esc/click afuera
+   MODAL: abrir/cerrar (secciones opcionales con label propio)
    =========================================== */
 const overlay=document.getElementById("overlay"), modalEl=document.getElementById("modal");
 function openModal(key){
   const d=M[key]; if(!d) return;
   const meta=(d.meta||[]).map(m=>`<span>${m}</span>`).join("");
-  const lang=d.lang==="txt"?`<span class="lang-pill txt">depende del idioma → bilingüe</span>`
-            :d.lang==="agn"?`<span class="lang-pill agn">agnóstica al idioma</span>`:"";
+  const lang=d.lang==="txt"?`<span class="lang-pill txt">depende del idioma → resuelto bilingüe</span>`
+            :d.lang==="agn"?`<span class="lang-pill agn">agnóstico al idioma</span>`:"";
   const ref=(d.ref||[]).map(r=>`<span>${r}</span>`).join("");
+  const hasRef=d.ref&&d.ref.length;
+  const looks=(d.looks||[]).map(l=>`<div class="look"><span class="lk">${l.k}</span><div class="lc"><div class="lq">${l.q}</div>${l.ex&&l.ex.length?`<div class="lex">${l.ex.map(e=>`<span>${e}</span>`).join('')}</div>`:''}</div></div>`).join('');
   modalEl.innerHTML=`
     <div class="modal-head"><div><h3>${d.t}</h3><div class="meta">${meta}</div></div>
       <button class="modal-close" aria-label="Cerrar" onclick="closeModal()">×</button></div>
-    <div class="msec"><span class="lbl">Qué mide</span><p>${d.mide}</p></div>
-    <div class="msec"><span class="lbl">Qué significa</span><p>${d.signif}</p></div>
-    <div class="msec"><span class="lbl">Qué está viendo</span><p>${d.ve}</p></div>
-    <div class="msec formula"><span class="lbl">Cómo puntúa</span><code>${d.formula}</code></div>
+    ${d.easy?`<div class="msec easy"><span class="lbl">Cómo lo evalúa · en simple</span><p>${d.easy}</p></div>`:''}
+    ${d.mide?`<div class="msec"><span class="lbl">${d.lmide||'Qué mide'}</span><p>${d.mide}</p></div>`:''}
+    ${d.signif?`<div class="msec"><span class="lbl">${d.lsignif||'Qué significa'}</span><p>${d.signif}</p></div>`:''}
+    ${d.ve?`<div class="msec"><span class="lbl">${d.lve||'Qué está viendo'}</span>${/^\s*<ul/.test(d.ve)?d.ve:`<p>${d.ve}</p>`}</div>`:''}
+    ${d.looks?`<div class="msec"><span class="lbl">${d.lang==='agn'?'Qué mira en tus acciones':'Qué busca en tu prompt'}</span><div class="looks ${d.lang==='agn'?'agn':''}">${looks}</div></div>`:''}
+    ${d.tech?`<div class="msec"><span class="lbl">Cómo se vuelve puntaje · técnico</span><p>${d.tech}</p></div>`:''}
+    ${d.formula?`<div class="msec formula"><span class="lbl">${d.lform||'Cómo puntúa'}</span><code>${d.formula}</code></div>`:''}
     ${d.ej?`<div class="msec"><span class="lbl">Ejemplo</span><div class="mexample">
       <div class="b before"><span class="el">flojo</span><span class="tx mono">${d.ej.a}</span></div>
-      <div class="b after"><span class="el">fuerte</span><span class="tx">${d.ej.d}</span></div></div></div>`:""}
-    <div class="msec"><span class="lbl">De dónde toma la referencia</span><div class="chips">${ref}</div>
-      ${d.refnote?`<p style="margin-top:.6em">${d.refnote}</p>`:""} ${lang?`<p style="margin-top:.6em">${lang}</p>`:""}</div>`;
+      <div class="b after"><span class="el">fuerte</span><span class="tx">${d.ej.d}</span></div></div></div>`:''}
+    ${hasRef?`<div class="msec"><span class="lbl">${d.lref||'De dónde sale'}</span><div class="chips">${ref}</div>
+      ${d.refnote?`<p style="margin-top:.6em">${d.refnote}</p>`:''} ${lang?`<p style="margin-top:.6em">${lang}</p>`:''}</div>`
+      :`${(d.refnote||lang)?`<div class="msec">${d.refnote?`<p>${d.refnote}</p>`:''}${lang?`<p style="margin-top:.6em">${lang}</p>`:''}</div>`:''}`}`;
   overlay.classList.add("open");
 }
 function closeModal(){overlay.classList.remove("open");}
@@ -537,7 +724,7 @@ overlay.addEventListener("click",e=>{if(e.target===overlay)closeModal();});
 document.addEventListener("keydown",e=>{if(e.key==="Escape")closeModal();});
 
 /* ===========================================
-   3) CONTROLADOR DE SLIDES
+   CONTROLADOR DE SLIDES
    =========================================== */
 class SlidePresentation{
   constructor(){
@@ -558,14 +745,12 @@ document.getElementById("prevBtn").addEventListener("click",()=>pres.go(pres.cur
 document.getElementById("nextBtn").addEventListener("click",()=>pres.go(pres.current+1));
 
 /* ===========================================
-   4) FONDO — lluvia de código tipo "matrix", sutil, con los colores del tema
-   Canvas 2D, sin dependencias. Respeta prefers-reduced-motion.
+   FONDO, lluvia de código tipo "matrix" (igual que el deck)
    =========================================== */
 (function(){
   const canvas=document.getElementById("bg3d");
   const ctx=canvas.getContext("2d");
   const reduce=window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  // glifos de "código": binarios, símbolos de programación y katakana (look matrix)
   const GLYPHS="01{}[]<>/=;:#$()=>+-*&|!?アカサタナハマヤラ日コドゲνλΣ".split("");
   let cols,drops,fs,dpr;
   function resize(){
@@ -573,33 +758,31 @@ document.getElementById("nextBtn").addEventListener("click",()=>pres.go(pres.cur
     canvas.width=innerWidth*dpr; canvas.height=innerHeight*dpr;
     canvas.style.width=innerWidth+"px"; canvas.style.height=innerHeight+"px";
     ctx.setTransform(dpr,0,0,dpr,0,0);
-    fs=Math.max(13,Math.round(innerWidth/95));         // tamaño de glifo
+    fs=Math.max(13,Math.round(innerWidth/95));
     cols=Math.ceil(innerWidth/fs);
-    drops=Array.from({length:cols},()=>Math.random()*-60);  // arranques escalonados
+    drops=Array.from({length:cols},()=>Math.random()*-60);
     ctx.fillStyle="#0a0d13"; ctx.fillRect(0,0,innerWidth,innerHeight);
   }
   addEventListener("resize",resize); resize();
-  let last=0; const STEP=135;   // ms entre pasos: más alto = más lento
+  let last=0; const STEP=135;
   function frame(t){
     requestAnimationFrame(frame);
-    if(t-last<STEP) return;     // throttle por tiempo → caída lenta y "escalonada" clásica
+    if(t-last<STEP) return;
     last=t;
-    // estela: pinta el fondo con baja opacidad para que las colas se desvanezcan suave
     ctx.fillStyle="rgba(10,13,19,0.085)"; ctx.fillRect(0,0,innerWidth,innerHeight);
     ctx.font=fs+"px 'JetBrains Mono', ui-monospace, monospace";
     for(let i=0;i<cols;i++){
       const g=GLYPHS[(Math.random()*GLYPHS.length)|0];
       const x=i*fs, y=drops[i]*fs, r=Math.random();
-      if(r<0.014)      ctx.fillStyle="rgba(255,194,75,0.85)";   // cabeza: destello ámbar
-      else if(r<0.05)  ctx.fillStyle="rgba(238,242,247,0.45)";  // blanco tenue
-      else             ctx.fillStyle="rgba(79,209,197,0.42)";   // cian del tema
+      if(r<0.014)      ctx.fillStyle="rgba(255,194,75,0.85)";
+      else if(r<0.05)  ctx.fillStyle="rgba(238,242,247,0.45)";
+      else             ctx.fillStyle="rgba(79,209,197,0.42)";
       ctx.fillText(g,x,y);
       drops[i]++;
-      if(y>innerHeight && Math.random()>0.975) drops[i]=Math.random()*-20; // reinicia la columna
+      if(y>innerHeight && Math.random()>0.975) drops[i]=Math.random()*-20;
     }
   }
   if(reduce){
-    // versión estática (sin animación) para quien pide reduce-motion
     ctx.font=fs+"px monospace"; ctx.fillStyle="rgba(79,209,197,0.22)";
     for(let i=0;i<cols;i++)for(let j=0;j<innerHeight/fs;j++) if(Math.random()<0.12) ctx.fillText(GLYPHS[(Math.random()*GLYPHS.length)|0],i*fs,j*fs);
   } else { requestAnimationFrame(frame); }
