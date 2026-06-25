@@ -1,0 +1,24 @@
+name: tests
+
+# El portón de tests: cada push a main y cada pull request corre la suite.
+# Nada mergea en rojo.
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  unittest:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.8", "3.10", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Correr la suite (stdlib puro — sin paso de install)
+        run: python3 -m unittest discover -s tests -v

@@ -1,5 +1,7 @@
 # fluidez-ia
 
+[![tests](https://github.com/martinviretti/fluidez-ia/actions/workflows/tests.yml/badge.svg)](https://github.com/martinviretti/fluidez-ia/actions/workflows/tests.yml)
+
 Versión **en español rioplatense** del motor de *AI fluency* (análisis de cómo colaborás
 con Claude Code). Fork localizado de [Feloguarin/claude-insight](https://github.com/Feloguarin/claude-insight)
 — el original mide señales con regex en inglés y subvalúa a quien prompea en español.
@@ -98,10 +100,12 @@ fluidez-ia/
 ├── insight.py                       # motor determinístico (medición + render HTML)
 ├── SKILL.md                         # definición de la skill /fluidez-ia
 ├── workflow.js                      # orquestación Sonnet 4.6 + Opus 4.8 (solo si hay capability Workflow)
+├── install.sh                       # instalador (detecta Python, copia la skill)
 ├── documentacion-fluidez-ia.html    # documento técnico de referencia (metodología + fórmulas)
 ├── presentacion-fluidez-ia.html     # versión presentación
-└── reference/
-    └── framework-fluidez-ia.md      # framework 4D que lee Opus para el skill map
+├── reference/
+│   └── framework-fluidez-ia.md      # framework 4D que lee Opus para el skill map
+└── tests/                           # 39 tests (stdlib) — corren en CI sobre 3.8/3.10/3.12
 ```
 
 La skill instalada vive en `~/.claude/skills/fluidez-ia/` (+ `~/.claude/workflows/fluidez-ia.js`).
@@ -114,3 +118,21 @@ Esta carpeta es la **fuente de verdad**: editás acá y copiás a la skill insta
   determinístico es completo por sí solo.
 - Los puntajes miden comportamiento observable, no intención. Con poca data las dimensiones se
   hedgean hacia 50 y se marcan como "pocos datos".
+
+## Desarrollo
+
+La suite es stdlib puro — sin dependencias, sin paso de install:
+
+```bash
+python -m unittest discover -s tests -v
+```
+
+CI corre estos 39 tests en cada push a `main` y cada PR, sobre Python 3.8 / 3.10 / 3.12.
+Si tocás señales o scoring, sumá un test; si tocás strings de salida (terminal o HTML),
+actualizá las aserciones en `tests/`.
+
+## Licencia
+
+MIT — ver [`LICENSE`](LICENSE). fluidez-ia es un fork localizado de
+[Claude Insight](https://github.com/Feloguarin/claude-insight) (también MIT); se retiene
+la atribución al autor original.

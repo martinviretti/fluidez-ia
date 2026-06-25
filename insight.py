@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 """
-Claude Insight v2 — one-command, zero-install AI-fluency analyzer.
+Fluidez con IA — analizador de fluidez con IA en un comando (fork ES de Claude Insight).
 
     python3 insight.py
 
 Reads your local Claude Code transcripts (~/.claude/projects/**/*.jsonl),
 estimates how skillfully you drive an AI coding agent, and writes a single
-self-contained HTML report (./ai_fluency_report.html) that opens in your browser.
+self-contained HTML report (./reporte_fluidez_ia.html) that opens in your browser.
 
 Design principles (see README "Methodology"):
   * It measures SKILL, not activity. Every score input is a per-prompt or
@@ -21,10 +21,10 @@ Design principles (see README "Methodology"):
 
 Pure Python standard library — no pip, no Ollama, no API key. One command runs the
 whole pass: de-contaminate and scrub your transcripts, score them, and (as
-`/ai-fluency` in Claude Code) write a Sonnet+Opus skill map grounded in the AI
+`/fluidez-ia` in Claude Code) write a Sonnet+Opus skill map grounded in the AI
 Fluency framework on top. The only thing it writes is
 the HTML report and a local copy of your transcripts in an archive
-(~/.claude/insight-archive) so history survives Claude Code's 30-day cleanup —
+(~/.claude/fluidez-ia-archive) so history survives Claude Code's 30-day cleanup —
 pass --no-archive to skip that and read your transcripts without copying them.
 """
 
