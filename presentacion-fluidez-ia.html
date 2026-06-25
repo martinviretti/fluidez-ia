@@ -11,6 +11,10 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" />
 
+<!-- GSAP 3.12.5 (UMD) · count-up de métricas -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+
 <style>
 /* ===== TEMA (mismo sistema visual que el deck de 7 slides) ===== */
 :root{
@@ -268,10 +272,6 @@ em{color:var(--ink);font-style:normal;font-weight:600;border-bottom:2px solid va
 .nav-arrow:active{transform:translateY(-1px) scale(.93)}
 #prevBtn:hover svg{transform:translateY(-3px)}
 #nextBtn:hover svg{transform:translateY(3px)}
-.hint-bar{position:fixed;bottom:clamp(.7rem,2.2vw,1.4rem);left:clamp(.9rem,2.4vw,1.6rem);font-family:var(--font-mono);font-size:var(--tiny-size);color:var(--faint);z-index:9998;display:flex;align-items:center;gap:1.1em;max-width:min(56vw,460px)}
-.hint-bar kbd{border:1px solid var(--line-2);border-radius:5px;padding:.1em .5em;color:var(--mut)}
-.hint-bar .live{color:var(--accent-2)}
-@media (max-height:620px){.hint-bar{display:none}}
 
 /* Compactación por altura, DEBE ir después de las reglas base para ganar por orden de fuente */
 @media (max-height:880px){
@@ -293,6 +293,74 @@ em{color:var(--ink);font-style:normal;font-weight:600;border-bottom:2px solid va
   .d4grid{gap:.7rem}.gives{margin-top:.65rem}
   .h2sub{font-size:clamp(1rem,1.9vw,1.35rem)}
 }
+/* === Compactación reforzada · garantiza que los slides densos (1 y 3) entren sin recorte ===
+   Cubre toda la banda problemática (≤1040px de alto: el layout sin compactar recién
+   entra a ≥1040px). Va último para ganar por orden de fuente. === */
+@media (max-height:1040px){
+  :root{--content-gap:clamp(.5rem,1.3vw,.95rem);--element-gap:clamp(.32rem,.8vw,.7rem)}
+  .slide.dense .slide-content{padding-bottom:clamp(2.9rem,5vh,4rem)}
+  .qhead{margin-bottom:.3rem}
+  .qsub{font-size:clamp(.78rem,1.1vw,.95rem);margin-top:.34em;line-height:1.38}
+  .h2sub{margin-top:.1em}
+  /* slide 1 · dashboard */
+  .mock{margin-top:.45rem}
+  .mock-bar{padding:.38em .8em}
+  .mock-body{padding:clamp(.5rem,1.2vw,.9rem);gap:.5rem}
+  .ring{width:clamp(66px,7.2vw,90px);height:clamp(66px,7.2vw,90px)}
+  .mock-grid{padding-top:.5rem}
+  .mock-dims{gap:.32em}.mskill{gap:.32em}
+  .cpt{padding:.52em .8em}
+  /* slide 3 · 4D + motor */
+  .dlist{gap:.34rem}.maprows{gap:.26rem}
+  .flow{margin:.5rem 0}
+  .flow-node{padding:.52rem .8rem}
+  .clarifyline{padding:.5em .85em}
+  .pipe{margin-top:.3em}
+  .scorepill{padding:.3em .55em}
+}
+/* Pantallas bajas (laptops 768/720 y escalado Windows 125/150%): recorte adicional */
+@media (max-height:820px){
+  :root{--h2-size:clamp(1.4rem,3vw,2.2rem);--content-gap:clamp(.38rem,1vw,.72rem);--element-gap:clamp(.28rem,.7vw,.55rem)}
+  .qhead{margin-bottom:.25rem}
+  .qsub{font-size:clamp(.74rem,1vw,.88rem);line-height:1.3;margin-top:.26em}
+  .h2sub{font-size:clamp(.98rem,1.7vw,1.25rem);margin-top:.06em}
+  .slide.dense .slide-content{padding-bottom:clamp(2.4rem,4vh,3.3rem)}
+  /* slide 1 · dashboard */
+  .mock{margin-top:.35rem}
+  .mock-body{padding:.42rem .55rem;gap:.4rem}
+  .ring{width:clamp(56px,6.2vw,76px);height:clamp(56px,6.2vw,76px)}
+  .mock-dims{gap:.24em}.mskill{gap:.24em}
+  .mock-grid{padding-top:.4rem}
+  .cpt{padding:.4em .7em}
+  .cpt b{font-size:clamp(.86rem,1.4vw,1rem)}
+  .cpt span{font-size:clamp(.74rem,1vw,.86rem)}
+  /* slide 3 · 4D + motor */
+  .colhead{margin-bottom:.28em}
+  .dlist{gap:.24rem}.maprows{gap:.18rem}
+  .ditem{padding:.4rem .7rem}
+  .ditem .dt{font-size:clamp(1rem,1.7vw,1.3rem)}
+  .ditem .dd{margin-top:.12em}
+  .maprow{padding-top:.3rem;padding-bottom:.3rem}
+  .flow{margin:.4rem 0}
+  .flow-node{padding:.4rem .7rem}
+  .flow-node .ttl2{font-size:clamp(.92rem,1.7vw,1.2rem)}
+  .clarifyline{padding:.45em .8em;margin-top:.4rem}
+  .pipe{margin-top:.28em}
+  .scorepill{padding:.28em .5em}
+}
+/* Ventanas muy bajas (~680-700px): últimos px desde gaps de contenido, sin tocar el margen inferior */
+@media (max-height:700px){
+  .qsub{font-size:clamp(.7rem,.92vw,.82rem);line-height:1.26;margin-top:.2em}
+  .mock-body{gap:.34rem}
+  .mock-dims{gap:.2em}.mskill{gap:.2em}
+  .ring{width:clamp(52px,5.6vw,68px);height:clamp(52px,5.6vw,68px)}
+  .ditem{padding:.32rem .65rem}
+  .ditem .dd{margin-top:.08em}
+  .maprow{padding-top:.24rem;padding-bottom:.24rem}
+  .dlist{gap:.2rem}.maprows{gap:.14rem}
+  .flow-node{padding:.34rem .65rem}
+  .clarifyline{margin-top:.32rem}
+}
 </style>
 </head>
 <body>
@@ -305,12 +373,11 @@ em{color:var(--ink);font-style:normal;font-weight:600;border-bottom:2px solid va
   <button class="nav-arrow" id="nextBtn" aria-label="Siguiente"><svg viewBox="0 0 24 24"><polyline points="4 9 12 17 20 9"/></svg></button>
 </div>
 <div class="pagenum mono" id="pagenum">01</div>
-<div class="hint-bar"><span><span class="live">●</span> 4 slides</span><span><kbd>↓</kbd> avanzar</span><span>tocá cualquier tarjeta para profundizar</span></div>
 
 <!-- ============================================================= -->
 <!-- SLIDE 1 · QUÉ ES, la interfaz + descripción (clicable)        -->
 <!-- ============================================================= -->
-<section class="slide dense">
+<section class="slide dense" id="slide-cover">
   <div class="slide-content">
     <div class="qhead reveal"><span class="qnum">01</span><div><span class="qkick">Qué es</span></div></div>
     <h2 class="reveal">Fluidez con IA
@@ -730,23 +797,33 @@ class SlidePresentation{
   constructor(){
     this.slides=Array.from(document.querySelectorAll(".slide"));this.current=0;
     this.progress=document.getElementById("progress");this.navDots=document.getElementById("navDots");this.pagenum=document.getElementById("pagenum");
-    this.observe();this.buildDots();this.keys();this.scrollSync();
+    this.observe();this.buildDots();this.keys();this.scrollSync();this.wheelNav();
     requestAnimationFrame(()=>this.slides[0].classList.add("visible"));
   }
   observe(){const io=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting&&e.intersectionRatio>0.5){e.target.classList.add("visible");this.current=this.slides.indexOf(e.target);this.update();}});},{threshold:[0.5]});this.slides.forEach(s=>io.observe(s));}
   buildDots(){this.navDots.innerHTML="";this.slides.forEach((_,i)=>{const b=document.createElement("button");b.setAttribute("aria-label","Ir al slide "+(i+1));b.addEventListener("click",()=>this.go(i));this.navDots.appendChild(b);});this.dots=Array.from(this.navDots.children);}
   go(i){i=Math.max(0,Math.min(this.slides.length-1,i));this.slides[i].scrollIntoView({behavior:"smooth"});}
-  keys(){document.addEventListener("keydown",e=>{if(overlay.classList.contains("open"))return;switch(e.key){case"ArrowDown":case"ArrowRight":case"PageDown":case" ":e.preventDefault();this.go(this.current+1);break;case"ArrowUp":case"ArrowLeft":case"PageUp":e.preventDefault();this.go(this.current-1);break;case"Home":e.preventDefault();this.go(0);break;case"End":e.preventDefault();this.go(this.slides.length-1);break;}});}
   scrollSync(){const on=()=>{const max=document.documentElement.scrollHeight-window.innerHeight;this.progress.style.width=(max>0?(window.scrollY/max)*100:0)+"%";};window.addEventListener("scroll",on,{passive:true});on();}
+  wheelNav(){let lock=false;window.addEventListener("wheel",e=>{
+    if(overlay.classList.contains("open"))return;          // no navegar con modal abierto
+    if(lock||Math.abs(e.deltaY)<6)return;
+    lock=true;
+    this.go(this.current+(e.deltaY>0?1:-1));
+    setTimeout(()=>{lock=false;},650);                     // un gesto = un slide
+  },{passive:true});}
+  keys(){document.addEventListener("keydown",e=>{if(overlay.classList.contains("open"))return;switch(e.key){case"ArrowDown":case"ArrowRight":case"PageDown":case" ":e.preventDefault();this.go(this.current+1);break;case"ArrowUp":case"ArrowLeft":case"PageUp":e.preventDefault();this.go(this.current-1);break;case"Home":e.preventDefault();this.go(0);break;case"End":e.preventDefault();this.go(this.slides.length-1);break;}});}
   update(){if(this.dots)this.dots.forEach((d,i)=>d.classList.toggle("active",i===this.current));if(this.pagenum)this.pagenum.textContent=String(this.current+1).padStart(2,"0");}
 }
 const pres=new SlidePresentation();
 document.getElementById("prevBtn").addEventListener("click",()=>pres.go(pres.current-1));
 document.getElementById("nextBtn").addEventListener("click",()=>pres.go(pres.current+1));
 
-/* ===========================================
-   FONDO, lluvia de código tipo "matrix" (igual que el deck)
-   =========================================== */
+</script>
+
+<!-- ===========================================
+     FONDO · lluvia de código "matrix" (canvas 2D, como el deck original)
+     =========================================== -->
+<script>
 (function(){
   const canvas=document.getElementById("bg3d");
   const ctx=canvas.getContext("2d");
@@ -786,6 +863,47 @@ document.getElementById("nextBtn").addEventListener("click",()=>pres.go(pres.cur
     ctx.font=fs+"px monospace"; ctx.fillStyle="rgba(79,209,197,0.22)";
     for(let i=0;i<cols;i++)for(let j=0;j<innerHeight/fs;j++) if(Math.random()<0.12) ctx.fillText(GLYPHS[(Math.random()*GLYPHS.length)|0],i*fs,j*fs);
   } else { requestAnimationFrame(frame); }
+})();
+</script>
+
+<!-- ===========================================
+     MÉTRICAS VIVAS · count-up + pop elástico (GSAP/ScrollTrigger)
+     =========================================== -->
+<script>
+(function(){
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const hasGSAP = !!(window.gsap && window.ScrollTrigger);
+  if(reduce || !hasGSAP) return;
+  gsap.registerPlugin(ScrollTrigger);
+
+  function countUp(el, end, opt={}){
+    const o={v:0};
+    gsap.to(o, {v:end, duration:opt.dur||1.4, ease:opt.ease||'power2.out', delay:opt.delay||0,
+      onUpdate:()=>{ el.textContent = Math.round(o.v) + (opt.suffix||''); }});
+  }
+
+  /* dashboard de la portada: anillo (0→valor) con pop + dimensiones */
+  const cover = document.getElementById('slide-cover');
+  if(cover){
+    ScrollTrigger.create({trigger:cover, start:'top 65%', once:true, onEnter:()=>{
+      const ringNum = cover.querySelector('.ring .num b');
+      const ringEl  = cover.querySelector('.ring');
+      if(ringNum) countUp(ringNum, parseInt(ringNum.textContent,10)||0, {dur:1.7});
+      if(ringEl)  gsap.fromTo(ringEl, {scale:.55}, {scale:1, duration:1.5, delay:.1,
+        ease:'elastic.out(1,.45)', transformOrigin:'50% 50%'});
+      cover.querySelectorAll('.mock-dims .mv').forEach((el,i)=>
+        countUp(el, parseInt(el.textContent,10)||0, {dur:1.3, delay:.15+i*.08}));
+    }});
+  }
+
+  /* pesos de las cinco señales (slide "Cómo lo hace") */
+  const wts = document.querySelectorAll('.maprow .wt');
+  if(wts.length){
+    const slide = wts[0].closest('.slide');
+    ScrollTrigger.create({trigger:slide, start:'top 65%', once:true, onEnter:()=>{
+      wts.forEach((el,i)=> countUp(el, parseInt(el.textContent,10)||0, {dur:1.1, delay:i*.07, suffix:'%'}));
+    }});
+  }
 })();
 </script>
 </body>
