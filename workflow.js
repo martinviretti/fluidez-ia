@@ -9,13 +9,13 @@ export const meta = {
   ],
 }
 
-// Resolve inputs. The /ai-fluency skill passes absolute paths via args, but if they don't
+// Resolve inputs. The /fluidez-ia skill passes absolute paths via args, but if they don't
 // arrive the defaults MUST still point at the exact files the skill writes — never a bare
 // relative path like '.insight/evidence.json', which an agent will "helpfully" resolve to a
 // stale copy elsewhere on disk (e.g. an old ~/Dropbox/.../.insight/evidence.json), silently
 // analyzing the wrong dataset.
-const EV = (args && args.evidence) || '~/.claude/insight/evidence.json'
-const FW = (args && args.framework) || '~/.claude/skills/ai-fluency/reference/ai-fluency-framework.md'
+const EV = (args && args.evidence) || '~/.claude/fluidez-ia/evidence.json'
+const FW = (args && args.framework) || '~/.claude/skills/fluidez-ia/reference/framework-fluidez-ia.md'
 
 const COMPETENCIES = [
   { key: 'Delegation',  focus: 'Qué le entrega al agente vs qué retiene, y cómo reparte el trabajo: delegaciones end-to-end vs micro-pasos, sub-agentes / jobs en background / planificación, amplitud de herramientas (conciencia de plataforma y rutas). Señales: delegation_events, tool_usage, alcance de los prompts.' },

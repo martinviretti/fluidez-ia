@@ -1005,7 +1005,7 @@ def build_evidence(corpus, result, cards, archive_info=None):
 
 def _analysis_section_html(analysis):
     """Render the AI-authored skill map (produced by the Opus analysis stage,
-    grounded in reference/ai-fluency-framework.md). Falls back to nothing if absent."""
+    grounded in reference/framework-fluidez-ia.md). Falls back to nothing if absent."""
     if not analysis or not isinstance(analysis, dict):
         return ""
     parts = ['<section><h3>Mapa de habilidades — analizado contra el framework de AI Fluency</h3>']
@@ -1644,7 +1644,7 @@ def _skill_levels(result):
 def main(argv=None):
     ap = argparse.ArgumentParser(description="Claude Insight v2 — analizador de fluidez con IA (un comando, cero instalación).")
     ap.add_argument("path", nargs="?", help="directorio de transcripts o archivo .jsonl (default: ~/.claude/projects)")
-    ap.add_argument("-o", "--out", default="ai_fluency_report.html", help="path de salida del HTML")
+    ap.add_argument("-o", "--out", default="reporte_fluidez_ia.html", help="path de salida del HTML")
     ap.add_argument("--json", action="store_true", help="imprimir las métricas crudas como JSON y salir")
     ap.add_argument("--no-open", action="store_true", help="no abrir el reporte automáticamente en el browser")
     ap.add_argument("--archive", default=os.environ.get("CLAUDE_INSIGHT_ARCHIVE", DEFAULT_ARCHIVE_DIR),
