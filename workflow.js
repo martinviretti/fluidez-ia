@@ -1,7 +1,7 @@
 export const meta = {
-  name: 'ai-fluency',
+  name: 'fluidez-ia',
   description: 'Análisis de fluidez con IA en dos modelos: Sonnet 4.6 explora la evidencia, Opus 4.8 escribe un mapa de habilidades anclado en el framework de Fluidez con IA y después verifica que esté fundamentado en la evidencia.',
-  whenToUse: 'Lo corre la skill /ai-fluency después de que insight.py emite .insight/evidence.json. Args: {evidence, framework} rutas absolutas.',
+  whenToUse: 'Lo corre la skill /fluidez-ia después de que insight.py emite evidence.json. Args: {evidence, framework} rutas absolutas.',
   phases: [
     { title: 'Explore', detail: 'Sonnet 4.6 — un explorador por cada competencia 4D' },
     { title: 'Analyze', detail: 'Opus 4.8 — mapa de habilidades anclado en el framework' },
